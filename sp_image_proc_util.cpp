@@ -53,14 +53,15 @@ SPPoint** spGetRGBHist(const char* str, int imageIndex, int nBins) {
   split(image, bgr_planes);
 
   //Output
-  Mat bgr_hists[N];
+  Mat rgb_hists[N];
 
   /// Compute the histograms: 
   /// The results will be store in brg_hists.
   /// The output type of the matrices is CV_32F (float)
   for (int i = 0; i<N; i++) {
-    calcHist(&bgr_planes[i], nImages, 0, Mat(), bgr_hists[i], 1, &nBins, &histRange);
-    rgbHist[i] = spPointCreate(matrixToArray(&bgr_hists[i], nBins), nBins, imageIndex);
+    //instead of bgr(like the opencv example we use rgb for negeting cognitive dissonance 
+    calcHist(&bgr_planes[N - i - 1], nImages, 0, Mat(), rgb_hists[i], 1, &nBins, &histRange);
+    rgbHist[i] = spPointCreate(matrixToArray(&rgb_hists[i], nBins), nBins, imageIndex);
   }
   return rgbHist;
 }
@@ -80,5 +81,6 @@ int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
 }
 
 int main() {
+
   return 0;
 }
