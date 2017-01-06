@@ -1,16 +1,68 @@
 #include <malloc.h>
-#include <stdio.h>
-#include <cmath>
 
+#include <opencv2/imgproc.hpp> // calcHist
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+extern "C" {
+#include "SPPoint.h"
+}
+
 #include "sp_image_proc_util.h"
+
+#define N 3
 
 using namespace cv;
 
+//helpermethod
+double* matrixToArray(Mat* m, int size) {
+  double* array = (double*)malloc(size * sizeof(double));
+  for (int i = 0; i < size; i++) {
+    array[i] = m->at<float>(0, i);
+  }
+  return array;
+}
+
+/**
+* Calculates the RGB channels histogram. The histogram will be stored in an array of
+* of points, each point has the index imageIndex. The array has three entries,
+* the first entry (i.e the array at index 0) us the red channel histogram, the second entery
+* is the green channel histogram and the third entry is the blue channel histogram.
+*
+* @param str - The path of the image for which the histogram will be calculated
+* @param nBins - The number of subdivision for the intensity histogram
+* @param imageIndex - The index of the given image
+* @return NULL if str is NULL or nBins <= 0 or allocation error occurred,
+*  otherwise a two dimensional array representing the histogram.
+*/
 SPPoint** spGetRGBHist(const char* str, int imageIndex, int nBins) {
-  return NULL;
+  if (str == NULL || nBins <= 0)
+    return NULL;
+  SPPoint** rgbHist = (SPPoint**)malloc(N * sizeof(SPPoint*));
+  if (rgbHist == NULL)
+    return NULL;
+
+  // Read the image from the file.
+  Mat image = imread(str, CV_LOAD_IMAGE_GRAYSCALE);
+  float range[] = { 0, nBins };
+  const float* histRange = { range };
+  int nImages = 1;
+
+  // Separate the image in 3 places ( B, G and R )
+  std::vector<Mat> bgr_planes;
+  split(image, bgr_planes);
+
+  //Output
+  Mat bgr_hists[N];
+
+  /// Compute the histograms: 
+  /// The results will be store in brg_hists.
+  /// The output type of the matrices is CV_32F (float)
+  for (int i = 0; i<N; i++) {
+    calcHist(&bgr_planes[i], nImages, 0, Mat(), bgr_hists[i], 1, &nBins, &histRange);
+    rgbHist[i] = spPointCreate(matrixToArray(&bgr_hists[i], nBins), nBins, imageIndex);
+  }
+  return rgbHist;
 }
 
 double spRGBHistL2Distance(SPPoint** rgbHistA, SPPoint** rgbHistB) {
@@ -27,59 +79,6 @@ int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
   return NULL;
 }
 
-Mat* runFunc(const Mat* source, int k, void (*func)(Mat*, const Mat*, int, int, int)) {
-  Mat* result = new Mat(source->rows - k + 1, source->cols - k + 1, source->type());
-  for (int i = 0; i < result->rows; i++) {
-    for (int j = 0; j < result->cols; j++) {
-      func(result, source, k, i, j);
-    }
-  }
-  return result;
-}
-
-void runFrame(Mat* result, const Mat* source, int k, double** frame, int i, int j) {
-  for (int l = 0; l < k; l++) {
-    for (int m = 0; m < k; m++) {
-      result->at<uchar>(i, j) += frame[l][m] * source->at<uchar>(i + l - k / 2 + 1, j + m - k / 2 + 1);
-    }
-  }
-}
-
 int main() {
-  Mat image;
-  Mat* result;
-  image = imread("images/img8.png", CV_LOAD_IMAGE_GRAYSCALE);
-  if (image.empty()) {
-    return -1;
-  }
-
-  //for (int i = 0; i < image.cols; i++) {
-  //  for (int j = 0; j < image.rows; j++) {
-  //    if ((int)std::sqrt(j*j + i*i) % 20 >= 10) {
-  //      image.at<uchar>(j, i) *= 0.75;
-  //    }
-  //  }
-  //}
-
-  double** frame = new double*[3];
-  for (size_t i = 0; i < 3; i++) {
-    frame[i] = new double[3];
-    for (size_t j = 0; j < 3; j++) {
-      if (i == 0) frame[i][j] = -1 / 6.0;
-      if (i == 0) frame[i][j] = 0;
-      if (i == 2) frame[i][j] = 1 / 6.0;
-    }
-  }
-  //frame[1][1] = 0.2;
-
-  result = runframe(&image, 3, frame);
-
-  cv::namedWindow("Original", WINDOW_AUTOSIZE);
-  cv::namedWindow("Result", WINDOW_AUTOSIZE);
-  cv::imshow("Original", image);
-  cv::imshow("Result", *result);
-
-  cv::waitKey(0);
   return 0;
 }
-
