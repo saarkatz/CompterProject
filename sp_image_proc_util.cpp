@@ -1,4 +1,3 @@
-
 #include <malloc.h>
 
 #include <opencv2/imgproc.hpp> // calcHist
@@ -51,6 +50,7 @@ SPPoint** spGetRGBHist(const char* str, int imageIndex, int nBins) {
   Mat image = imread(str, CV_LOAD_IMAGE_COLOR);
 
   if (image.empty()) {
+    printf("Image cannot be loaded - %s\n", str);
     return NULL;
   }
 
@@ -87,9 +87,8 @@ double spRGBHistL2Distance(SPPoint** rgbHistA, SPPoint** rgbHistB) {
   return sum;
 }
 
-
 SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToExtract, int *nFeatures) {
-
+  //working with one image
   //****moab code
   //Loading img - NOTE: Gray scale mode!
   cv::Mat src;
@@ -103,7 +102,7 @@ SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToE
   cv::Mat ds1;
   //Creating  a Sift Descriptor extractor
   cv::Ptr<cv::xfeatures2d::SiftDescriptorExtractor> detect =
-    cv::xfeatures2d::SIFT::create(*nFeatures);
+    cv::xfeatures2d::SIFT::create(nFeaturesToExtract);
   //Extracting features
   //The features will be stored in ds1
   //The output type of ds1 is CV_32F (float)
@@ -111,14 +110,15 @@ SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToE
   detect->compute(src, kp1, ds1);
 
 
-  //new code
-  SPPoint** pointArray = (SPPoint**)malloc(ds1.cols*(*nFeatures));
+  //new code0
+  SPPoint** pointArray = (SPPoint**)malloc(ds1.cols*sizeof(SPPoint*));
   double* data;
   for (int i = 0; i < ds1.rows; ++i) {
     //ds1.col(i) is the i-th column in Mat as a Mat
-    data = matrixToArray(&ds1.col(i));
-    pointArray[i] = spPointCreate(data, ds1.rows, imageIndex);
+    data = matrixToArray(&ds1.row(i));
+    pointArray[i] = spPointCreate(data, ds1.cols, imageIndex);
   }
+  *nFeatures = ds1.rows;
   free(data);
   return pointArray;
 
@@ -210,5 +210,12 @@ int main() {
     return -1;
   }
   drawRGBHist(histograms, nBins);
+/*
+  SPPoint** histograms2 = spGetSiftDescriptors("images/img2.png", 1, nBins);
+  SPPoint** histograms = spGetRGBHist("images/img12.png", 1, nBins);
+
+  spRGBHistL2Distance()
+  drawRGBHist(histograms2, nBins);
+*/
   return 0;
 }
