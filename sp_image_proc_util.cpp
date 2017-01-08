@@ -1,14 +1,21 @@
+
 #include <malloc.h>
 
 #include <opencv2/imgproc.hpp> // calcHist
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
+#include <opencv2/highgui.hpp> //imshow, drawKeypoints, waitKey
+#include <opencv2/imgproc.hpp>
+#include <opencv2/core.hpp>//Mat
+#include <opencv2/xfeatures2d.hpp>//SiftDescriptorExtractor
+#include <opencv2/features2d.hpp>
+#include <vector>
 extern "C" {
 #include "SPPoint.h"
 }
 
 #include "sp_image_proc_util.h"
+
 
 #define N 3
 
@@ -78,8 +85,41 @@ double spRGBHistL2Distance(SPPoint** rgbHistA, SPPoint** rgbHistB) {
   }
   return sum;
 }
+
+
 SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToExtract, int *nFeatures) {
-  return NULL;
+
+	//****moab code
+	//Loading img - NOTE: Gray scale mode!
+	cv::Mat src;
+	src = cv::imread(str, CV_LOAD_IMAGE_GRAYSCALE);
+	if (src.empty()) {
+		return NULL;
+	}
+	//Key points will be stored in kp1;
+		std::vector<cv::KeyPoint> kp1;
+		//Feature values will be stored in ds1;
+		cv::Mat ds1;
+		//Creating  a Sift Descriptor extractor
+		cv::Ptr<cv::xfeatures2d::SiftDescriptorExtractor> detect =
+				cv::xfeatures2d::SIFT::create(*nFeatures);
+		//Extracting features
+		//The features will be stored in ds1
+		//The output type of ds1 is CV_32F (float)
+		detect->detect(src, kp1, cv::Mat());
+		detect->compute(src, kp1, ds1);
+
+
+	//new code
+	SPPoint** pointArray = (SPPoint**)malloc(ds1.cols*(*nFeatures));
+	double* data;
+	for (int i = 0; i <ds1.rows; ++i) {
+		data = matrixToArray(&ds1.col(i));//ds1.col(i) is the ith colum in Mat as a Mat
+		pointArray[i] = spPointCreate(data,ds1.rows,imageIndex);
+	}
+		free(data);
+		return pointArray;
+
 }
 
 int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
