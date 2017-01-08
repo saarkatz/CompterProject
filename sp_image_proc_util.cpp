@@ -10,8 +10,10 @@
 #include <opencv2/xfeatures2d.hpp>//SiftDescriptorExtractor
 #include <opencv2/features2d.hpp>
 #include <vector>
+
 extern "C" {
 #include "SPPoint.h"
+#include "SPBPriorityQueue.h"
 }
 
 #include "sp_image_proc_util.h"
@@ -33,7 +35,7 @@ double* matrixToArray(Mat* m) {
 Mat* pointToMatrix(SPPoint* point) {
   Mat* mat = new Mat(spPointGetDimension(point), 1, CV_32F);
   for (int i = 0; i < spPointGetDimension(point); i++) {
-    mat->at<float>(i) =  spPointGetAxisCoor(point, i);
+    mat->at<float>(i) = spPointGetAxisCoor(point, i);
   }
   return mat;
 }
@@ -69,7 +71,6 @@ SPPoint** spGetRGBHist(const char* str, int imageIndex, int nBins) {
   for (int i = 0; i < N; i++) {
     //instead of bgr(like the opencv example we use rgb for negeting cognitive dissonance 
     calcHist(&bgr_planes[N - i - 1], nImages, 0, Mat(), rgb_hists[i], 1, &nBins, &histRange);
-    //rgb_hists[i].convertTo(rgb_hists[i], CV_64F);
     rgbHist[i] = spPointCreate(matrixToArray(&rgb_hists[i]), nBins, imageIndex);
   }
   return rgbHist;
@@ -80,7 +81,7 @@ double spRGBHistL2Distance(SPPoint** rgbHistA, SPPoint** rgbHistB) {
     return -1;
   int dim = spPointGetDimension(rgbHistA[0]);
   double sum = 0;
-  for (int i = 0; i<N; i++) {
+  for (int i = 0; i < N; i++) {
     sum += 0.33*spPointL2SquaredDistance(rgbHistA[i], rgbHistB[i]);
   }
   return sum;
@@ -89,43 +90,72 @@ double spRGBHistL2Distance(SPPoint** rgbHistA, SPPoint** rgbHistB) {
 
 SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToExtract, int *nFeatures) {
 
-	//****moab code
-	//Loading img - NOTE: Gray scale mode!
-	cv::Mat src;
-	src = cv::imread(str, CV_LOAD_IMAGE_GRAYSCALE);
-	if (src.empty()) {
-		return NULL;
-	}
-	//Key points will be stored in kp1;
-		std::vector<cv::KeyPoint> kp1;
-		//Feature values will be stored in ds1;
-		cv::Mat ds1;
-		//Creating  a Sift Descriptor extractor
-		cv::Ptr<cv::xfeatures2d::SiftDescriptorExtractor> detect =
-				cv::xfeatures2d::SIFT::create(*nFeatures);
-		//Extracting features
-		//The features will be stored in ds1
-		//The output type of ds1 is CV_32F (float)
-		detect->detect(src, kp1, cv::Mat());
-		detect->compute(src, kp1, ds1);
+  //****moab code
+  //Loading img - NOTE: Gray scale mode!
+  cv::Mat src;
+  src = cv::imread(str, CV_LOAD_IMAGE_GRAYSCALE);
+  if (src.empty()) {
+    return NULL;
+  }
+  //Key points will be stored in kp1;
+  std::vector<cv::KeyPoint> kp1;
+  //Feature values will be stored in ds1;
+  cv::Mat ds1;
+  //Creating  a Sift Descriptor extractor
+  cv::Ptr<cv::xfeatures2d::SiftDescriptorExtractor> detect =
+    cv::xfeatures2d::SIFT::create(*nFeatures);
+  //Extracting features
+  //The features will be stored in ds1
+  //The output type of ds1 is CV_32F (float)
+  detect->detect(src, kp1, cv::Mat());
+  detect->compute(src, kp1, ds1);
 
 
-	//new code
-	SPPoint** pointArray = (SPPoint**)malloc(ds1.cols*(*nFeatures));
-	double* data;
-	for (int i = 0; i <ds1.rows; ++i) {
-		data = matrixToArray(&ds1.col(i));//ds1.col(i) is the ith colum in Mat as a Mat
-		pointArray[i] = spPointCreate(data,ds1.rows,imageIndex);
-	}
-		free(data);
-		return pointArray;
+  //new code
+  SPPoint** pointArray = (SPPoint**)malloc(ds1.cols*(*nFeatures));
+  double* data;
+  for (int i = 0; i < ds1.rows; ++i) {
+    //ds1.col(i) is the i-th column in Mat as a Mat
+    data = matrixToArray(&ds1.col(i));
+    pointArray[i] = spPointCreate(data, ds1.rows, imageIndex);
+  }
+  free(data);
+  return pointArray;
 
 }
 
 int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
   SPPoint*** databaseFeatures, int numberOfImages,
   int* nFeaturesPerImage) {
-  return NULL;
+  if (queryFeature == NULL || databaseFeatures == NULL ||
+    nFeaturesPerImage == NULL || numberOfImages <= 1) {
+    return NULL;
+  }
+
+  int* indexResult = (int*)malloc(kClosest * sizeof(int));
+  if (indexResult == NULL) {
+    return NULL;
+  }
+
+  BPQueueElement* peekElement = NULL;
+
+  SPBPQueue* priorityQueue = spBPQueueCreate(kClosest);
+  for (int i = 0; i < numberOfImages; i++) {
+    for (int j = 0; j < nFeaturesPerImage[i]; j++)
+    {
+      spBPQueueEnqueue(priorityQueue, spPointGetIndex(databaseFeatures[i][j]),
+        spPointL2SquaredDistance(databaseFeatures[i][j], queryFeature));
+    }
+  }
+
+  for (int i = 0; i < kClosest; i++) {
+    spBPQueuePeek(priorityQueue, peekElement);
+    indexResult[i] = peekElement->index;
+  }
+
+  spBPQueueDestroy(priorityQueue);
+
+  return indexResult;
 }
 
 int drawRGBHist(SPPoint** rgb_hists, int nBins) {
