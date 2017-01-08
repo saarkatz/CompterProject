@@ -12,7 +12,7 @@ extern "C"{
 /**
  * Calculates the RGB channels histogram. The histogram will be stored in an array of 
  * of points, each point has the index imageIndex. The array has three entries,
- * the first entry (i.e the array at index 0) us the red channel histogram, the second entty 
+ * the first entry (i.e the array at index 0) us the red channel histogram, the second entry 
  * is the green channel histogram and the third entry is the blue channel histogram.
  *
  * @param str - The path of the image for which the histogram will be calculated
