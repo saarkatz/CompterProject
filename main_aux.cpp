@@ -49,6 +49,12 @@ void printNearestImages(int*) {
 void allocationFaliureMsg() {
 	printf("An error occurred - allocation failure\n");
 }
+
+
+
+
+
+
 /*
  * main_aux.cpp
  *
