@@ -132,27 +132,36 @@ int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
     return NULL;
   }
 
-  int* indexResult = (int*)malloc(kClosest * sizeof(int));
+  int* indexResult = (int*)malloc(kClosest * sizeof(int)); // Create result array
   if (indexResult == NULL) {
     return NULL;
   }
 
   BPQueueElement* peekElement = NULL;
 
-  SPBPQueue* priorityQueue = spBPQueueCreate(kClosest);
+  SPBPQueue* priorityQueue = spBPQueueCreate(kClosest); // Create priority queue
+  if (priorityQueue == NULL) {
+    return NULL;
+  }
+
+  // For each image
   for (int i = 0; i < numberOfImages; i++) {
+    // For each desctriptor in image
     for (int j = 0; j < nFeaturesPerImage[i]; j++)
     {
+      // Add the L2 distance between query and the descriptor to the queue.
       spBPQueueEnqueue(priorityQueue, spPointGetIndex(databaseFeatures[i][j]),
         spPointL2SquaredDistance(databaseFeatures[i][j], queryFeature));
     }
   }
 
+  // Extract the results to the result array.
   for (int i = 0; i < kClosest; i++) {
     spBPQueuePeek(priorityQueue, peekElement);
     indexResult[i] = peekElement->index;
   }
 
+  // Clean internal memory.
   spBPQueueDestroy(priorityQueue);
 
   return indexResult;
