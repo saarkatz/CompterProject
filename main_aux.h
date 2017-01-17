@@ -22,7 +22,7 @@ void queryImagePrompt();
 void exitingMsg();
 void printNearestImages(int*);
 void allocationFaliureMsg();
-
+void printError(char*);
 
 
 

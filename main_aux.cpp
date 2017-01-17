@@ -52,18 +52,7 @@ void allocationFaliureMsg() {
 	printf("An error occurred - allocation failure\n");
 }
 
-
-
-
-
-
-/*
- * main_aux.cpp
- *
- *  Created on: Jan 8, 2017
- *      Author: ohad
- */
-
-
-
-
+void printError(char* msg) {
+	printf("An error occurred - %s", msg);
+	terminateProgram();
+}
