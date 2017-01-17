@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 void imageDirectoryPrompt() {
 	printf("Enter images directory path:\n");
 }
