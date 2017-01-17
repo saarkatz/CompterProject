@@ -1,10 +1,8 @@
+
+#include <stdio.h>
 #include <string.h>
 #include <malloc.h>
-extern "C" {
-  #include "stdio.h"
-#include "string.h"
-#include "malloc.h"
-}
+
 #include "main_aux.h"
 
 int main() {
