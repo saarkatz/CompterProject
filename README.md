@@ -1,8 +1,8 @@
 # ComputerProject
-implement terminate/n
-do valgrind analysis/n
-do lint analysis/n
-ask michal for those checkers pictures/n
-fix hardcoded strings to defines/n
-fix the stringSize thing to 1024/n
-fix includes from h to c/n
+implement terminate<br />
+do valgrind analysis<br />
+do lint analysis<br />
+ask michal for those checkers pictures<br />
+fix hardcoded strings to defines<br />
+fix the stringSize thing to 1024<br />
+fix includes from h to c
