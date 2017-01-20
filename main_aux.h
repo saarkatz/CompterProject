@@ -8,20 +8,17 @@
 #ifndef MAIN_AUX_H_
 #define MAIN_AUX_H_
 
+#define MEMORY_FAILURE "memory failure"
 
 void imageDirectoryPrompt();
 void imagePrefixPrompt();
 void numOfImagesPrompt();
-void invalidNumberOfImagesError();
 void imageSuffixPrompt();
 void numOfBinsPrompt();
-void invalidNumberOfBinsError();
 void numOfFeaturesPrompt();
-void invalidNumberOfFeaturesError();
 void queryImagePrompt();
 void exitingMsg();
 void printNearestImages(int*);
-void allocationFaliureMsg();
 void printError(char*);
 
 

@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#include "main_aux.h"
+
 void imageDirectoryPrompt() {
 	printf("Enter images directory path:\n");
 }
@@ -12,10 +14,6 @@ void numOfImagesPrompt() {
 	printf("Enter number of images:\n");
 }
 
-void invalidNumberOfImagesError() {
-	printf("An error occurred - invalid number of images\n");
-}
-
 void imageSuffixPrompt(){
 	printf("Enter images suffix:\n");
 }
@@ -24,16 +22,8 @@ void numOfBinsPrompt() {
 	printf("Enter number of bins:\n");
 }
 
-void invalidNumberOfBinsError() {
-	printf("An error occurred - invalid number of bins\n");
-}
-
 void numOfFeaturesPrompt() {
 	printf("Enter number of features:\n");
-}
-
-void invalidNumberOfFeaturesError() {
-	printf("An error occurred - invalid number of features\n");
 }
 
 void queryImagePrompt() {
@@ -46,10 +36,6 @@ void exitingMsg() {
 
 void printNearestImages(int*) {
 
-}
-
-void allocationFaliureMsg() {
-	printf("An error occurred - allocation failure\n");
 }
 
 void printError(char* msg) {

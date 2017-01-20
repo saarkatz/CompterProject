@@ -1,9 +1,14 @@
-
-#include <stdio.h>
-#include <string.h>
 #include <malloc.h>
 
 #include "main_aux.h"
+#include "sp_image_proc_util.h"
+
+extern "C" {
+#include <cstdio>
+#include <cstring>
+
+#include "SPPoint.h"
+}
 
 int main() {
 	char* imageDirectory;
@@ -25,7 +30,6 @@ int main() {
 
 	imagePrefixPrompt();
 	scanf("%s",imagePrefix);
-
 
 
 	numOfImagesPrompt();
