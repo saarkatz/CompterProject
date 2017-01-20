@@ -10,13 +10,24 @@ extern "C" {
 #include "SPPoint.h"
 }
 
+#define TERMINATE() terminateProgram(numberOfFeatures, globalArray, \
+                                  localArray, featureSizes, filePath); \
+                  return;
+#define ERROR_AND_EXIT(Message) printError(Message);\
+                              TERMINATE()
+#define MEMORY_FAILURE "memory failure"
+#define INVALID_NUMBER_OF_IMAGES "invalid number of images\n"
+#define INVALID_NUMBER_OF_BINS "invalid number of bins\n"
+#define INVALID_NUMBER_OF_FEATURES "invalid number of features\n"
+
+
 int main() {
 	char* imageDirectory;
 	char* imagePrefix;
-	int numOfImages;
+	int numOfImages = 0;
 	char* imageSuffix;
-	int numberOfBins;
-	int numberOfFeatures;
+	int numberOfBins = 0;
+	int numberOfFeatures = 0;
 	char* queryPath;
 
 	SPPoint*** globalArray;
@@ -35,7 +46,7 @@ int main() {
 	numOfImagesPrompt();
 	scanf("%d",&numOfImages);
 	if(numOfImages < 1){
-		printError("invalid number of images\n");
+      ERROR_AND_EXIT(INVALID_NUMBER_OF_IMAGES);
 	}
 
 
@@ -45,33 +56,32 @@ int main() {
 	numOfBinsPrompt();
 	scanf("%d",&numberOfBins);
 	if(numberOfBins < 1 || numberOfBins > 255){
-		printError("invalid number of bins\n");
+      ERROR_AND_EXIT(INVALID_NUMBER_OF_BINS);
 	}
 
 	numOfFeaturesPrompt();
 	scanf("%d",&numberOfFeatures);
 	if(numberOfFeatures < 1){
-		printError("invalid number of features\n");
+      ERROR_AND_EXIT(INVALID_NUMBER_OF_FEATURES);
 	}
 
 	//calculates the file path string size
-	int stringSize = strlen(imageDirectory)+strlen(imageSuffix)+5;
-	filePath = (char*)malloc(stringSize*sizeof(char));
+	filePath = (char*)malloc(STRING_SIZE*sizeof(char));
 	if (filePath == NULL) {
-		printError(MEMORY_FAILURE);
-	}
+      ERROR_AND_EXIT(MEMORY_FAILURE);
+    }
 
 	globalArray=(SPPoint***)malloc(numOfImages*sizeof(SPPoint**));
 	if (globalArray == NULL) {
-		printError(MEMORY_FAILURE);
-	}
+      ERROR_AND_EXIT(MEMORY_FAILURE);
+    }
 	localArray=(SPPoint***)malloc(numOfImages*sizeof(SPPoint**));
 	if (localArray == NULL) {
-		printError(MEMORY_FAILURE);
-	}
+      ERROR_AND_EXIT(MEMORY_FAILURE);
+    }
 	featureSizes=(int*)malloc(numOfImages*sizeof(int));
 	if (featureSizes == NULL) {
-		printError(MEMORY_FAILURE);
+      ERROR_AND_EXIT(MEMORY_FAILURE);
 	}
 
 
@@ -85,10 +95,15 @@ int main() {
 //---------------------------------
 	queryImagePrompt();
 	scanf("%s",queryPath);
-	if(queryPath[0]=='#'){
-		exitingMsg();
-		terminateProgram();
+	while(queryPath[0]=='#'){
+
+      // Insert code here
+
+      queryImagePrompt();
+      scanf("%s", queryPath);
 	}
+    exitingMsg();
+    TERMINATE();
 
 
 

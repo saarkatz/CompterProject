@@ -34,11 +34,31 @@ void exitingMsg() {
 	printf("Exiting...\n");
 }
 
-void printNearestImages(int*) {
+void printNearestImages(int* numImages) {
 
 }
 
 void printError(char* msg) {
 	printf("An error occurred - %s", msg);
-	terminateProgram();
 }
+
+void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
+  SPPoint*** localArray, int* featureSizes, char* filePath) {
+  free(filePath);
+  for (int i = 0; i < numberOfFeatures; i++) {
+    if (globalArray != NULL) {
+      for (int j = 0; j < HISTOGARM_SIZE; j++) {
+        spPointDestroy(globalArray[i][j]);
+      }
+    }
+    if (localArray != NULL && featureSizes != NULL) {
+      for (int j = 0; j < featureSizes[i]; j++) {
+        spPointDestroy(localArray[i][j]);
+      }
+    }
+  }
+  free(globalArray);
+  free(localArray);
+  free(featureSizes);
+}
+

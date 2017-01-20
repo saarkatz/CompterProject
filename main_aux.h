@@ -1,14 +1,14 @@
-/*
- * main_aux.h
- *
- *  Created on: Jan 8, 2017
- *      Author: ohad
- */
-
 #ifndef MAIN_AUX_H_
 #define MAIN_AUX_H_
 
-#define MEMORY_FAILURE "memory failure"
+#include <malloc.h>
+
+extern "C" {
+#include "SPPoint.h"
+}
+
+#define STRING_SIZE 1024
+#define HISTOGARM_SIZE 3
 
 void imageDirectoryPrompt();
 void imagePrefixPrompt();
@@ -18,9 +18,10 @@ void numOfBinsPrompt();
 void numOfFeaturesPrompt();
 void queryImagePrompt();
 void exitingMsg();
-void printNearestImages(int*);
-void printError(char*);
+void printNearestImages(int* numImages);
+void printError(char* msg);
 
-
+void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
+  SPPoint*** localArray, int* featureSizes, char* filePath)
 
 #endif /* MAIN_AUX_H_ */
