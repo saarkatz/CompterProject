@@ -131,13 +131,14 @@ int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
     nFeaturesPerImage == NULL || numberOfImages <= 1) {
     return NULL;
   }
-
+  BPQueueElement* peekElement = (BPQueueElement*)malloc(sizeof(BPQueueElement));
+  if (peekElement == NULL) {
+    return NULL;
+  }
   int* indexResult = (int*)malloc(kClosest * sizeof(int)); // Create result array
   if (indexResult == NULL) {
     return NULL;
   }
-
-  BPQueueElement* peekElement = NULL;
 
   SPBPQueue* priorityQueue = spBPQueueCreate(kClosest); // Create priority queue
   if (priorityQueue == NULL) {
@@ -163,7 +164,7 @@ int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
 
   // Clean internal memory.
   spBPQueueDestroy(priorityQueue);
-
+  free(peekElement);
   return indexResult;
 }
 
