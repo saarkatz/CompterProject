@@ -12,7 +12,7 @@ extern "C" {
 }
 
 #define TERMINATE() terminateProgram(numberOfFeatures, globalArray, \
-                              localArray, featureSizes, filePath); \
+                              localArray, featureSizes); \
               return 0;
 #define ERROR_AND_EXIT(Message) printError(Message);\
                           TERMINATE()
@@ -23,19 +23,19 @@ extern "C" {
 #define K_CLOSEST 5
 
 int main() {
-  char* imageDirectory = NULL;
-  char* imagePrefix = NULL;
+  char imageDirectory[STRING_SIZE];
+  char imagePrefix[STRING_SIZE];
   int numOfImages = 0;
-  char* imageSuffix = NULL;
+  char imageSuffix[STRING_SIZE];
   int numberOfBins = 0;
   int numberOfFeatures = 0;
-  char* queryPath = NULL;
+  char queryPath[STRING_SIZE];
 
   SPPoint*** globalArray = NULL;
   SPPoint*** localArray = NULL;
   int* featureSizes = NULL;
 
-  char* filePath = NULL;
+  char filePath[STRING_SIZE];
 
   SPPoint** queryImageHistogram = NULL;
   SPPoint** queryImageFeatures = NULL;
@@ -44,10 +44,10 @@ int main() {
 
 
   imageDirectoryPrompt();
-  scanf("%s", &imageDirectory);
+  scanf("%s", imageDirectory);
 
   imagePrefixPrompt();
-  scanf("%s", &imagePrefix);
+  scanf("%s", imagePrefix);
 
 
   numOfImagesPrompt();
@@ -58,7 +58,7 @@ int main() {
 
 
   imageSuffixPrompt();
-  scanf("%s", &imageSuffix);
+  scanf("%s", imageSuffix);
 
   numOfBinsPrompt();
   scanf("%d", &numberOfBins);
@@ -70,12 +70,6 @@ int main() {
   scanf("%d", &numberOfFeatures);
   if (numberOfFeatures < 1) {
     ERROR_AND_EXIT(INVALID_NUMBER_OF_FEATURES);
-  }
-
-  //calculates the file path string size
-  filePath = (char*)malloc(STRING_SIZE * sizeof(char));
-  if (filePath == NULL) {
-    ERROR_AND_EXIT(MEMORY_FAILURE);
   }
 
   globalArray = (SPPoint***)malloc(numOfImages * sizeof(SPPoint**));

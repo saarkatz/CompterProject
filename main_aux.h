@@ -31,6 +31,6 @@ int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
 int compare_int(const void *a, const void *b);
 
 void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
-  SPPoint*** localArray, int* featureSizes, char* filePath);
+  SPPoint*** localArray, int* featureSizes);
 
 #endif /* MAIN_AUX_H_ */

@@ -91,8 +91,7 @@ int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
 }
 
 void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
-  SPPoint*** localArray, int* featureSizes, char* filePath) {
-  free(filePath);
+  SPPoint*** localArray, int* featureSizes) {
   for (int i = 0; i < numberOfFeatures; i++) {
     if (globalArray != NULL) {
       for (int j = 0; j < HISTOGARM_SIZE; j++) {
