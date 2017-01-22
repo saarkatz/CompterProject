@@ -56,7 +56,9 @@ int compare_count(const void *a, const void *b)
 int compareHistDistance(const void *vp, const void *vq) {
   const SPHist *p = (SPHist*)vp;
   const SPHist *q = (SPHist*)vq;
-  return (q->distance) - (p->distance);
+  if(q->distance==p->distance)return 0;
+  if(q->distance>p->distance)return -1;
+  if(q->distance<p->distance)return 1;
 }
 
 int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
