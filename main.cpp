@@ -23,24 +23,24 @@ extern "C" {
 #define K_CLOSEST 5
 
 int main() {
-  char* imageDirectory;
-  char* imagePrefix;
+  char* imageDirectory = NULL;
+  char* imagePrefix = NULL;
   int numOfImages = 0;
-  char* imageSuffix;
+  char* imageSuffix = NULL;
   int numberOfBins = 0;
   int numberOfFeatures = 0;
-  char* queryPath;
+  char* queryPath = NULL;
 
-  SPPoint*** globalArray;
-  SPPoint*** localArray;
-  int* featureSizes;
+  SPPoint*** globalArray = NULL;
+  SPPoint*** localArray = NULL;
+  int* featureSizes = NULL;
 
-  char* filePath;
+  char* filePath = NULL;
 
-  SPPoint** queryImageHistogram;
-  SPPoint** queryImageFeatures;
-  int* totalMatches;
-  int* resultArray;
+  SPPoint** queryImageHistogram = NULL;
+  SPPoint** queryImageFeatures = NULL;
+  int* totalMatches = NULL;
+  int* resultArray = NULL;
 
 
   imageDirectoryPrompt();
