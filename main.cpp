@@ -19,7 +19,7 @@ extern "C" {
 #define INVALID_NUMBER_OF_IMAGES "invalid number of images\n"
 #define INVALID_NUMBER_OF_BINS "invalid number of bins\n"
 #define INVALID_NUMBER_OF_FEATURES "invalid number of features\n"
-
+#define K_CLOSEST 5
 
 int main() {
 	char* imageDirectory;
@@ -35,6 +35,11 @@ int main() {
 	int* featureSizes;
 
 	char* filePath;
+
+	SPPoint** queryImageHistogram;
+	SPPoint** queryImageFeatures;
+	int* totalMatches;
+
 
 	imageDirectoryPrompt();
 	scanf("%s",imageDirectory);
@@ -95,13 +100,69 @@ int main() {
 //---------------------------------
 	queryImagePrompt();
 	scanf("%s",queryPath);
-	while(queryPath[0]=='#'){
 
-      // Insert code here
 
-      queryImagePrompt();
-      scanf("%s", queryPath);
+	totalMatches=(int*)malloc(numberOfImages*sizeof(int));
+	if (totalMatches == NULL) {
+      ERROR_AND_EXIT(MEMORY_FAILURE);
 	}
+
+	while(queryPath[0]!='#'){
+
+	//initilize queryImageHistogram
+	queryImageHistogram = spGetRGBHist(queryPath,0,numberOfBins);
+	if (queryImageHistogram == NULL) {
+      ERROR_AND_EXIT(MEMORY_FAILURE);
+	}
+
+	//initilize queryImageFeatures
+	int numOfQueryFeatures;
+	queryImageFeatures = spGetSiftDescriptors(queryPath,
+		0,numberOfFeatures,&numOfQueryFeatures);
+	if (queryImageFeatures == NULL) {
+      ERROR_AND_EXIT(MEMORY_FAILURE);
+	}
+
+ 	resultArray=spBestHistDistance(K_CLOSEST,queryImageHistogram,numOfImages,globalArray)
+ 	if (resultArray == NULL) {
+      ERROR_AND_EXIT(MEMORY_FAILURE);
+	}
+
+ 	printKclosest(resultArray,K_CLOSEST,"global");
+ 	free(resultArray);
+
+     	//calculate closest local feature for each query feature
+		for (int i = 0; i < numOfQueryFeatures; ++i){
+			resultArray = spBestSIFTL2SquaredDistance(K_CLOSEST,queryImageFeatures[i],localArray,
+			numberOfImages,featureSizes);
+			if (resultArray == NULL) {
+	      	ERROR_AND_EXIT(MEMORY_FAILURE);
+			}
+			//count the images with the closest features
+			for (int j = 0; j < K_CLOSEST; ++j){
+				totalMatches[resultArray[j]]++;
+			}
+			free(resultArray);
+		}
+	qsort(totalMatches,numOfImages,sizeof(int),compare_int);
+ 	printKclosest(totalMatches,K_CLOSEST,"local");
+
+	for (int i = 0; i < 3; ++i)
+	{
+		spPointDestroy(queryImageHistogram[i]);
+	}
+	free(queryImageHistogram);
+
+	for (int i = 0; i < numOfQueryFeatures; ++i)
+	{
+		spPointDestroy(queryImageFeatures[i]);
+	}
+	free(queryImageFeatures);
+
+	queryImagePrompt();
+    scanf("%s", queryPath);
+	}
+
     exitingMsg();
     TERMINATE();
 

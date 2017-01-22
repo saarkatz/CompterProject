@@ -20,6 +20,9 @@ void queryImagePrompt();
 void exitingMsg();
 void printNearestImages(int* numImages);
 void printError(char* msg);
+void printKclosest(int* array,int kClosest,char* str);
+int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
+ int numOfImages, SPPoint*** globalArray);
 
 void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
   SPPoint*** localArray, int* featureSizes, char* filePath)
