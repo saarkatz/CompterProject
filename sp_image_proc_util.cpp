@@ -115,7 +115,8 @@ SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToE
   double* data;
   for (int i = 0; i < ds1.rows; ++i) {
     //ds1.col(i) is the i-th column in Mat as a Mat
-    data = matrixToArray(&ds1.row(i));
+    Mat m1 = ds1.row(i);
+    data = matrixToArray(&m1);
     pointArray[i] = spPointCreate(data, ds1.cols, imageIndex);
   }
   *nFeatures = ds1.rows;
