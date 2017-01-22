@@ -39,7 +39,7 @@ int main() {
 
   SPPoint** queryImageHistogram = NULL;
   SPPoint** queryImageFeatures = NULL;
-  int* totalMatches = NULL;
+  SPImageCounter* totalMatches = NULL;
   int* resultArray = NULL;
 
 
@@ -98,12 +98,19 @@ int main() {
   scanf("%s", queryPath);
 
 
-  totalMatches = (int*)malloc(numOfImages * sizeof(int));
+  totalMatches = (SPImageCounter*)malloc(numOfImages * sizeof(SPImageCounter));
   if (totalMatches == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
   }
+  for (int i = 0; i < numOfImages; i++) {
+    totalMatches[i] = { i, 0 };
+  }
 
   while (queryPath[0] != '#') {
+    for (int i = 0; i < numOfImages; i++) {
+      totalMatches[i].count = 0;
+    }
+
 
     //initilize queryImageHistogram
     queryImageHistogram = spGetRGBHist(queryPath, 0, numberOfBins);
@@ -136,12 +143,20 @@ int main() {
       }
       //count the images with the closest features
       for (int j = 0; j < K_CLOSEST; ++j) {
-        totalMatches[resultArray[j]]++;
+        totalMatches[resultArray[j]].count++;
       }
       free(resultArray);
     }
-    qsort(totalMatches, numOfImages, sizeof(int), compare_int);
-    printKclosest(totalMatches, K_CLOSEST, "local");
+    qsort(totalMatches, numOfImages, sizeof(int), compare_count);
+    resultArray = (int*)malloc(K_CLOSEST * sizeof(int));
+    if (resultArray == NULL) {
+      ERROR_AND_EXIT(MEMORY_FAILURE);
+    }
+    for (int i = 0; i < K_CLOSEST; i++) {
+      resultArray[i] = totalMatches[i].index;
+    }
+    printKclosest(resultArray, K_CLOSEST, "local");
+    free(resultArray);
 
     for (int i = 0; i < 3; ++i)
     {

@@ -44,13 +44,13 @@ void printError(char* msg) {
   printf("An error occurred - %s", msg);
 }
 
-int compare_int(const void *a, const void *b)
+int compare_count(const void *a, const void *b)
 {
-  const int *ia = (const int *)a; // casting pointer types 
-  const int *ib = (const int *)b;
-  return *ia - *ib;
-  /* integer comparison: returns negative if b > a
-  and positive if a > b */
+  const SPImageCounter *ia = (const SPImageCounter *)a; // casting pointer types 
+  const SPImageCounter *ib = (const SPImageCounter *)b;
+  return ib->count - ia->count;
+  /* integer comparison: returns negative if a > b
+  and positive if b > a */
 }
 
 int compareHistDistance(const void *vp, const void *vq) {

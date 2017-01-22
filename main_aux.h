@@ -13,6 +13,8 @@ extern "C" {
 #define STRING_SIZE 1024
 #define HISTOGARM_SIZE 3
 
+typedef struct int_int_pair { int index; int count; } SPImageCounter;
+
 void imageDirectoryPrompt();
 void imagePrefixPrompt();
 void numOfImagesPrompt();
@@ -28,7 +30,7 @@ int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
  int numOfImages, SPPoint*** globalArray);
 
 /* qsort int comparison function */
-int compare_int(const void *a, const void *b);
+int compare_count(const void *a, const void *b);
 
 void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
   SPPoint*** localArray, int* featureSizes);
