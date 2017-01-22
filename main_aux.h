@@ -2,6 +2,9 @@
 #define MAIN_AUX_H_
 
 #include <malloc.h>
+#include <cstdlib>
+
+#include "sp_image_proc_util.h"
 
 extern "C" {
 #include "SPPoint.h"
@@ -24,7 +27,10 @@ void printKclosest(int* array,int kClosest,char* str);
 int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
  int numOfImages, SPPoint*** globalArray);
 
+/* qsort int comparison function */
+int compare_int(const void *a, const void *b);
+
 void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
-  SPPoint*** localArray, int* featureSizes, char* filePath)
+  SPPoint*** localArray, int* featureSizes, char* filePath);
 
 #endif /* MAIN_AUX_H_ */

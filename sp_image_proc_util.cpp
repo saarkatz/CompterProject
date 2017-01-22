@@ -212,7 +212,7 @@ int drawRGBHist(SPPoint** rgb_hists, int nBins) {
   return 0;
 }
 
-int main() {
+int maina() {
   int nBins = 256;
   SPPoint** histograms = spGetRGBHist("images/img12.png", 1, nBins);
   if (histograms == NULL) {

@@ -2,38 +2,38 @@
 
 #include "main_aux.h"
 
-typedef struct hist_distance  {int index;double distance;} SPHist;
+typedef struct hist_distance { int index; double distance; } SPHist;
 
 void imageDirectoryPrompt() {
-	printf("Enter images directory path:\n");
+  printf("Enter images directory path:\n");
 }
 
 void imagePrefixPrompt() {
-	printf("Enter images prefix:\n");
+  printf("Enter images prefix:\n");
 }
 
 void numOfImagesPrompt() {
-	printf("Enter number of images:\n");
+  printf("Enter number of images:\n");
 }
 
-void imageSuffixPrompt(){
-	printf("Enter images suffix:\n");
+void imageSuffixPrompt() {
+  printf("Enter images suffix:\n");
 }
 
 void numOfBinsPrompt() {
-	printf("Enter number of bins:\n");
+  printf("Enter number of bins:\n");
 }
 
 void numOfFeaturesPrompt() {
-	printf("Enter number of features:\n");
+  printf("Enter number of features:\n");
 }
 
 void queryImagePrompt() {
-	printf("Enter a query image or # to terminate:\n");
+  printf("Enter a query image or # to terminate:\n");
 }
 
 void exitingMsg() {
-	printf("Exiting...\n");
+  printf("Exiting...\n");
 }
 
 void printNearestImages(int* numImages) {
@@ -41,17 +41,26 @@ void printNearestImages(int* numImages) {
 }
 
 void printError(char* msg) {
-	printf("An error occurred - %s", msg);
+  printf("An error occurred - %s", msg);
 }
 
-int compareHistDistance(const void *vp,const void *vq){
-  const SPHist *p = vp;
-  const SPHist *q = vq;
-  return (q->distance)-(p->distance);
+int compare_int(const void *a, const void *b)
+{
+  const int *ia = (const int *)a; // casting pointer types 
+  const int *ib = (const int *)b;
+  return *ia - *ib;
+  /* integer comparison: returns negative if b > a
+  and positive if a > b */
+}
+
+int compareHistDistance(const void *vp, const void *vq) {
+  const SPHist *p = (SPHist*)vp;
+  const SPHist *q = (SPHist*)vq;
+  return (q->distance) - (p->distance);
 }
 
 int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
- int numOfImages, SPPoint*** globalArray) {
+  int numOfImages, SPPoint*** globalArray) {
   //holds the kClosest indexs with respect to global features
   int* result = (int*)malloc(kClosest * sizeof(int));
   if (result == NULL) {
@@ -59,24 +68,23 @@ int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
   }
 
   //initilize  histDistanceArray
-  SPHist* histDistanceArray = (SPHist*)malloc(numOfImages*sizeof(SPHist));
+  SPHist* histDistanceArray = (SPHist*)malloc(numOfImages * sizeof(SPHist));
   if (histDistanceArray == NULL) {
     return NULL;
   }
 
   //calculate the distance from the query feature
   //with respect to RGB histogram for each image 
-  for(int i=0;i<numOfImages;i++){
-    histDistanceArray[i]={i,spRGBHistL2Distance(queryImageHistogram,globalArray[i])};
+  for (int i = 0; i < numOfImages; i++) {
+    histDistanceArray[i] = { i,spRGBHistL2Distance(queryImageHistogram,globalArray[i]) };
   }
 
-
   //sort with respect to the distance from the query image
-  qsort(histDistanceArray,numOfImages,sizeof(SPHist),*compareHistDistance);
+  qsort(histDistanceArray, numOfImages, sizeof(SPHist), compareHistDistance);
 
   //create the result array with the kClosest images
-  for (int i = 0; i < kClosest; ++i){
-    result[i]=histDistanceArray[i]->index;
+  for (int i = 0; i < kClosest; ++i) {
+    result[i] = (&histDistanceArray)[i]->index;
   }
   free(histDistanceArray);
   return result;
@@ -102,14 +110,14 @@ void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
   free(featureSizes);
 }
 
-void printKclosest(int* array,int kClosest,char* str){
-  printf("Nearest images using %s descriptors:\n",str);
-  for (int i = 0; i < kClosest; ++i){
-   printf("%d",array[i]);
-   if(i<kClosest-1){
-    printf(", ");
+void printKclosest(int* array, int kClosest, char* str) {
+  printf("Nearest images using %s descriptors:\n", str);
+  for (int i = 0; i < kClosest; ++i) {
+    printf("%d", array[i]);
+    if (i < kClosest - 1) {
+      printf(", ");
     }
-  printf("\n");
+    printf("\n");
   }
 
 }
