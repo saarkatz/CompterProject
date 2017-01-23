@@ -111,7 +111,7 @@ SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToE
 
 
   //new code0
-  SPPoint** pointArray = (SPPoint**)malloc(ds1.cols*sizeof(SPPoint*));
+  SPPoint** pointArray = (SPPoint**)malloc(ds1.rows*sizeof(SPPoint*));
   double* data;
   for (int i = 0; i < ds1.rows; ++i) {
     //ds1.col(i) is the i-th column in Mat as a Mat
