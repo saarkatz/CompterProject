@@ -102,13 +102,11 @@ int main() {
   if (totalMatches == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
   }
-  for (int i = 0; i < numOfImages; i++) {
-    totalMatches[i] = { i, 0 };
-  }
+
 
   while (queryPath[0] != '#') {
-    for (int i = 0; i < numOfImages; i++) {
-      totalMatches[i].count = 0;
+   for (int i = 0; i < numOfImages; i++) {
+      totalMatches[i] = { i, 0 };
     }
 
 
@@ -147,7 +145,7 @@ int main() {
       }
       free(resultArray);
     }
-    qsort(totalMatches, numOfImages, sizeof(int), compare_count);
+    qsort(totalMatches, numOfImages, sizeof(SPImageCounter), compare_count);
     resultArray = (int*)malloc(K_CLOSEST * sizeof(int));
     if (resultArray == NULL) {
       ERROR_AND_EXIT(MEMORY_FAILURE);
