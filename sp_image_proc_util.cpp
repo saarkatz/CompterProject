@@ -26,14 +26,14 @@ using namespace cv;
 double* colToArray(Mat* m) {//global - notice the names is unintuative at first
   double* array = (double*)malloc(m->rows * sizeof(double));
   for (int i = 0; i < m->rows; i++) {
-    array[i] = m->at<float>(i);
+    array[i] = m->at<float>(i,0);
   }
   return array;
 }
 double* rowToArray(Mat* m) {//local
   double* array = (double*)malloc(m->cols * sizeof(double));
   for (int i = 0; i < m->cols; i++) {
-    array[i] = m->at<float>(i);
+    array[i] = m->at<float>(0,i);
   }
   return array;
 }
@@ -158,8 +158,7 @@ int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
     for (int j = 0; j < nFeaturesPerImage[i]; j++)
     {
       // Add the L2 distance between query and the descriptor to the queue.
-      spBPQueueEnqueue(priorityQueue, spPointGetIndex(databaseFeatures[i][j]),
-        spPointL2SquaredDistance(databaseFeatures[i][j], queryFeature));
+      spBPQueueEnqueue(priorityQueue, i, spPointL2SquaredDistance(databaseFeatures[i][j], queryFeature));
     }
   }
 
@@ -167,6 +166,8 @@ int* spBestSIFTL2SquaredDistance(int kClosest, SPPoint* queryFeature,
   for (int i = 0; i < kClosest; i++) {
     spBPQueuePeek(priorityQueue, peekElement);
     indexResult[i] = peekElement->index;
+    spBPQueueDequeue(priorityQueue);
+    //printf("rank %d:  , image index: %d,distace: %hf\n",i+1,peekElement->index,peekElement->value);
   }
 
   // Clean internal memory.
