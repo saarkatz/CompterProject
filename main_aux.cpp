@@ -93,7 +93,8 @@ int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
 }
 
 void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
-  SPPoint*** localArray, int* featureSizes) {
+  SPPoint*** localArray, int* featureSizes, SPImageCounter* totalMatches, 
+  SPPoint** queryImageHistogram, SPPoint** queryImageFeatures, int numOfQueryFeatures) {
   for (int i = 0; i < numberOfFeatures; i++) {
     if (globalArray != NULL) {
       for (int j = 0; j < HISTOGARM_SIZE; j++) {
@@ -101,6 +102,7 @@ void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
           spPointDestroy(globalArray[i][j]);
         }
       }
+      free(globalArray[i]);
     }
     if (localArray != NULL && featureSizes != NULL) {
       for (int j = 0; j < featureSizes[i]; j++) {
@@ -108,11 +110,22 @@ void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
           spPointDestroy(localArray[i][j]);
         }
       }
+      free(localArray[i]);
     }
   }
   free(globalArray);
   free(localArray);
   free(featureSizes);
+
+  for (int i = 0; i < 3; ++i){
+    spPointDestroy(queryImageHistogram[i]);
+  }
+  free(queryImageHistogram);
+
+  for (int i = 0; i < numOfQueryFeatures; ++i){
+    spPointDestroy(queryImageFeatures[i]);
+  }
+  free(queryImageFeatures);
 }
 
 void printKclosest(int* array, int kClosest, char* str) {

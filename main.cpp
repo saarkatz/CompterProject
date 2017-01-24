@@ -9,13 +9,16 @@
 
 extern "C" {
 #include "SPPoint.h"
+
 }
 
-#define TERMINATE() terminateProgram(numberOfFeatures, globalArray, \
-                              localArray, featureSizes); \
-              return 0;
+#define TERMINATE(Exit_code) terminateProgram(numberOfFeatures, globalArray, \
+                              localArray, featureSizes, totalMatches, \
+                              queryImageHistogram, queryImageFeatures, \
+                              numOfQueryFeatures); \
+                              return Exit_code;
 #define ERROR_AND_EXIT(Message) printError(Message);\
-                          TERMINATE()
+                          TERMINATE(1)
 #define MEMORY_FAILURE "memory failure"
 #define INVALID_NUMBER_OF_IMAGES "invalid number of images\n"
 #define INVALID_NUMBER_OF_BINS "invalid number of bins\n"
@@ -39,6 +42,7 @@ int main() {
 
   SPPoint** queryImageHistogram = NULL;
   SPPoint** queryImageFeatures = NULL;
+  int numOfQueryFeatures=0;
   SPImageCounter* totalMatches = NULL;
   int* resultArray = NULL;
 
@@ -80,7 +84,7 @@ int main() {
   if (localArray == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
   }
-  featureSizes = (int*)malloc(numOfImages * sizeof(int));
+  featureSizes = (int*)calloc(numOfImages , sizeof(int));
   if (featureSizes == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
   }
@@ -117,7 +121,6 @@ int main() {
     }
 
     //initilize queryImageFeatures
-    int numOfQueryFeatures;
     queryImageFeatures = spGetSiftDescriptors(queryPath,
       0, numberOfFeatures, &numOfQueryFeatures);
     if (queryImageFeatures == NULL) {
@@ -156,22 +159,10 @@ int main() {
     printKclosest(resultArray, K_CLOSEST, "local");
     free(resultArray);
 
-    for (int i = 0; i < 3; ++i)
-    {
-      spPointDestroy(queryImageHistogram[i]);
-    }
-    free(queryImageHistogram);
-
-    for (int i = 0; i < numOfQueryFeatures; ++i)
-    {
-      spPointDestroy(queryImageFeatures[i]);
-    }
-    free(queryImageFeatures);
-
     queryImagePrompt();
     scanf("%s", queryPath);
   }
 
   exitingMsg();
-  TERMINATE();
+  TERMINATE(0);
 }

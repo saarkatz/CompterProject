@@ -8,6 +8,7 @@
 
 extern "C" {
 #include "SPPoint.h"
+
 }
 
 #define STRING_SIZE 1024
@@ -33,6 +34,7 @@ int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
 int compare_count(const void *a, const void *b);
 
 void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
-  SPPoint*** localArray, int* featureSizes);
+  SPPoint*** localArray, int* featureSizes, SPImageCounter* totalMatches, 
+  SPPoint** queryImageHistogram, SPPoint** queryImageFeatures, int numOfQueryFeatures);
 
 #endif /* MAIN_AUX_H_ */
