@@ -117,15 +117,21 @@ void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
   free(localArray);
   free(featureSizes);
 
-  for (int i = 0; i < 3; ++i){
-    spPointDestroy(queryImageHistogram[i]);
+  if (queryImageHistogram != NULL) {
+    for (int i = 0; i < 3; ++i) {
+      spPointDestroy(queryImageHistogram[i]);
+    }
+    free(queryImageHistogram);
   }
-  free(queryImageHistogram);
 
-  for (int i = 0; i < numOfQueryFeatures; ++i){
-    spPointDestroy(queryImageFeatures[i]);
+  if (queryImageFeatures != NULL) {
+    for (int i = 0; i < numOfQueryFeatures; ++i) {
+      spPointDestroy(queryImageFeatures[i]);
+    }
+    free(queryImageFeatures);
   }
-  free(queryImageFeatures);
+
+  free(totalMatches);
 }
 
 void printKclosest(int* array, int kClosest, char* str) {
