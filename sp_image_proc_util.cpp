@@ -23,14 +23,20 @@ extern "C" {
 using namespace cv;
 
 //helpermethod
-double* matrixToArray(Mat* m) {
+double* colToArray(Mat* m) {//global - notice the names is unintuative at first
   double* array = (double*)malloc(m->rows * sizeof(double));
   for (int i = 0; i < m->rows; i++) {
     array[i] = m->at<float>(i);
   }
   return array;
 }
-
+double* rowToArray(Mat* m) {//local
+  double* array = (double*)malloc(m->cols * sizeof(double));
+  for (int i = 0; i < m->cols; i++) {
+    array[i] = m->at<float>(i);
+  }
+  return array;
+}
 Mat* pointToMatrix(SPPoint* point) {
   Mat* mat = new Mat(spPointGetDimension(point), 1, CV_32F);
   for (int i = 0; i < spPointGetDimension(point); i++) {
@@ -71,7 +77,7 @@ SPPoint** spGetRGBHist(const char* str, int imageIndex, int nBins) {
   for (int i = 0; i < N; i++) {
     //instead of bgr(like the opencv example we use rgb for negeting cognitive dissonance 
     calcHist(&bgr_planes[N - i - 1], nImages, 0, Mat(), rgb_hists[i], 1, &nBins, &histRange);
-    rgbHist[i] = spPointCreate(matrixToArray(&rgb_hists[i]), nBins, imageIndex);
+    rgbHist[i] = spPointCreate(colToArray(&rgb_hists[i]), nBins, imageIndex);
   }
   return rgbHist;
 }
@@ -116,7 +122,7 @@ SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToE
   for (int i = 0; i < ds1.rows; ++i) {
     //ds1.col(i) is the i-th column in Mat as a Mat
     Mat m1 = ds1.row(i);
-    data = matrixToArray(&m1);
+    data = rowToArray(&m1);
     pointArray[i] = spPointCreate(data, ds1.cols, imageIndex);
   }
   *nFeatures = ds1.rows;
