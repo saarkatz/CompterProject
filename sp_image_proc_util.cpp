@@ -35,6 +35,7 @@ double* rowToArray(Mat* m) {//local
   for (int i = 0; i < m->cols; i++) {
     array[i] = m->at<float>(0,i);
   }
+
   return array;
 }
 Mat* pointToMatrix(SPPoint* point) {
@@ -74,11 +75,15 @@ SPPoint** spGetRGBHist(const char* str, int imageIndex, int nBins) {
   /// Compute the histograms: 
   /// The results will be store in brg_hists.
   /// The output type of the matrices is CV_32F (float)
+  double* data;
   for (int i = 0; i < N; i++) {
     //instead of bgr(like the opencv example we use rgb for negeting cognitive dissonance 
     calcHist(&bgr_planes[N - i - 1], nImages, 0, Mat(), rgb_hists[i], 1, &nBins, &histRange);
-    rgbHist[i] = spPointCreate(colToArray(&rgb_hists[i]), nBins, imageIndex);
+    data =  colToArray(&rgb_hists[i]);
+    rgbHist[i] = spPointCreate(data, nBins, imageIndex);
+    free(data);
   }
+
   return rgbHist;
 }
 

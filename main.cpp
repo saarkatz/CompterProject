@@ -162,7 +162,7 @@ int main() {
     queryImagePrompt();
     scanf("%s", queryPath);
   }
-
+  free(queryImageFeatures);
   exitingMsg();
   TERMINATE(0);
 }
