@@ -17,7 +17,7 @@ extern "C" {
                               queryImageHistogram, queryImageFeatures, \
                               numOfQueryFeatures); \
                               return Exit_code;
-#define ERROR_AND_EXIT(Message) printError(Message);\
+#define ERROR_AND_EXIT(Message) printError((char*)Message);\
                           TERMINATE(1)
 #define MEMORY_FAILURE "memory failure"
 #define INVALID_NUMBER_OF_IMAGES "invalid number of images\n"
@@ -132,7 +132,7 @@ int main() {
       ERROR_AND_EXIT(MEMORY_FAILURE);
     }
 
-    printKclosest(resultArray, K_CLOSEST, "global");
+    printKclosest(resultArray, K_CLOSEST, (char*)"global");
     free(resultArray);
 
     //calculate closest local feature for each query feature
@@ -156,7 +156,7 @@ int main() {
     for (int i = 0; i < K_CLOSEST; i++) {
       resultArray[i] = totalMatches[i].index;
     }
-    printKclosest(resultArray, K_CLOSEST, "local");
+    printKclosest(resultArray, K_CLOSEST, (char*)"local");
     free(resultArray);
 
     queryImagePrompt();

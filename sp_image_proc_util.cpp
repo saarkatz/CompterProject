@@ -85,7 +85,6 @@ SPPoint** spGetRGBHist(const char* str, int imageIndex, int nBins) {
 double spRGBHistL2Distance(SPPoint** rgbHistA, SPPoint** rgbHistB) {
   if (rgbHistA == NULL || rgbHistB == NULL)
     return -1;
-  int dim = spPointGetDimension(rgbHistA[0]);
   double sum = 0;
   for (int i = 0; i < N; i++) {
     sum += 0.33*spPointL2SquaredDistance(rgbHistA[i], rgbHistB[i]);
