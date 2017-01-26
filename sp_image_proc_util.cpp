@@ -129,8 +129,12 @@ SPPoint** spGetSiftDescriptors(const char* str, int imageIndex, int nFeaturesToE
     data = rowToArray(&m1);
     pointArray[i] = spPointCreate(data, ds1.cols, imageIndex);
     free(data);
+
   }
+
   *nFeatures = ds1.rows;
+  detect.release();
+
   return pointArray;
 
 }

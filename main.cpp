@@ -159,10 +159,61 @@ int main() {
     printKclosest(resultArray, K_CLOSEST, (char*)"local");
     free(resultArray);
 
+
+    for (int i = 0; i < 3; ++i) {
+            spPointDestroy(queryImageHistogram[i]);
+          }
+          free(queryImageHistogram);
+
+          for (int i = 0; i < numOfQueryFeatures; ++i) {
+            spPointDestroy(queryImageFeatures[i]);
+          }
+          free(queryImageFeatures);
+
     queryImagePrompt();
     scanf("%s", queryPath);
   }
-  free(queryImageFeatures);
+
+
+
+
+  for (int i = 0; i < numOfImages; i++) {
+	  for (int j = 0; j < HISTOGARM_SIZE; j++) {
+        spPointDestroy(globalArray[i][j]);
+        }
+        free(globalArray[i]);
+  }
+  free(localArray);
+
+
+
+  for (int i = 0; i < numOfImages; i++) {
+      for (int j = 0; j < featureSizes[i]; j++) {
+          spPointDestroy(localArray[i][j]);
+      }
+      free(localArray[i]);
+  }
+  free(globalArray);
+
+
+  free(featureSizes);
+
+      for (int i = 0; i < 3; ++i) {
+        spPointDestroy(queryImageHistogram[i]);
+      }
+      free(queryImageHistogram);
+
+
+
+      for (int i = 0; i < numOfQueryFeatures; ++i) {
+        spPointDestroy(queryImageFeatures[i]);
+      }
+      free(queryImageFeatures);
+
+
+    free(totalMatches);
+
+
   exitingMsg();
   TERMINATE(0);
 }
