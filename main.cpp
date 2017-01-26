@@ -9,7 +9,6 @@
 
 extern "C" {
 #include "SPPoint.h"
-
 }
 
 #define TERMINATE(Exit_code) terminateProgram(numberOfFeatures, globalArray, \
@@ -33,7 +32,7 @@ int main() {
   int numberOfBins = 0;
   int numberOfFeatures = 0;
   char queryPath[STRING_SIZE];
-
+  
   SPPoint*** globalArray = NULL;
   SPPoint*** localArray = NULL;
   int* featureSizes = NULL;
@@ -88,7 +87,7 @@ int main() {
   if (featureSizes == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
   }
-
+  
 
   for (int i = 0; i < numOfImages; i++) {
     //imageDirectory+imageSuffix+index+imageSuffix
@@ -174,16 +173,13 @@ int main() {
     scanf("%s", queryPath);
   }
 
-
-
-
   for (int i = 0; i < numOfImages; i++) {
 	  for (int j = 0; j < HISTOGARM_SIZE; j++) {
         spPointDestroy(globalArray[i][j]);
         }
         free(globalArray[i]);
   }
-  free(localArray);
+  free(globalArray);
 
 
 
@@ -193,27 +189,13 @@ int main() {
       }
       free(localArray[i]);
   }
-  free(globalArray);
-
+  free(localArray);
 
   free(featureSizes);
-
-      for (int i = 0; i < 3; ++i) {
-        spPointDestroy(queryImageHistogram[i]);
-      }
-      free(queryImageHistogram);
-
-
-
-      for (int i = 0; i < numOfQueryFeatures; ++i) {
-        spPointDestroy(queryImageFeatures[i]);
-      }
-      free(queryImageFeatures);
-
-
-    free(totalMatches);
+  free(totalMatches);
 
 
   exitingMsg();
   TERMINATE(0);
+  return 0;
 }
