@@ -16,6 +16,8 @@ extern "C" {
                               queryImageHistogram, queryImageFeatures, \
                               numOfQueryFeatures); \
                               return Exit_code;
+
+#define TERMINATE2(Exit_code) 
 #define ERROR_AND_EXIT(Message) printError((char*)Message);\
                           TERMINATE(1)
 #define MEMORY_FAILURE "memory failure"
@@ -46,6 +48,11 @@ int main() {
   int* resultArray = NULL;
 
 
+  //void* pointerArray = {globalArray,localArray,featureSizes,
+    //totalMatches,queryImageHistogram,queryImageFeatures};
+  //terminateProgram2(pointerArray);
+  
+
   imageDirectoryPrompt();
   scanf("%s", imageDirectory);
 
@@ -75,6 +82,9 @@ int main() {
     ERROR_AND_EXIT(INVALID_NUMBER_OF_FEATURES);
   }
 
+
+
+//stage 2
   globalArray = (SPPoint***)malloc(numOfImages * sizeof(SPPoint**));
   if (globalArray == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
@@ -87,8 +97,13 @@ int main() {
   if (featureSizes == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
   }
+<<<<<<< Updated upstream
   
 
+=======
+
+  //stage 3
+>>>>>>> Stashed changes
   for (int i = 0; i < numOfImages; i++) {
     //imageDirectory+imageSuffix+index+imageSuffix
     sprintf(filePath, "%s%s%d%s", imageDirectory, imagePrefix, i, imageSuffix);
@@ -100,7 +115,7 @@ int main() {
   queryImagePrompt();
   scanf("%s", queryPath);
 
-
+  //stage 4
   totalMatches = (SPImageCounter*)malloc(numOfImages * sizeof(SPImageCounter));
   if (totalMatches == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
@@ -134,6 +149,9 @@ int main() {
     printKclosest(resultArray, K_CLOSEST, (char*)"global");
     free(resultArray);
 
+
+
+
     //calculate closest local feature for each query feature
     for (int i = 0; i < numOfQueryFeatures; ++i) {
       resultArray = spBestSIFTL2SquaredDistance(K_CLOSEST, queryImageFeatures[i], localArray,
@@ -155,44 +173,22 @@ int main() {
     for (int i = 0; i < K_CLOSEST; i++) {
       resultArray[i] = totalMatches[i].index;
     }
+
+
+
+
+
     printKclosest(resultArray, K_CLOSEST, (char*)"local");
     free(resultArray);
 
 
-    for (int i = 0; i < 3; ++i) {
-            spPointDestroy(queryImageHistogram[i]);
-          }
-          free(queryImageHistogram);
-
-          for (int i = 0; i < numOfQueryFeatures; ++i) {
-            spPointDestroy(queryImageFeatures[i]);
-          }
-          free(queryImageFeatures);
+    freeHistogram(queryImageHistogram);
+    freeFeatures(queryImageFeatures,numOfQueryFeatures);
 
     queryImagePrompt();
     scanf("%s", queryPath);
   }
 
-  for (int i = 0; i < numOfImages; i++) {
-	  for (int j = 0; j < HISTOGARM_SIZE; j++) {
-        spPointDestroy(globalArray[i][j]);
-        }
-        free(globalArray[i]);
-  }
-  free(globalArray);
-
-
-
-  for (int i = 0; i < numOfImages; i++) {
-      for (int j = 0; j < featureSizes[i]; j++) {
-          spPointDestroy(localArray[i][j]);
-      }
-      free(localArray[i]);
-  }
-  free(localArray);
-
-  free(featureSizes);
-  free(totalMatches);
 
 
   exitingMsg();
