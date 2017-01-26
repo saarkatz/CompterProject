@@ -11,13 +11,12 @@ extern "C" {
 #include "SPPoint.h"
 }
 
-#define TERMINATE(Exit_code) terminateProgram(numberOfFeatures, globalArray, \
+#define TERMINATE(Exit_code) terminateProgram(numOfImages, globalArray, \
                               localArray, featureSizes, totalMatches, \
                               queryImageHistogram, queryImageFeatures, \
                               numOfQueryFeatures); \
                               return Exit_code;
 
-#define TERMINATE2(Exit_code) 
 #define ERROR_AND_EXIT(Message) printError((char*)Message);\
                           TERMINATE(1)
 #define MEMORY_FAILURE "memory failure"
@@ -97,13 +96,7 @@ int main() {
   if (featureSizes == NULL) {
     ERROR_AND_EXIT(MEMORY_FAILURE);
   }
-<<<<<<< Updated upstream
-  
 
-=======
-
-  //stage 3
->>>>>>> Stashed changes
   for (int i = 0; i < numOfImages; i++) {
     //imageDirectory+imageSuffix+index+imageSuffix
     sprintf(filePath, "%s%s%d%s", imageDirectory, imagePrefix, i, imageSuffix);
@@ -193,5 +186,4 @@ int main() {
 
   exitingMsg();
   TERMINATE(0);
-  return 0;
 }
