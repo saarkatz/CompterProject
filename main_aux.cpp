@@ -89,47 +89,19 @@ int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
   return result;
 }
 
-void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
+void terminateProgram(int numOfImages, SPPoint*** globalArray,
   SPPoint*** localArray, int* featureSizes, SPImageCounter* totalMatches, 
   SPPoint** queryImageHistogram, SPPoint** queryImageFeatures, int numOfQueryFeatures) {
-  for (int i = 0; i < numberOfFeatures; i++) {
-    if (globalArray != NULL) {
-      for (int j = 0; j < HISTOGARM_SIZE; j++) {
-        if (globalArray[i] != NULL) {
-          spPointDestroy(globalArray[i][j]);
-        }
-      }
-      free(globalArray[i]);
-    }
-    if (localArray != NULL && featureSizes != NULL) {
-      for (int j = 0; j < featureSizes[i]; j++) {
-        if (localArray[i] != NULL) {
-          spPointDestroy(localArray[i][j]);
-        }
-      }
-      free(localArray[i]);
-    }
-  }
-  free(globalArray);
-  free(localArray);
-  free(featureSizes);
-
-  if (queryImageHistogram != NULL) {
-    for (int i = 0; i < 3; ++i) {
-      spPointDestroy(queryImageHistogram[i]);
-    }
-    free(queryImageHistogram);
-  }
-
-  if (queryImageFeatures != NULL) {
-    for (int i = 0; i < numOfQueryFeatures; ++i) {
-      spPointDestroy(queryImageFeatures[i]);
-    }
-    free(queryImageFeatures);
-  }
-
+  
+  freeHistogramDatabase(globalArray,numOfImages);
+  freeFeatureDatabase(localArray,numOfImages,featureSizes);
+  freeHistogram(queryImageHistogram);
+  freeFeatures(queryImageFeatures,numOfQueryFeatures);
   free(totalMatches);
 }
+
+
+
 
 void printKclosest(int* array, int kClosest, char* str) {
   printf("Nearest images using %s descriptors:\n", str);
@@ -141,3 +113,44 @@ void printKclosest(int* array, int kClosest, char* str) {
   }
   printf("\n");
 }
+ 
+
+void freeHistogram(SPPoint** histogramArray){
+  if(histogramArray!=NULL){
+    for (int i = 0; i < 3; ++i) {
+        if(histogramArray[i]!=NULL)
+          spPointDestroy(histogramArray[i]);
+        }
+        free(histogramArray);
+  }
+}
+void freeFeatureDatabase(SPPoint*** database, int databaseSize,int* sizeArray){
+  if(database!=NULL){
+    for (int i = 0; i < databaseSize; i++) {
+      freeFeatures(database[i],sizeArray[i]);
+     }
+      free(database);
+  }
+  if(sizeArray!=NULL) free(sizeArray);
+}
+
+void freeFeatures(SPPoint** featuresArray,int arraySize){
+    if(featuresArray!=NULL){
+      for (int i = 0; i < arraySize; ++i) {
+        if(featuresArray[i]!=NULL)
+          spPointDestroy(featuresArray[i]);
+          }
+      free(featuresArray);
+    }
+        
+ }
+
+ void freeHistogramDatabase(SPPoint*** database, int databaseSize){
+    if(database!=NULL){
+     for (int i = 0; i < databaseSize; ++i){
+      if(database[i]!=NULL)
+        freeHistogram(database[i]);
+     }
+      free(database);
+    }
+  }

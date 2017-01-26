@@ -28,12 +28,15 @@ void printNearestImages(int* numImages);
 void printError(char* msg);
 void printKclosest(int* array,int kClosest,char* str);
 int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
- int numOfImages, SPPoint*** globalArray);
-
+int numOfImages, SPPoint*** globalArray);
+void freeHistogram(SPPoint** histogramArray);
+void freeFeatureDatabase(SPPoint*** database, int databaseSize,int* sizeArray);
+void freeFeatures(SPPoint** featuresArray,int arraySize);
+void freeHistogramDatabase(SPPoint*** database, int databaseSize);
 /* qsort int comparison function */
 int compare_count(const void *a, const void *b);
 
-void terminateProgram(int numberOfFeatures, SPPoint*** globalArray,
+void terminateProgram(int numberOfImages, SPPoint*** globalArray,
   SPPoint*** localArray, int* featureSizes, SPImageCounter* totalMatches, 
   SPPoint** queryImageHistogram, SPPoint** queryImageFeatures, int numOfQueryFeatures);
 
