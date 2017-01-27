@@ -12,15 +12,16 @@ extern "C" {
 }
 
 #define TERMINATE(Exit_code) terminateProgram(numOfImages, globalArray, \
-                              localArray, featureSizes, totalMatches, \
-                              queryImageHistogram, queryImageFeatures, \
-                              numOfQueryFeatures); \
-                              return Exit_code;
+                                localArray, featureSizes, totalMatches, \
+                                queryImageHistogram, queryImageFeatures, \
+                                numOfQueryFeatures); \
+                             return Exit_code;
 
-#define ERROR_AND_EXIT(Message) printError((char*)Message);\
-                          TERMINATE(1)
+#define ERROR_AND_EXIT(Message) printError((char*)Message);TERMINATE(1);
+
 #define CHECK_MEMORY_FAILURE(ARG) if (ARG == NULL) { \
                                     ERROR_AND_EXIT(MEMORY_FAILURE);}
+
 #define MEMORY_FAILURE "memory failure"
 #define INVALID_NUMBER_OF_IMAGES "invalid number of images\n"
 #define INVALID_NUMBER_OF_BINS "invalid number of bins\n"
@@ -28,14 +29,10 @@ extern "C" {
 #define K_CLOSEST 5
 
 int main() {
-  char imageDirectory[STRING_SIZE];
-  char imagePrefix[STRING_SIZE];
-  int numOfImages = 0;
-  char imageSuffix[STRING_SIZE];
-  int numberOfBins = 0;
-  int numberOfFeatures = 0;
-  char queryPath[STRING_SIZE];
-  
+  char imageDirectory[STRING_SIZE], imagePrefix[STRING_SIZE],
+    imageSuffix[STRING_SIZE], queryPath[STRING_SIZE];
+  int numOfImages = 0, numberOfBins = 0, numberOfFeatures = 0;
+
   SPPoint*** globalArray = NULL;
   SPPoint*** localArray = NULL;
   int* featureSizes = NULL;
@@ -44,15 +41,10 @@ int main() {
 
   SPPoint** queryImageHistogram = NULL;
   SPPoint** queryImageFeatures = NULL;
-  int numOfQueryFeatures=0;
+  int numOfQueryFeatures = 0;
+
   SPImageCounter* totalMatches = NULL;
   int* resultArray = NULL;
-
-
-  //void* pointerArray = {globalArray,localArray,featureSizes,
-    //totalMatches,queryImageHistogram,queryImageFeatures};
-  //terminateProgram2(pointerArray);
-  
 
   imageDirectoryPrompt();
   scanf("%s", imageDirectory);
@@ -60,13 +52,11 @@ int main() {
   imagePrefixPrompt();
   scanf("%s", imagePrefix);
 
-
   numOfImagesPrompt();
   scanf("%d", &numOfImages);
   if (numOfImages < 1) {
     ERROR_AND_EXIT(INVALID_NUMBER_OF_IMAGES);
   }
-
 
   imageSuffixPrompt();
   scanf("%s", imageSuffix);
@@ -83,16 +73,14 @@ int main() {
     ERROR_AND_EXIT(INVALID_NUMBER_OF_FEATURES);
   }
 
-
-
-//stage 2
+  //stage 2
   globalArray = (SPPoint***)malloc(numOfImages * sizeof(SPPoint**));
   CHECK_MEMORY_FAILURE(globalArray);
 
   localArray = (SPPoint***)malloc(numOfImages * sizeof(SPPoint**));
   CHECK_MEMORY_FAILURE(localArray);
 
-  featureSizes = (int*)calloc(numOfImages , sizeof(int));
+  featureSizes = (int*)calloc(numOfImages, sizeof(int));
   CHECK_MEMORY_FAILURE(featureSizes);
 
   for (int i = 0; i < numOfImages; i++) {
@@ -120,11 +108,12 @@ int main() {
     CHECK_MEMORY_FAILURE(queryImageHistogram);
 
     //initilize queryImageFeatures
-    queryImageFeatures = spGetSiftDescriptors(queryPath,
-      0, numberOfFeatures, &numOfQueryFeatures);
+    queryImageFeatures = spGetSiftDescriptors(queryPath, 0, 
+                                    numberOfFeatures, &numOfQueryFeatures);
     CHECK_MEMORY_FAILURE(queryImageFeatures);
 
-    resultArray = spBestHistDistance(K_CLOSEST, queryImageHistogram, numOfImages, globalArray);
+    resultArray = spBestHistDistance(K_CLOSEST, queryImageHistogram,
+                                      numOfImages, globalArray);
     CHECK_MEMORY_FAILURE(resultArray);
 
     printKclosest(resultArray, K_CLOSEST, (char*)"global");
@@ -155,7 +144,7 @@ int main() {
     free(resultArray);
 
     freeHistogram(queryImageHistogram);
-    freeFeatures(queryImageFeatures,numOfQueryFeatures);
+    freeFeatures(queryImageFeatures, numOfQueryFeatures);
 
     queryImagePrompt();
     scanf("%s", queryPath);
