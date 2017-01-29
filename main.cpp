@@ -12,9 +12,8 @@ extern "C" {
 }
 
 #define TERMINATE(Exit_code) terminateProgram(numOfImages, globalArray, \
-                                localArray, featureSizes, totalMatches, \
-                                queryImageHistogram, queryImageFeatures, \
-                                numOfQueryFeatures); \
+                                localArray, featureSizes, queryImageHistogram, \
+                                queryImageFeatures, numOfQueryFeatures); \
                              return Exit_code;
 
 #define ERROR_AND_EXIT(Message) printError((char*)Message);TERMINATE(1);
@@ -30,20 +29,17 @@ extern "C" {
 
 int main() {
   char imageDirectory[STRING_SIZE], imagePrefix[STRING_SIZE],
-    imageSuffix[STRING_SIZE], queryPath[STRING_SIZE];
+    imageSuffix[STRING_SIZE], queryPath[STRING_SIZE], filePath[STRING_SIZE];
   int numOfImages = 0, numberOfBins = 0, numberOfFeatures = 0;
 
   SPPoint*** globalArray = NULL;
   SPPoint*** localArray = NULL;
   int* featureSizes = NULL;
 
-  char filePath[STRING_SIZE];
-
   SPPoint** queryImageHistogram = NULL;
   SPPoint** queryImageFeatures = NULL;
   int numOfQueryFeatures = 0;
 
-  SPImageCounter* totalMatches = NULL;
   int* resultArray = NULL;
 
   imageDirectoryPrompt();
@@ -83,6 +79,7 @@ int main() {
   featureSizes = (int*)calloc(numOfImages, sizeof(int));
   CHECK_MEMORY_FAILURE(featureSizes);
 
+  // Load the images.
   for (int i = 0; i < numOfImages; i++) {
     sprintf(filePath, "%s%s%d%s", imageDirectory, imagePrefix, i, imageSuffix);
     globalArray[i] = spGetRGBHist(filePath, i, numberOfBins);
@@ -93,16 +90,7 @@ int main() {
   queryImagePrompt();
   scanf("%s", queryPath);
 
-  //stage 4
-  totalMatches = (SPImageCounter*)malloc(numOfImages * sizeof(SPImageCounter));
-  CHECK_MEMORY_FAILURE(totalMatches);
-
   while (queryPath[0] != '#') {
-    for (int i = 0; i < numOfImages; i++) {
-      totalMatches[i] = { i, 0 };
-    }
-
-
     //initilize queryImageHistogram
     queryImageHistogram = spGetRGBHist(queryPath, 0, numberOfBins);
     CHECK_MEMORY_FAILURE(queryImageHistogram);
@@ -112,6 +100,7 @@ int main() {
                                     numberOfFeatures, &numOfQueryFeatures);
     CHECK_MEMORY_FAILURE(queryImageFeatures);
 
+    // Calculate K closest images by histogram.
     resultArray = spBestHistDistance(K_CLOSEST, queryImageHistogram,
                                       numOfImages, globalArray);
     CHECK_MEMORY_FAILURE(resultArray);
@@ -119,26 +108,10 @@ int main() {
     printKclosest(resultArray, K_CLOSEST, (char*)"global");
     free(resultArray);
 
-    //calculate closest local feature for each query feature
-    for (int i = 0; i < numOfQueryFeatures; ++i) {
-      resultArray = spBestSIFTL2SquaredDistance(K_CLOSEST, queryImageFeatures[i], localArray,
-        numOfImages, featureSizes);
-      CHECK_MEMORY_FAILURE(resultArray);
-
-      //count the images with the closest features
-      for (int j = 0; j < K_CLOSEST; ++j) {
-        totalMatches[resultArray[j]].count++;
-      }
-      free(resultArray);
-    }
-    qsort(totalMatches, numOfImages, sizeof(SPImageCounter), compare_count);
-
-    resultArray = (int*)malloc(K_CLOSEST * sizeof(int));
+    // Calculate K closest images by sifts.
+    resultArray = spBestImagesBySifts(K_CLOSEST, queryImageFeatures,
+      numOfQueryFeatures, numOfImages, localArray, featureSizes);
     CHECK_MEMORY_FAILURE(resultArray);
-
-    for (int i = 0; i < K_CLOSEST; i++) {
-      resultArray[i] = totalMatches[i].index;
-    }
 
     printKclosest(resultArray, K_CLOSEST, (char*)"local");
     free(resultArray);

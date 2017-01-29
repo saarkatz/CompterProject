@@ -3,6 +3,7 @@
 #include "main_aux.h"
 
 typedef struct hist_distance { int index; double distance; } SPHist;
+typedef struct int_int_pair { int index; int count; } SPImageCounter;
 
 void imageDirectoryPrompt() {
   printf("Enter images directory path:\n");
@@ -89,15 +90,60 @@ int* spBestHistDistance(int kClosest, SPPoint** queryImageHistogram,
   return result;
 }
 
+int* spBestImagesBySifts(int kClosest, SPPoint** queryImageFeatures,
+  int numOfQueryFeatures, int numOfImages, SPPoint*** localArray,
+  int* featureSizes) {
+  int* resultArray = NULL;
+  SPImageCounter* totalMatches = (SPImageCounter*)malloc(numOfImages*sizeof(SPImageCounter));
+  if (totalMatches == NULL) {
+    return NULL;
+  }
+
+  for (int i = 0; i < numOfImages; i++) {
+    totalMatches[i] = { i, 0 };
+  }
+
+  //calculate closest local feature for each query feature
+  for (int i = 0; i < numOfQueryFeatures; ++i) {
+    resultArray = spBestSIFTL2SquaredDistance(kClosest, queryImageFeatures[i],
+      localArray, numOfImages, featureSizes);
+    if (resultArray == NULL) {
+      free(totalMatches);
+      return NULL;
+    }
+
+    //count the images with the closest features
+    for (int j = 0; j < kClosest; ++j) {
+      totalMatches[resultArray[j]].count++;
+    }
+
+    free(resultArray);
+  }
+  qsort(totalMatches, numOfImages, sizeof(SPImageCounter), compare_count);
+
+  resultArray = (int*)malloc(kClosest * sizeof(int));
+  if (resultArray == NULL) {
+    free(totalMatches);
+    return NULL;
+  }
+
+  // Get the k first items from totalMatches.
+  for (int i = 0; i < kClosest; i++) {
+    resultArray[i] = totalMatches[i].index;
+  }
+  
+  free(totalMatches);
+  return resultArray;
+}
+
 void terminateProgram(int numOfImages, SPPoint*** globalArray,
-  SPPoint*** localArray, int* featureSizes, SPImageCounter* totalMatches, 
-  SPPoint** queryImageHistogram, SPPoint** queryImageFeatures, int numOfQueryFeatures) {
+  SPPoint*** localArray, int* featureSizes, SPPoint** queryImageHistogram,
+  SPPoint** queryImageFeatures, int numOfQueryFeatures) {
   
   freeHistogramDatabase(globalArray,numOfImages);
   freeFeatureDatabase(localArray,numOfImages,featureSizes);
   freeHistogram(queryImageHistogram);
   freeFeatures(queryImageFeatures,numOfQueryFeatures);
-  free(totalMatches);
 }
 
 
