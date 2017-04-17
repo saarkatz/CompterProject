@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
 	for (int i = 0; i < POINT_NUM; ++i){
 		p_arr[i]=spPointCreate(data[i],DIM,97+i);
 	}
-	SPKDArray* kdarr = init(p_arr,0);
+	SPKDArray* kdarr = init(p_arr,POINT_NUM);
 	printKDArray(kdarr);
 	SPKDArray** arr = split(kdarr,0);
 	SPKDArray* left = arr[0];

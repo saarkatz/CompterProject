@@ -29,24 +29,28 @@ SPKDArray* init(SPPoint** arr, int size) {
 }
 
 SPKDArray** split(SPKDArray* kdArr, int coor){
-	SPKDArray* left;
-	SPKDArray* right;
+	SPKDArray* left=(SPKDArray*)malloc(sizeof(SPKDArray*));;
+	SPKDArray* right=(SPKDArray*)malloc(sizeof(SPKDArray*));;
 	SPKDArray** result=(SPKDArray**)malloc(2*sizeof(SPKDArray*));
 	int* X = (int*)malloc(kdArr->num_of_points*sizeof(int));
+	int P1_size = kdArr->num_of_points-kdArr->num_of_points/2;
+	int P2_size = kdArr->num_of_points/2;
 	//TODO -check malloc
-	for (int i = 0; i < kdArr->num_of_points/2; ++i){
-		X[kdArr->index_array[coor][i].point_index]=1;
+	for (int i = 0; i < kdArr->num_of_points; ++i){
+		X[i]=1;
+	}
+	for (int i = 0; i < P1_size; ++i){
+		X[kdArr->index_array[coor][i].point_index]=0;
 	}
 
-	int P1_size = kdArr->num_of_points/2;
-	int P2_size = P1_size;
-	 P2_size+=(kdArr->num_of_points%2==0)?0:1;
+	
+
 	int P1_cap=0;
 	int P2_cap=0;
 	SPPoint** P1=(SPPoint**)malloc(P1_size*(sizeof(SPPoint*)));
 	SPPoint** P2=(SPPoint**)malloc(P2_size*(sizeof(SPPoint*)));
 	for (int i = 0; i < kdArr->num_of_points; ++i){
-		if(X[i]){
+		if(!X[i]){
 			P1[P1_cap++]=kdArr->point_array[i];
 		}
 		else{
@@ -73,32 +77,37 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 			map2[i]=-1;
 		}
 	}
-	matrix_entry** M1 =(matrix_entry**) malloc(spPointGetDimension(kdArr->point_array[0])*sizeof(matrix_entry**));
-	matrix_entry** M2 =(matrix_entry**) malloc(spPointGetDimension(kdArr->point_array[0])*sizeof(matrix_entry**));
-
+	matrix_entry** M1 =(matrix_entry**) malloc(spPointGetDimension(kdArr->point_array[0])*sizeof(matrix_entry*));
+	matrix_entry** M2 =(matrix_entry**) malloc(spPointGetDimension(kdArr->point_array[0])*sizeof(matrix_entry*));
+	int tmp;
 	P1_cap=0;
 	P2_cap=0;
 		for (int i = 0; i < spPointGetDimension(kdArr->point_array[0]); ++i){
-			M1[i]=(matrix_entry*)malloc(sizeof(P1_size*sizeof(matrix_entry*)));
-			M2[i]=(matrix_entry*)malloc(sizeof(P2_size*sizeof(matrix_entry*)));
-			for (int j = 0; i < kdArr->num_of_points; ++j){
-				if(X[j]){
-					M1[i][P1_cap].point=kdArr->point_array[i];
+			M1[i]=(matrix_entry*)malloc((P1_size*sizeof(matrix_entry)));
+			M2[i]=(matrix_entry*)malloc((P2_size*sizeof(matrix_entry)));
+			for (int j = 0; j < kdArr->num_of_points; j++){
+				tmp=kdArr->index_array[i][j].point_index;
+				if(!X[tmp]){
+
+					M1[i][P1_cap].point=kdArr->point_array[tmp];
 					M1[i][P1_cap].cor=i;
-					M1[i][P1_cap].point_index=map1[j];
+					M1[i][P1_cap].point_index=map1[tmp];
 					P1_cap++;
 				}
 				else{
-					M2[i][P2_cap].point=kdArr->point_array[i];
+					M2[i][P2_cap].point=kdArr->point_array[tmp];
 					M2[i][P2_cap].cor=i;
-					M2[i][P2_cap].point_index=map2[j];
+					M2[i][P2_cap].point_index=map2[tmp];
 					P2_cap++;
 				}			
 			}
+			P1_cap=0;
+			P2_cap=0;
 		}
 	left->point_array=P1;
 	left->index_array=M1;
-	left->num_of_points=P1_size;	
+	left->num_of_points=P1_size;
+
 	right->point_array=P2;
 	right->index_array=M2;
 	right->num_of_points=P2_size;
