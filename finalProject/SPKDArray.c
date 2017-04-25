@@ -44,7 +44,6 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 	}
 
 	
-
 	int P1_cap=0;
 	int P2_cap=0;
 	SPPoint** P1=(SPPoint**)malloc(P1_size*(sizeof(SPPoint*)));

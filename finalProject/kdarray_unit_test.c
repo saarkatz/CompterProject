@@ -42,7 +42,6 @@ int main(int argc, char const *argv[])
 	SPKDArray** arr = split(kdarr,0);
 	SPKDArray* left = arr[0];
 	SPKDArray* right = arr[1];
-
 	printf("\n");
 	printKDArray(left);
 	printf("\n");
