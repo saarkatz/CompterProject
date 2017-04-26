@@ -1,10 +1,20 @@
-#include "SPLogger.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "SPGlobals.h"
+#include "SPLogger.h"
+
+
+
 //File open mode
 #define SP_LOGGER_OPEN_MODE "w"
+
+// Logger messages formats
+#define SP_LOGGER_ERROR_FORMAT "---ERROR---\n-file: %s\n-function : %s\n-line : %d\n-message : %s"
+#define SP_LOGGER_WARNING_FORMAT "---WARNING---\n-file: %s\n-function : %s\n-line : %d\n-message : %s"
+#define SP_LOGGER_INFO_FORMAT "---INFO---\n-message : %s"
+#define SP_LOGGER_DEBUG_FORMAT "---DEBUG---\n-file: %s\n-function : %s\n-line : %d\n-message : %s"
 
 // Global variable holding the logger
 SPLogger logger = NULL;
@@ -48,4 +58,93 @@ void spLoggerDestroy() {
 	}
 	free(logger);//free allocation
 	logger = NULL;
+}
+
+SP_LOGGER_MSG spLoggerAssert(const char* msg, const char* file,
+  const char* function) {
+  if (logger == NULL) {
+    return SP_LOGGER_UNDIFINED;
+  }
+  if (msg == NULL || file == NULL || function == NULL) {
+    return SP_LOGGER_INVAlID_ARGUMENT;
+  }
+  return SP_LOGGER_SUCCESS;
+}
+
+int spLoggerPrint(const char* message) {
+  if (logger != NULL)
+    if (logger->isStdOut)
+      return printf(message);
+    else
+      return fprintf(logger->outputChannel, message);
+  else
+    return -1;
+}
+
+SP_LOGGER_MSG spLoggerPrintMessage(SP_LOGGER_LEVEL level, const char* msg, const char* file,
+  const char* function, const int line) {
+  char message[STRING_MAX_LENGTH];
+
+  // Assert the requerments for the log
+  SP_LOGGER_MSG assertion = spLoggerAssert(msg, file, function);
+  if (assertion != SP_LOGGER_SUCCESS) return assertion;
+
+  // Try to print the message
+  switch (level)
+  {
+  case SP_LOGGER_ERROR_LEVEL: // ERROR
+    sprintf(message, SP_LOGGER_ERROR_FORMAT, file, function, line, msg);
+    if (spLoggerPrint(message) > 0)
+      return SP_LOGGER_WRITE_FAIL;
+    break;
+  case SP_LOGGER_WARNING_ERROR_LEVEL: // WARNING
+    sprintf(message, SP_LOGGER_WARNING_FORMAT, file, function, line, msg);
+    if (SP_LOGGER_ERROR_LEVEL != logger->level)
+      if (spLoggerPrint(message) > 0)
+        return SP_LOGGER_WRITE_FAIL;
+    break;
+  case SP_LOGGER_INFO_WARNING_ERROR_LEVEL: // INFO
+    sprintf(message, SP_LOGGER_INFO_FORMAT, msg);
+    if (SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL == logger->level ||
+      SP_LOGGER_INFO_WARNING_ERROR_LEVEL == logger->level)
+      if (spLoggerPrint(message) > 0)
+        return SP_LOGGER_WRITE_FAIL; 
+    break;
+  case SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL: // DEBUG
+    sprintf(message, SP_LOGGER_DEBUG_FORMAT, file, function, line, msg);
+    if (SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL == logger->level)
+      if (spLoggerPrint(message) > 0)
+        return SP_LOGGER_WRITE_FAIL; 
+    break;
+  }
+  return SP_LOGGER_SUCCESS;
+}
+
+SP_LOGGER_MSG spLoggerPrintError(const char* msg, const char* file,
+  const char* function, const int line) {
+  return spLoggerPrintMessage(SP_LOGGER_ERROR_LEVEL, msg, file, function, line);
+}
+
+SP_LOGGER_MSG spLoggerPrintWarning(const char* msg, const char* file,
+  const char* function, const int line) {
+  return spLoggerPrintMessage(SP_LOGGER_WARNING_ERROR_LEVEL, msg, file, function, line);
+}
+
+SP_LOGGER_MSG spLoggerPrintInfo(const char* msg) {
+  return spLoggerPrintMessage(SP_LOGGER_INFO_WARNING_ERROR_LEVEL, msg, "", "", 0);
+}
+
+SP_LOGGER_MSG spLoggerPrintDebug(const char* msg, const char* file,
+  const char* function, const int line) {
+  return spLoggerPrintMessage(SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL, msg, file, function, line);
+}
+
+SP_LOGGER_MSG spLoggerPrintMsg(const char* msg) {
+  // Assert the requerments for the log
+  SP_LOGGER_MSG assertion = spLoggerAssert(msg, "", "");
+  if (assertion != SP_LOGGER_SUCCESS) return assertion;
+
+  // Try to print the message
+  if (spLoggerPrint(msg) > 0)
+    return SP_LOGGER_WRITE_FAIL;
 }
