@@ -1,3 +1,6 @@
+
+#ifndef SPKDARRAY_H_
+#define SPKDARRAY_H_
 #include "SPPoint.h"
 
 typedef struct mat_entry{
@@ -21,3 +24,4 @@ SPPoint** copyPointArray(SPPoint** arr,int size);
 
 int compare_entry(const void* p1,const void* p2);
 
+#endif 

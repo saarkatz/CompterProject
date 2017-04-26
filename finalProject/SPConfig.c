@@ -15,15 +15,15 @@ typedef struct config_var
 
 
 
-enum search_method{RANDOM, MAX_SPREAD,
-INCREMENTAL};
+typedef enum search_method_t{RANDOM, MAX_SPREAD,
+INCREMENTAL}SPSearchMethod;
 
 struct sp_config_t{
 char spImagesDirectory[256];
 bool spExtractionMode;
 char spImagesPrefix[256];
 char spImagesSuffix[256];
-search_method spKDTreeSplitMethod;
+SPSearchMethod spKDTreeSplitMethod;
 int spKNN;
 char spLoggerFilename[256];
 int spLoggerLevel;
@@ -34,7 +34,9 @@ int spNumOfSimilarImages;
 int spPCADimension;
 char spPCAFilename[256];
 };
-
+SPSearchMethod getKDTreeSplitMethod(SPConfig config){
+	return config->spKDTreeSplitMethod;
+}
 SPVar get_var(char* line){
   SPVar v;
   sscanf(line,"%[^= ] = %s",v.before,v.after);

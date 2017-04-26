@@ -64,7 +64,7 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg);
  * - SP_CONFIG_SUCCESS - in case of success
  */
 bool spConfigIsExtractionMode(const SPConfig config, SP_CONFIG_MSG* msg);
-
+SPSearchMethod getKDTreeSplitMethod(SPConfig config);
 /*
  * Returns true if spMinimalGUI = true, false otherwise.
  *
