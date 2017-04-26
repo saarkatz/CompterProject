@@ -22,9 +22,10 @@ typedef enum sp_config_msg_t {
 	SP_CONFIG_INDEX_OUT_OF_RANGE,
 	SP_CONFIG_SUCCESS
 } SP_CONFIG_MSG;
+void spCaseChoose(SPConfig config,int i,SPVar* var);
 
 typedef struct sp_config_t* SPConfig;
-
+int spCmpVar(const void *p, const void *q);
 /**
  * Creates a new system configuration struct. The configuration struct
  * is initialized based on the configuration file given by 'filename'.
@@ -169,5 +170,21 @@ SP_CONFIG_MSG spConfigGetPCAPath(char* pcaPath, const SPConfig config);
  * If config == NULL nothig is done.
  */
 void spConfigDestroy(SPConfig config);
+
+void setPCAFilename(SPConfig config,SPVar* str);
+void setPCADimension(SPConfig config,SPVar* str);
+void setNumOfSimilarImages(SPConfig config,SPVar* str);
+void setNumOfImages(SPConfig config,SPVar* str);
+void setNumOfFeatures(SPConfig config,SPVar* str);
+void setMinimalGUI(SPConfig config,SPVar* str);
+void setLoggerLevel(SPConfig config,SPVar* str);
+void setLoggerFilename(SPConfig config,SPVar* str);
+void setKNN(SPConfig config,SPVar* str);
+void setKDTreeSplitMethod(SPConfig config,SPVar* str);
+void setImagesSuffix(SPConfig config,SPVar* str);
+void setImagesPrefix(SPConfig config,SPVar* str);
+void setImagesDirectory(SPConfig config,SPVar* str);
+void setExtractionMode(SPConfig config,SPVar* str);
+
 
 #endif /* SPCONFIG_H_ */
