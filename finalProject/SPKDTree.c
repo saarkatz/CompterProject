@@ -68,6 +68,7 @@ int choose_max_spread(SPKDArray* kdarr){
 }
 int choose_random();
 double tree_median();
+
 void k_nearest_search(KDTreeNode kdnode , SPBPQueue bpq, SPPoint p){
 		if(kdnode==NULL){
 			return;
