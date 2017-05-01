@@ -27,6 +27,7 @@ SPKDTreeNode* create_tree(SPConfig config,SPKDArray* arr,int coor){
 		tree_result->left=NULL;
 		tree_result->right=NULL;
 		tree_result->data=arr->point_array[0];
+		return tree_result;
 	}
 	SPKDArray** split_result;
 	switch(getKDTreeSplitMethod(config)){
