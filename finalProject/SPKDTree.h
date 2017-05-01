@@ -10,7 +10,12 @@ typedef struct sp_kd_tree_node SPKDTreeNode;
 
 
 SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr,int coor);
+
+//internal function for create tree
 int choose_max_spread(SPKDArray* kdarr);
+
+
+//internal function for create tree
 int choose_random();
 double tree_median();
 

@@ -64,6 +64,13 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg){
 	if(config==NULL){
 		//TODO - handle
 	}
+	
+
+	bool ImagesDirectoryDefined;
+	bool ImagesPrefixDefined;
+	bool ImagesSuffixDefined; 
+	bool NumOfImagesDefined;
+	
 	//put in default paramaters, we change this later if in the config they are diffrent
 	FILE *file = fopen (filename, "r");
 	char* arg_arr[14] ={"spImagesDirectory",
@@ -81,6 +88,18 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg){
 		"spPCADimension",
 		"spPCAFilename"};
   SPVar var_array[14];
+
+ config->spPCADimension=20;
+ config->spPCAFilename="pca.yml";
+ config->spNumOfFeatures=100;
+ config->spExtractionMode=true;;
+ config->spMinimalGUI=false;
+ config->spNumOfSimilarImages=1;
+ config->spKNN=1;
+ config->spKDTreeSplitMethod=MAX_SPREAD;
+ config->spLoggerLevel= 3;
+ config->spLoggerFilename="stdout";
+
   int var_num=0;
   if (file != NULL){ 
     char line[MAXBUF];
@@ -97,9 +116,18 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg){
     	tmp = bsearch(tmp,var_array,var_num,sizeof(SPVar),spCmpVar);
     	if(tmp!=NULL){
     		spCaseChoose(config,i,tmp);
+    		ImagesDirectoryDefined|=(i=0);
+    		ImagesPrefixDefined|=(i=2);
+    		ImagesSuffixDefined|=(i=3);
+    		NumOfImagesDefined|=(i=10);
     	}
     }
-    
+    if(!(ImagesDirectoryDefined&&
+    	ImagesPrefixDefined&&
+    	ImagesSuffixDefined&&
+    	NumOfImagesDefined)){//one of the mandatory variable was not defined
+    	printf("!!!!!!!!!!\n");//TODO!
+    }
 }
 
 void spCaseChoose(SPConfig config,int i,SPVar* var){
@@ -197,7 +225,7 @@ void spConfigDestroy(SPConfig config){
 
 
 void setPCAFilename(SPConfig config,SPVar* str){
-	config->spPCAFilename=str->after;
+    strcpy(config->spPCAFilename,str->after);
 }
 void setPCADimension(SPConfig config,SPVar* str){
 	config->spPCADimension=atoi(str->after);
@@ -218,23 +246,35 @@ void setLoggerLevel(SPConfig config,SPVar* str){
 	config->spLoggerLevel=atoi(str->after);
 }
 void setLoggerFilename(SPConfig config,SPVar* str){
-	config->spLoggerFilename=str->after;
+    strcpy(config->spLoggerFilename,str->after);
 }
 void setKNN(SPConfig config,SPVar* str){
 	config->spKNN=atoi(str->after);
 }
 void setKDTreeSplitMethod(SPConfig config,SPVar* str){
 	//config->spKDTreeSplitMethod=(str->after);//TODO switch case
+	if(strcmp("RANDOM",str->after)){
+		config->spKDTreeSplitMethod=RANDOM;
+	}
+	else if(strcmp("MAX_SPREAD",str->after)){
+		config->spKDTreeSplitMethod=MAX_SPREAD;
+	}
+	else if(strcmp("INCREMENTAL",str->after)){
+		config->spKDTreeSplitMethod=INCREMENTAL;
+	}
+	else{
+		//TODO - return error
+	}
 }
 void setImagesSuffix(SPConfig config,SPVar* str){
-	config->spImagesSuffix=(str)->after;
+    strcpy(config->spImagesSuffix,str->after);
 }
 void setImagesPrefix(SPConfig config,SPVar* str){
-	config->spImagesPrefix=(str)->after;
+    strcpy(config->spImagesPrefix,str->after);
 }
 void setImagesDirectory(SPConfig config,SPVar* str){
-	config->spImagesDirectory=(str)->after;
+    strcpy(config->spImagesDirectory,str->after);
 }
 void setExtractionMode(SPConfig config,SPVar* str){
-	config->spExtractionMode=(str)->after;//TODO
+    strcpy(config->spExtractionMode,str->after);
 }

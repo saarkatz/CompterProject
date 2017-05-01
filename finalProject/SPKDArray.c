@@ -114,6 +114,7 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 	result[1]=right;	
 	return result;
 }
+
 void destroyArray();
 	
 int compare_entry(const void* p1,const void* p2){

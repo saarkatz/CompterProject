@@ -16,7 +16,7 @@ struct sp_kd_tree_node{
 	SPPoint* data;
 };
  
-	
+
 //coor is the current coordinate
 SPKDTreeNode* create_tree(SPConfig config,SPKDArray* arr,int coor){
 	int split_dim;
