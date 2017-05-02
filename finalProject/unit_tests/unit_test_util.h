@@ -15,13 +15,13 @@ extern "C" {
 
 #define ASSERT_TRUE(expression) do { \
                 if(!((expression))) { \
-                        FAIL("expression is false :: "); \
+                        FAIL("expression is false :: " #expression); \
                 } \
         } while (0)
 
 #define ASSERT_FALSE(expression) do { \
                 if((expression)) { \
-                        FAIL("expression is true  ::"); \
+                        FAIL("expression is true  :: " #expression); \
                 } \
 		} while (0)
 
