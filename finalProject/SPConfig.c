@@ -90,7 +90,7 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg){
   SPVar var_array[14];
 
  config->spPCADimension=20;
- config->spPCAFilename="pca.yml";
+ strpcy(config->spPCAFilename, "pca.yml");
  config->spNumOfFeatures=100;
  config->spExtractionMode=true;;
  config->spMinimalGUI=false;
@@ -98,7 +98,7 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg){
  config->spKNN=1;
  config->spKDTreeSplitMethod=MAX_SPREAD;
  config->spLoggerLevel= 3;
- config->spLoggerFilename="stdout";
+ strcpy(config->spLoggerFilename, "stdout");
 
   int var_num=0;
   if (file != NULL){ 
@@ -112,6 +112,7 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg){
     SPVar* tmp=(SPVar*)malloc(sizeof(SPVar));
     qsort(var_array,var_num,sizeof(SPVar),spCmpVar);
     for(int i=0;i<14;i++){
+      // Msybe tmp->before[i]?
     	tmp->before=arg_arr[i];
     	tmp = bsearch(tmp,var_array,var_num,sizeof(SPVar),spCmpVar);
     	if(tmp!=NULL){
