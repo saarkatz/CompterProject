@@ -13,6 +13,15 @@
 #include "../SPKDTree.h"
 
 /* Tests for kd-tree */
+/*
+UT - unit test
+TCT - test create tree
+*/
+
+#define UT_LOGGER_FILENAME "sp_kdtree_unit_test.log"
+#define UT_LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
+
+/* Test create-tree*/
 #define TCT_REPEAT 30
 
 #define TCT_MIN_X 1
@@ -30,10 +39,6 @@
 #define TCT_CONFIG_RANDOM_SPLIT "configs/random_split.config"
 #define TCT_CONFIG_MAX_SPREAD_SPLIT "configs/max_spread_split.config"
 #define TCT_CONFIG_INCREMENTAL_SPLIT "configs/incremental_split.config"
-
-
-#define TCT_LOGGER_FILENAME "sp_kdtree_unit_test.log"
-#define TCT_LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
 
 /* Signutures of helper function defined in this section */
 
@@ -208,15 +213,19 @@ bool testCreateTree() {
         do {
           /* Create KDTree */
           /* Choose split method */
-          if (i > TCT_USE_INCREMENTAL_SPLIT_AFTER) {
+          if (i >= TCT_USE_INCREMENTAL_SPLIT_AFTER) {
             spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
           }
-          else if (i > TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
+          else if (i >= TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
             spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
           }
-          else if (i > TCT_USE_RANDOM_SPLIT_AFTER) {
+          else if (i >= TCT_USE_RANDOM_SPLIT_AFTER) {
             spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
           }
+          else {
+            spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+          }
+
           if (NULL == config) {
             PRINT_E("Unable to load config file: %d\n", msg);
             returnv = false;
@@ -246,7 +255,7 @@ bool testCreateTree() {
 
 int main() {
   /* Declare logger */
-  SP_LOGGER_MSG msg = spLoggerCreate(TCT_LOGGER_FILENAME, TCT_LOGGER_LEVEL);
+  SP_LOGGER_MSG msg = spLoggerCreate(UT_LOGGER_FILENAME, UT_LOGGER_LEVEL);
   if (SP_LOGGER_DEFINED != msg && SP_LOGGER_SUCCESS != msg) {
     PRINT_E("Unable to create logger, aborting test suite.\n");
     return -1;
