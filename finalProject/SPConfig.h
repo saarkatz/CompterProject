@@ -9,6 +9,43 @@
  * A data-structure which is used for configuring the system.
  */
 
+/* System variables
+Variable that MUST be initialized:
+  spImagesDirectory - string, Constraint: the string contains no spaces
+  spImagesPrefix - string, Constraint: the string contains no spaces
+  spImagesSuffix - string, Constraint: string in { .jpg , .png , .bmp , .gif }
+  spNumOfImages - int, Constraint: positive integer
+
+Variables that have default value:
+  spPCADimension - Constraint: positive integer in the range [10 , 28]
+  spPCAFilename - string, Constraint: the string contains no spaces
+  spNumOfFeatures: - int, Constraint: positive integer
+  spExtractionMode - bool, Constraint: value in { true , false}
+  spNumOfSimilarImages - int, Constraint: value > 0
+  spKDTreeSplitMethod - enum, 
+    Constraint: value in {RANDOM, MAX_SPREAD, INCREMENTAL }
+  spKNN - int, Constraint: value > 0
+  spMinimalGUI - bool, Constraint: value in { true , false}
+  spLoggerLevel - int, Constraint: value in { 1 , 2 , 3 , 4}
+    1 - error level
+    2 - warning level
+    3 - info level
+    4 - debug level
+  spLoggerFilename - string, Constraint: the string contains no spaces
+
+Default values of variables:
+  spPCADimension: 20
+  spPCAFilename: pca.yml
+  spNumOfFeatures: 100
+  spExtractionMode: true
+  spMinimalGUI: false
+  spNumOfSimilarImages: 1
+  spKNN: 1
+  spKDTreeSplitMethod: MAX_SPREAD
+  spLoggerLevel: 3
+  spLoggerFilename: stdout
+*/
+
 typedef enum sp_config_msg_t {
 	SP_CONFIG_MISSING_DIR,
 	SP_CONFIG_MISSING_PREFIX,
