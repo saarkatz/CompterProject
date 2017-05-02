@@ -65,11 +65,7 @@ typedef enum search_method_t {
   INCREMENTAL
 }SPSearchMethod;
 
-typedef struct config_var SPVar;
-
 typedef struct sp_config_t* SPConfig;
-
-void spCaseChoose(SPConfig config,int i,SPVar* var);
 
 int spCmpVar(const void *p, const void *q);
 /**
@@ -237,7 +233,7 @@ int spConfigGetNumSimilarImages(const SPConfig config, SP_CONFIG_MSG* msg);
 * - SP_CONFIG_SUCCESS - in case of success
 */
 SPSearchMethod spConfigGetSplitMethod(SPConfig config,
-  SP_CONFIG_MSG* msg);
+  SP_CONFIG_MSG *msg);
 
 /**
 * Returns the positive integer which is used in the k nearest neighbor search
@@ -284,23 +280,6 @@ SP_CONFIG_MSG spConfigGetLoggerFilename(char* loggerFilename, const SPConfig con
  * If config == NULL nothig is done.
  */
 void spConfigDestroy(SPConfig config);
-
-
-
-void setPCAFilename(SPConfig config,SPVar* str);
-void setPCADimension(SPConfig config,SPVar* str);
-void setNumOfSimilarImages(SPConfig config,SPVar* str);
-void setNumOfImages(SPConfig config,SPVar* str);
-void setNumOfFeatures(SPConfig config,SPVar* str);
-void setMinimalGUI(SPConfig config,SPVar* str);
-void setLoggerLevel(SPConfig config,SPVar* str);
-void setLoggerFilename(SPConfig config,SPVar* str);
-void setKNN(SPConfig config,SPVar* str);
-void setKDTreeSplitMethod(SPConfig config,SPVar* str);
-void setImagesSuffix(SPConfig config,SPVar* str);
-void setImagesPrefix(SPConfig config,SPVar* str);
-void setImagesDirectory(SPConfig config,SPVar* str);
-void setExtractionMode(SPConfig config,SPVar* str);
 
 
 #endif /* SPCONFIG_H_ */

@@ -214,16 +214,16 @@ bool testCreateTree() {
           /* Create KDTree */
           /* Choose split method */
           if (i >= TCT_USE_INCREMENTAL_SPLIT_AFTER) {
-            spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+            config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
           }
           else if (i >= TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
-            spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
+            config = spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
           }
           else if (i >= TCT_USE_RANDOM_SPLIT_AFTER) {
-            spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
+            config = spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
           }
           else {
-            spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+            config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
           }
 
           if (NULL == config) {
