@@ -27,7 +27,7 @@ C_COMP_FLAG = -std=c99 -Wall -Wextra \
 
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) -L$(LIBPATH) $(LIBS) -o $@
-sp_config_unit_test.o: $(TEST)/sp_config_unit_test.c $(HOME)/SPConfig.h $(HOME)/SPLogger.h $(HOME)/SPGlobals.h
+sp_config_unit_test.o: $(TEST)/sp_config_unit_test.c $(TEST)/unit_test_util.h $(HOME)/SPConfig.h $(HOME)/SPLogger.h $(HOME)/SPGlobals.h
 	$(CC) $(C_COMP_FLAG) $(INCLUDEPATH) -c $*.c
 SPConfig.o: $(HOME)/SPConfig.c $(HOME)/SPConfig.h $(HOME)/SPLogger.h
 	$(CC) $(C_COMP_FLAG) $(INCLUDEPATH) -c $(HOME)/$*.c
