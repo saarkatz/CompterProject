@@ -220,7 +220,7 @@ bool testValidValues() {
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = spConfigGetImagePath(buffer, config, 11);
-  ASSERT_TRUE(0 == strcmp("./pictures/pic7.bmp", buffer));
+  ASSERT_FALSE(0 == strcmp("./pictures/pic11.bmp", buffer));
   ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
   ASSERT_TRUE(15 == spConfigGetPCADim(config, &msg));
