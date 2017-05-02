@@ -34,7 +34,7 @@ int spNumOfSimilarImages;
 int spPCADimension;
 char spPCAFilename[256];
 };
-SPSearchMethod getKDTreeSplitMethod(SPConfig config){
+SPSearchMethod spConfigGetSplitMethod(SPConfig config){
 	return config->spKDTreeSplitMethod;
 }
 SPVar get_var(char* line){
@@ -220,7 +220,7 @@ SP_CONFIG_MSG spConfigGetPCAPath(char* pcaPath, const SPConfig config){
 }
 
 void spConfigDestroy(SPConfig config){
-
+  printf("spConfigDestroy is called but not implemented\n");
 }
 
 

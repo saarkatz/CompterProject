@@ -110,7 +110,7 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg);
  * - SP_CONFIG_SUCCESS - in case of success
  */
 bool spConfigIsExtractionMode(const SPConfig config, SP_CONFIG_MSG* msg);
-SPSearchMethod getKDTreeSplitMethod(SPConfig config);
+
 /*
  * Returns true if spMinimalGUI = true, false otherwise.
  *
@@ -203,19 +203,89 @@ SP_CONFIG_MSG spConfigGetImagePath(char* imagePath, const SPConfig config,
  * Thus the address given by pcaPath must contain enough space to
  * store the resulting string.
  *
- * @param imagePath - an address to store the result in, it must contain enough space.
+ * @param pcaPath - an address to store the result in, it must contain enough space.
  * @param config - the configuration structure
  * @return
- *  - SP_CONFIG_INVALID_ARGUMENT - if imagePath == NULL or config == NULL
+ *  - SP_CONFIG_INVALID_ARGUMENT - if pcaPath == NULL or config == NULL
  *  - SP_CONFIG_SUCCESS - in case of success
  */
 SP_CONFIG_MSG spConfigGetPCAPath(char* pcaPath, const SPConfig config);
+
+/**
+* Returns the number of images presented given a query image. i.e the value of
+* spNumOfSimilarImages.
+*
+* @param config - the configuration structure
+* @assert msg != NULL
+* @param msg - pointer in which the msg returned by the function is stored
+* @return positive integer in success, negative integer otherwise.
+*
+* - SP_CONFIG_INVALID_ARGUMENT - if config == NULL
+* - SP_CONFIG_SUCCESS - in case of success
+*/
+int spConfigGetNumSimilarImages(const SPConfig config, SP_CONFIG_MSG* msg);
+
+/**
+* Returns the split method of the kdtree. i.e. the value of spKDTreeSplitMethod
+*
+* @param config - the configuration structure
+* @assert msg != NULL
+* @param msg - pointer in which the msg returned by the function is stored
+* @return SPSearchMethod if success, negative integer otherwise.
+*
+* - SP_CONFIG_INVALID_ARGUMENT - if config == NULL
+* - SP_CONFIG_SUCCESS - in case of success
+*/
+SPSearchMethod spConfigGetSplitMethod(SPConfig config,
+  SP_CONFIG_MSG* msg);
+
+/**
+* Returns the positive integer which is used in the k nearest neighbor search
+* algorithm. i.e. the value of spKNN
+*
+* @param config - the configuration structure
+* @assert msg != NULL
+* @param msg - pointer in which the msg returned by the function is stored
+* @return positive integer in success, negative integer otherwise.
+*
+* - SP_CONFIG_INVALID_ARGUMENT - if config == NULL
+* - SP_CONFIG_SUCCESS - in case of success
+*/
+int spConfigGetKNN(SPConfig config, SP_CONFIG_MSG* msg);
+
+/**
+* Returns the logger level. i.e the value of spLoggerLevel
+*
+* @param config - the configuration structure
+* @assert msg != NULL
+* @param msg - pointer in which the msg returned by the function is stored
+* @return positive integer in the range [1, 4] in success, negative integer
+*         otherwise.
+*
+* - SP_CONFIG_INVALID_ARGUMENT - if config == NULL
+* - SP_CONFIG_SUCCESS - in case of success
+*/
+int spConfigGetLoggerLevel(SPConfig config, SP_CONFIG_MSG* msg);
+
+/**
+* The function stores in loggerFilename the name of logger file.
+*
+* @param loggerFilename - an address to store the result in, it must contain enough space.
+* @param config - the configuration structure
+* @return
+*  - SP_CONFIG_INVALID_ARGUMENT - if loggerFilename == NULL or config == NULL
+*  - SP_CONFIG_SUCCESS - in case of success
+*/
+SP_CONFIG_MSG spConfigGetLoggerFilename(char* loggerFilename, const SPConfig config);
+
 
 /**
  * Frees all memory resources associate with config. 
  * If config == NULL nothig is done.
  */
 void spConfigDestroy(SPConfig config);
+
+
 
 void setPCAFilename(SPConfig config,SPVar* str);
 void setPCADimension(SPConfig config,SPVar* str);

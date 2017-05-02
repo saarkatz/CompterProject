@@ -30,7 +30,7 @@ SPKDTreeNode* create_tree(SPConfig config,SPKDArray* arr,int coor){
 		return tree_result;
 	}
 	SPKDArray** split_result;
-	switch(getKDTreeSplitMethod(config)){
+	switch(spConfigGetSplitMethod(config)){
 	case MAX_SPREAD:
 		split_dim=choose_max_spread(arr);
 		break;
