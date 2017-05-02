@@ -22,9 +22,18 @@ typedef enum sp_config_msg_t {
 	SP_CONFIG_INDEX_OUT_OF_RANGE,
 	SP_CONFIG_SUCCESS
 } SP_CONFIG_MSG;
-void spCaseChoose(SPConfig config,int i,SPVar* var);
+
+typedef enum search_method_t {
+  RANDOM, MAX_SPREAD,
+  INCREMENTAL
+}SPSearchMethod;
+
+typedef struct config_var SPVar;
 
 typedef struct sp_config_t* SPConfig;
+
+void spCaseChoose(SPConfig config,int i,SPVar* var);
+
 int spCmpVar(const void *p, const void *q);
 /**
  * Creates a new system configuration struct. The configuration struct
