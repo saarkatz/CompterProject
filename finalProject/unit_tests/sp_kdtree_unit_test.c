@@ -6,11 +6,6 @@
 
 #include "unit_test_util.h"
 
-// NOT USING THE MOCK //
-// By including this mock object the original SPConfig.h won't be the one 
-// compiled into SPKDTree. The idea is to isolate the different modules when
-// testing. Google "mock object" for more information.
-
 #include "../SPLogger.h"
 #include "../SPConfig.h"
 #include "../SPPoint.h"
