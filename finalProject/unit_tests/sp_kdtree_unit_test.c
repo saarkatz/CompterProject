@@ -33,10 +33,13 @@ printf(__VA_ARGS__); \
 #define USE_MAX_SPREAD_SPLIT_AFTER 10
 #define USE_INCREMENTAL_SPLIT_AFTER 20
 
+#define CONFIG_RANDOM_SPLIT "configs/random_split.config"
+#define CONFIG_MAX_SPREAD_SPLIT "configs/max_spread_split.config"
+#define CONFIG_INCREMENTAL_SPLIT "configs/incremental_split.config"
+
+
 #define LOGGER_FILENAME "sp_kdtree_unit_test.log"
 #define LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
-
-#define CONFIG_FILENAME "../example.config"
 
 /* Signutures of helper function defined in this section */
 
@@ -172,14 +175,10 @@ bool testCreateTree() {
 
   /* Declear config */
   SP_CONFIG_MSG msg;
-  SPConfig config = spConfigCreate(CONFIG_FILENAME, &msg);
-  if (NULL == config) {
-    PRINT_E("Unable to load config file: %d\n", msg);
-    return false;
-  }
+  SPConfig config;
 
   PRINT("Repeating %d times:\n", TCT_REPEAT);
-  for (int i = 0; i < TCT_REPEAT; i++) {
+  for (int i = 0; i < TCT_REPEAT && true == returnv; i++) {
     /* Initializing data array */
     seed = 0;
     data = generatDoubleMatrix(TCT_MIN_X, TCT_MAX_X, TCT_MIN_Y, TCT_MAX_Y,
@@ -215,15 +214,21 @@ bool testCreateTree() {
         do {
           /* Create KDTree */
           /* Choose split method */
-          //if (i > USE_INCREMENTAL_SPLIT_AFTER) {
-          //  mock_config_split_method = 2;
-          //}
-          //else if (i > USE_MAX_SPREAD_SPLIT_AFTER) {
-          //  mock_config_split_method = 1;
-          //}
-          //else if (i > USE_RANDOM_SPLIT_AFTER) {
-          //  mock_config_split_method = 0;
-          //}
+          if (i > USE_INCREMENTAL_SPLIT_AFTER) {
+            spConfigCreate(CONFIG_INCREMENTAL_SPLIT, &msg);
+          }
+          else if (i > USE_MAX_SPREAD_SPLIT_AFTER) {
+            spConfigCreate(CONFIG_MAX_SPREAD_SPLIT, &msg);
+          }
+          else if (i > USE_RANDOM_SPLIT_AFTER) {
+            spConfigCreate(CONFIG_RANDOM_SPLIT, &msg);
+          }
+          if (NULL == config) {
+            PRINT_E("Unable to load config file: %d\n", msg);
+            returnv = false;
+            break;
+          }
+
           PRINT("Creating tree using split method %d\n",
             getKDTreeSplitMethod(config));
 
@@ -234,7 +239,7 @@ bool testCreateTree() {
 
           PRINT("No method for destroying KDTree!\n");
         } while (0);
-        PRINT("No method for destroying KDArray!\n");
+        spKDArrayDestroy();
       } while (0);
       destroySPPointArray(point_arr, x);
     } while (0);
