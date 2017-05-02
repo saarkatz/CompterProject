@@ -233,7 +233,7 @@ bool testCreateTree() {
           }
 
           PRINT("Creating tree using split method %d\n",
-            spConfigGetSplitMethod(config));
+            spConfigGetSplitMethod(config, &msg));
 
 
           kdtree = create_tree(NULL, kdarr, 0);
