@@ -19,7 +19,7 @@ Variable that MUST be initialized:
 Variables that have default value:
   spPCADimension - Constraint: positive integer in the range [10 , 28]
   spPCAFilename - string, Constraint: the string contains no spaces
-  spNumOfFeatures: - int, Constraint: positive integer
+  spNumOfFeatures - int, Constraint: positive integer
   spExtractionMode - bool, Constraint: value in { true , false}
   spNumOfSimilarImages - int, Constraint: value > 0
   spKDTreeSplitMethod - enum, 
