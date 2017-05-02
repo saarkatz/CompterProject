@@ -4,7 +4,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+
 #include "SPConfig.h"
+
 #define MAXBUF 1024 
 
 typedef struct config_var 
@@ -67,6 +69,7 @@ void print_var_arr(SPVar* array,int size){
     printf("(%s),(%s)\n",array[i].before,array[i].after);
   }
 }
+
 int first_nonwhitespace(char* s){
     size_t i = 0;
     while(s[i] == ' ' || s[i] == '\t'|| s[i] == '\n' || s[i] == '\r' || s[i] == '\f' || s[i] == '\v')
@@ -123,81 +126,118 @@ void spCaseChoose(SPConfig config, int i, SPVar* var) {
   }
 }
 
-SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg) {
-  SPConfig config = (SPConfig)malloc(sizeof(struct sp_config_t));
-  if (config == NULL) {
-    //TODO - handle
-    *msg = SP_CONFIG_ALLOC_FAIL;
-    return NULL;
-  }
+int spCmpVar(const void *p, const void *q) {
+  return strcmp(((SPVar *)p)->before, ((SPVar *)q)->before);
+}
 
+SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg) {
+  /* define all the variables */
+  SPConfig config;
 
   bool ImagesDirectoryDefined;
   bool ImagesPrefixDefined;
   bool ImagesSuffixDefined;
   bool NumOfImagesDefined;
 
-  //put in default paramaters, we change this later if in the config they are diffrent
-  FILE *file = fopen(filename, "r");
   char* arg_arr[14] = { "spImagesDirectory",
-      "spExtractionMode",
-      "spImagesPrefix",
-      "spImagesSuffix",
-      "spKDTreeSplitMethod",
-      "spKNN",
-      "spLoggerFilename",
-      "spLoggerLevel",
-      "spMinimalGUI",
-      "spNumOfFeatures",
-      "spNumOfImages",
-      "spNumOfSimilarImages",
-      "spPCADimension",
-      "spPCAFilename" };
+    "spExtractionMode",
+    "spImagesPrefix",
+    "spImagesSuffix",
+    "spKDTreeSplitMethod",
+    "spKNN",
+    "spLoggerFilename",
+    "spLoggerLevel",
+    "spMinimalGUI",
+    "spNumOfFeatures",
+    "spNumOfImages",
+    "spNumOfSimilarImages",
+    "spPCADimension",
+    "spPCAFilename" };
+
   SPVar var_array[14];
 
-  config->spPCADimension = 20;
-  strcpy(config->spPCAFilename, "pca.yml");
-  config->spNumOfFeatures = 100;
-  config->spExtractionMode = true;;
-  config->spMinimalGUI = false;
-  config->spNumOfSimilarImages = 1;
-  config->spKNN = 1;
-  config->spKDTreeSplitMethod = MAX_SPREAD;
-  config->spLoggerLevel = 3;
-  strcpy(config->spLoggerFilename, "stdout");
-
   int var_num = 0;
-  if (file != NULL) {
-    char line[MAXBUF];
-    while (fgets(line, sizeof(line), file) != NULL) {
-      if (line[first_nonwhitespace(line)] != '#')
-        var_array[var_num++] = get_var(line);
-    } // End while
-    fclose(file);
-  }
-  SPVar* tmp = (SPVar*)malloc(sizeof(SPVar));
-  qsort(var_array, var_num, sizeof(SPVar), spCmpVar);
-  for (int i = 0; i < 14; i++) {
-    strcpy(tmp->before, arg_arr[i]);
-    tmp = bsearch(tmp, var_array, var_num, sizeof(SPVar), spCmpVar);
-    if (tmp != NULL) {
-      spCaseChoose(config, i, tmp);
-      ImagesDirectoryDefined |= (i = 0);
-      ImagesPrefixDefined |= (i = 2);
-      ImagesSuffixDefined |= (i = 3);
-      NumOfImagesDefined |= (i = 10);
-    }
-  }
-  if (!(ImagesDirectoryDefined&&
-    ImagesPrefixDefined&&
-    ImagesSuffixDefined&&
-    NumOfImagesDefined)) {//one of the mandatory variable was not defined
-    printf("!!!!!!!!!!\n");//TODO!
-  }
 
-  // Not sure what should be returned at this point
-  printf("spConfigCreate - Return value is missing\n");
-  return NULL;
+  char line[MAXBUF];
+
+  SPVar* tmp; // TODO - tmp is a bad name
+
+  if (NULL == filename) {
+    *msg = SP_CONFIG_INVALID_ARGUMENT;
+    return NULL;
+  }
+  
+  FILE *file = fopen(filename, "r");
+  if (NULL == file) {
+    *msg = SP_CONFIG_CANNOT_OPEN_FILE;
+    return NULL;
+  }
+  do {
+    *msg = SP_CONFIG_SUCCESS;
+
+    config = (SPConfig)malloc(sizeof(struct sp_config_t));
+    if (NULL == config) {
+      *msg = SP_CONFIG_ALLOC_FAIL;
+      break;
+    }
+    do {
+      //put in default paramaters, we change this later if in the config they are diffrent
+      config->spPCADimension = SP_DEFAULT_PCADIM;
+      strcpy(config->spPCAFilename, SP_DEFAULT_PCAFILENAME);
+      config->spNumOfFeatures = SP_DEFAULT_NUMOFFEATURS;
+      config->spExtractionMode = SP_DEFAULT_EXTRACTMODE;
+      config->spMinimalGUI = SP_DEFAULT_MINIMALGUI;
+      config->spNumOfSimilarImages = SP_DEFAULT_NUMSIMIMG;
+      config->spKNN = SP_DEFAULT_KNN;
+      config->spKDTreeSplitMethod = SP_DEFUALT_SPLITMETHOD;
+      config->spLoggerLevel = SP_DEFUALT_LOGGERLEVEL;
+      strcpy(config->spLoggerFilename, SP_DEFUALT_LOGGERFILENAME);
+
+      while (fgets(line, sizeof(line), file) != NULL) {
+        if (line[first_nonwhitespace(line)] != '#')
+          var_array[var_num++] = get_var(line);
+      }
+
+      /* TODO - This entire part is broken and needs to be remade */
+      qsort(var_array, var_num, sizeof(SPVar), spCmpVar);
+      for (int i = 0; i < 14; i++) {
+        strcpy(tmp->before, arg_arr[i]);
+        tmp = (SPVar*)bsearch(tmp, var_array, var_num, sizeof(SPVar), spCmpVar);
+        if (tmp != NULL) {
+          spCaseChoose(config, i, tmp);
+          ImagesDirectoryDefined |= (i = 0);
+          ImagesPrefixDefined |= (i = 2);
+          ImagesSuffixDefined |= (i = 3);
+          NumOfImagesDefined |= (i = 10);
+        }
+      }
+
+      /* Check that all the mandatory variables are defined */
+      if (!ImagesDirectoryDefined) {
+        *msg = SP_CONFIG_MISSING_DIR;
+        break;
+      }
+      if (!ImagesPrefixDefined) {
+        *msg = SP_CONFIG_MISSING_PREFIX;
+        break;
+      }
+      if (!ImagesSuffixDefined) {
+        *msg = SP_CONFIG_MISSING_SUFFIX;
+        break;
+      }
+      if (!NumOfImagesDefined) {
+        *msg = SP_CONFIG_MISSING_NUM_IMAGES;
+        break;
+      }
+    } while (0);
+    /* If we didn't succeed in creating the config, free it's memory */
+    if (SP_CONFIG_SUCCESS != *msg) {
+      spConfigDestroy(config);
+      config = NULL;
+    }
+  } while (0);
+  fclose(file);
+  return config;
 }
 
 /*
@@ -206,14 +246,6 @@ void spSetVar(SPConfig config,char* var,char* val){
 
 	}
 }*/
-
-
-// Not sure what this should do
-int spCmpVar(const void *p, const void *q) {
-  if (q) {} // TO prevent unused error.
-  return strcmp(((SPVar *)p)->before, ((SPVar *)p)->after);
-}
-
 
 bool spConfigIsExtractionMode(const SPConfig config, SP_CONFIG_MSG* msg) {
   if (NULL == config) {
@@ -301,9 +333,8 @@ SP_CONFIG_MSG spConfigGetLoggerFilename(char* loggerFilename,
 }
 
 
-void spConfigDestroy(SPConfig config){
-  printf("spConfigDestroy is called but not implemented\n");
-  if (config) {}
+void spConfigDestroy(SPConfig config) {
+  free(config);
 }
 
 

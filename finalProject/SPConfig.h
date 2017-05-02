@@ -5,6 +5,18 @@
 #include <stdio.h>
 #include "SPLogger.h"
 
+#define SP_DEFAULT_PCADIM 20
+#define SP_DEFAULT_PCAFILENAME "pca.yml"
+#define SP_DEFAULT_NUMOFFEATURS 100
+#define SP_DEFAULT_EXTRACTMODE true
+#define SP_DEFAULT_MINIMALGUI false
+#define SP_DEFAULT_NUMSIMIMG 1
+#define SP_DEFAULT_KNN 1
+#define SP_DEFUALT_SPLITMETHOD MAX_SPREAD
+#define SP_DEFUALT_LOGGERLEVEL 3
+#define SP_DEFUALT_LOGGERFILENAME "stdout"
+
+
 /**
  * A data-structure which is used for configuring the system.
  */
@@ -67,7 +79,6 @@ typedef enum search_method_t {
 
 typedef struct sp_config_t* SPConfig;
 
-int spCmpVar(const void *p, const void *q);
 /**
  * Creates a new system configuration struct. The configuration struct
  * is initialized based on the configuration file given by 'filename'.
