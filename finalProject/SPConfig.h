@@ -38,10 +38,10 @@ Default values of variables:
   spPCAFilename: pca.yml
   spNumOfFeatures: 100
   spExtractionMode: true
-  spMinimalGUI: false
   spNumOfSimilarImages: 1
   spKNN: 1
   spKDTreeSplitMethod: MAX_SPREAD
+  spMinimalGUI: false
   spLoggerLevel: 3
   spLoggerFilename: stdout
 */
