@@ -16,7 +16,7 @@ struct sp_kd_tree_node{
 	SPPoint* data;
 };
  
-	
+
 //coor is the current coordinate
 SPKDTreeNode* create_tree(SPConfig config,SPKDArray* arr,int coor){
 	int split_dim;
@@ -27,6 +27,7 @@ SPKDTreeNode* create_tree(SPConfig config,SPKDArray* arr,int coor){
 		tree_result->left=NULL;
 		tree_result->right=NULL;
 		tree_result->data=arr->point_array[0];
+		return tree_result;
 	}
 	SPKDArray** split_result;
 	switch(getKDTreeSplitMethod(config)){
@@ -74,36 +75,35 @@ double tree_median();
 bool isLeaf(SPKDTreeNode* kdnode){
 	return kdnode->data==NULL;
 }
-bool check_if_point_is_ok(SPPoint* p){
-	return 1;
-}
+
 void k_nearest_search(SPKDTreeNode* kdnode , SPBPQueue* bpq, SPPoint* query_point){
 		if(kdnode==NULL){
 			return;
 		}
 		if(isLeaf(kdnode)){	
-			if(check_if_point_is_ok(kdnode->data)){
 				double dist = spPointL2SquaredDistance(kdnode->data,query_point);
 				spBPQueueEnqueue(bpq,spPointGetIndex(query_point),dist);
-			}
 		/* Add the current point to the BPQ. Note that this is a no-op if the
 			 point is not as good as the points we've seen so far.*/
-			/*
-				enqueue (index(current), distance(curr,p)) into bpq*/
+
 				return;
 		}
 		double eps=(kdnode->val)-spPointGetAxisCoor(query_point,kdnode->dim);
-		if(0<=eps){
-			//recursively search the left subtree
-			k_nearest_search(kdnode->left,bpq,query_point);
+		SPKDTreeNode* primary;
+		SPKDTreeNode* secondary;
 
+		if(0<=eps){
+			primary=kdnode->left;
+			secondary=kdnode->right;
 		}
 		else{
-			k_nearest_search(kdnode->right,bpq,query_point);
-			//recursively search the right subtree
+			primary=kdnode->right;
+			secondary=kdnode->left;
 		}
+		k_nearest_search(primary,bpq,query_point);
 		if(!spBPQueueIsFull(bpq)||eps<spBPQueueMaxValue(bpq)){
 			//recursively search the other subtree on the next axis
+			k_nearest_search(secondary,bpq,query_point);
 		}
 		return;
 	}
@@ -125,3 +125,5 @@ int choose_random(int n) {
     return r % n;
   }
 }
+
+
