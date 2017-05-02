@@ -257,7 +257,7 @@ int main() {
   /* Declare logger */
   SP_LOGGER_MSG msg = spLoggerCreate(UT_LOGGER_FILENAME, UT_LOGGER_LEVEL);
   if (SP_LOGGER_DEFINED != msg && SP_LOGGER_SUCCESS != msg) {
-    PRINT_E("Unable to create logger, aborting test suite.\n");
+    PRINT_E("Unable to create logger (%d), aborting test suite.\n", msg);
     return -1;
   }
 

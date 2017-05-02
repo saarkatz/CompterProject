@@ -66,7 +66,7 @@ SP_LOGGER_MSG spLoggerAssert(const char* msg, const char* file,
     return SP_LOGGER_UNDIFINED;
   }
   if (msg == NULL || file == NULL || function == NULL) {
-    return SP_LOGGER_INVAlID_ARGUMENT;
+    return SP_LOGGER_INVALID_ARGUMENT;
   }
   return SP_LOGGER_SUCCESS;
 }
@@ -74,11 +74,12 @@ SP_LOGGER_MSG spLoggerAssert(const char* msg, const char* file,
 int spLoggerPrint(const char* message) {
   if (logger != NULL)
     if (logger->isStdOut)
-      return printf(message);
+      return printf("%s", message);
     else
-      return fprintf(logger->outputChannel, message);
+      return fprintf(logger->outputChannel, "%s", message);
   else
     return -1;
+  return 0;
 }
 
 SP_LOGGER_MSG spLoggerPrintMessage(SP_LOGGER_LEVEL level, const char* msg, const char* file,
@@ -147,4 +148,5 @@ SP_LOGGER_MSG spLoggerPrintMsg(const char* msg) {
   // Try to print the message
   if (spLoggerPrint(msg) > 0)
     return SP_LOGGER_WRITE_FAIL;
+  return SP_LOGGER_SUCCESS;
 }
