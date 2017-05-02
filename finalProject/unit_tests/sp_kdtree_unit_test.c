@@ -23,17 +23,17 @@
 #define TCT_VAL_MIN -20
 #define TCT_VAL_MAX 80
 
-#define USE_RANDOM_SPLIT_AFTER 0
-#define USE_MAX_SPREAD_SPLIT_AFTER 10
-#define USE_INCREMENTAL_SPLIT_AFTER 20
+#define TCT_USE_RANDOM_SPLIT_AFTER 0
+#define TCT_USE_MAX_SPREAD_SPLIT_AFTER 10
+#define TCT_USE_INCREMENTAL_SPLIT_AFTER 20
 
-#define CONFIG_RANDOM_SPLIT "configs/random_split.config"
-#define CONFIG_MAX_SPREAD_SPLIT "configs/max_spread_split.config"
-#define CONFIG_INCREMENTAL_SPLIT "configs/incremental_split.config"
+#define TCT_CONFIG_RANDOM_SPLIT "configs/random_split.config"
+#define TCT_CONFIG_MAX_SPREAD_SPLIT "configs/max_spread_split.config"
+#define TCT_CONFIG_INCREMENTAL_SPLIT "configs/incremental_split.config"
 
 
-#define LOGGER_FILENAME "sp_kdtree_unit_test.log"
-#define LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
+#define TCT_LOGGER_FILENAME "sp_kdtree_unit_test.log"
+#define TCT_LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
 
 /* Signutures of helper function defined in this section */
 
@@ -208,14 +208,14 @@ bool testCreateTree() {
         do {
           /* Create KDTree */
           /* Choose split method */
-          if (i > USE_INCREMENTAL_SPLIT_AFTER) {
-            spConfigCreate(CONFIG_INCREMENTAL_SPLIT, &msg);
+          if (i > TCT_USE_INCREMENTAL_SPLIT_AFTER) {
+            spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
           }
-          else if (i > USE_MAX_SPREAD_SPLIT_AFTER) {
-            spConfigCreate(CONFIG_MAX_SPREAD_SPLIT, &msg);
+          else if (i > TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
+            spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
           }
-          else if (i > USE_RANDOM_SPLIT_AFTER) {
-            spConfigCreate(CONFIG_RANDOM_SPLIT, &msg);
+          else if (i > TCT_USE_RANDOM_SPLIT_AFTER) {
+            spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
           }
           if (NULL == config) {
             PRINT_E("Unable to load config file: %d\n", msg);
@@ -246,7 +246,7 @@ bool testCreateTree() {
 
 int main() {
   /* Declare logger */
-  SP_LOGGER_MSG msg = spLoggerCreate(LOGGER_FILENAME, LOGGER_LEVEL);
+  SP_LOGGER_MSG msg = spLoggerCreate(TCT_LOGGER_FILENAME, TCT_LOGGER_LEVEL);
   if (SP_LOGGER_DEFINED != msg && SP_LOGGER_SUCCESS != msg) {
     PRINT_E("Unable to create logger, aborting test suite.\n");
     return -1;
