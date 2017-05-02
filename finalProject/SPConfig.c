@@ -272,6 +272,35 @@ SP_CONFIG_MSG spConfigGetPCAPath(char* pcaPath, const SPConfig config){
   return SP_CONFIG_ALLOC_FAIL;
 }
 
+int spConfigGetNumSimilarImages(const SPConfig config, SP_CONFIG_MSG* msg) {
+  printf("spConfigGetNumSimilarImages is called but not implemented!\n");
+  if (config) {}
+  *msg = SP_CONFIG_ALLOC_FAIL;
+  return -1;
+}
+
+int spConfigGetKNN(SPConfig config, SP_CONFIG_MSG* msg) {
+  printf("spConfigGetKNN is called but not implemented!\n");
+  if (config) {}
+  *msg = SP_CONFIG_ALLOC_FAIL;
+  return -1;
+}
+
+int spConfigGetLoggerLevel(SPConfig config, SP_CONFIG_MSG* msg) {
+  printf("spConfigGetLoggerLevel is called but not implemented!\n");
+  if (config) {}
+  *msg = SP_CONFIG_ALLOC_FAIL;
+  return -1;
+}
+
+SP_CONFIG_MSG spConfigGetLoggerFilename(char* loggerFilename,
+  const SPConfig config) {
+  printf("spConfigGetLoggerFilename is called but not implemented!\n");
+  if (loggerFilename || config) {}
+  return SP_CONFIG_ALLOC_FAIL;
+}
+
+
 void spConfigDestroy(SPConfig config){
   printf("spConfigDestroy is called but not implemented\n");
   if (config) {}
