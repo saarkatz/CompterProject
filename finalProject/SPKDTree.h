@@ -22,4 +22,4 @@ double tree_median();
 void k_nearest_search(SPKDTreeNode* kdnode ,SPBPQueue* bpq, SPPoint* p);
 
 
-#endif /* SPCONFIG_H_ */
+#endif /* SPKDTREE_H_ */
