@@ -18,7 +18,7 @@ typedef struct sp_kd_array{
 //
 SPKDArray* init(SPPoint** arr, int size);
 SPKDArray** split(SPKDArray* kdArr, int coor);
-void destroyArray();
+void spKDArrayDestroy();
 
 SPPoint** copyPointArray(SPPoint** arr,int size);
 

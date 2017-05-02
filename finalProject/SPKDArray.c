@@ -115,7 +115,9 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 	return result;
 }
 
-void destroyArray();
+void spKDArrayDestroy() { 
+  printf("spKDArrayDestroy is called but not implemented!\n");
+}
 	
 int compare_entry(const void* p1,const void* p2){
 	const matrix_entry *q1=(matrix_entry*)p1,*q2=(matrix_entry*)p2;
