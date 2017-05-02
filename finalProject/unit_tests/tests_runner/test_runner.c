@@ -151,6 +151,7 @@ int main(int argc, char **argv) {
           }
           else if (!WIFEXITED(wstatus)) {
             if (WIFSIGNALED(wstatus)) {
+              // Not all systems define WCOREDUMP
 #ifdef WCOREDUMP
               if (WCOREDUMP(wstatus)) {
                 printf("Segmentaion fault occured during run of \"%s\".\n",
