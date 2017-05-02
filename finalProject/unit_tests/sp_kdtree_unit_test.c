@@ -18,7 +18,7 @@ UT - unit test
 TCT - test create tree
 */
 
-#define UT_LOGGER_FILENAME "sp_kdtree_unit_test.log"
+#define UT_LOGGER_FILENAME "logs/sp_kdtree_unit_test.log"
 #define UT_LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
 
 /* Test create-tree*/
