@@ -60,7 +60,7 @@ int first_nonwhitespace(char* s){
 
 
 SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg){
-	SPConfig config = (SPConfig)malloc(sizeof(sp_config_t));
+	SPConfig config = (SPConfig)malloc(sizeof(struct sp_config_t));
 	if(config==NULL){
 		//TODO - handle
 	}
