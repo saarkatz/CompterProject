@@ -19,13 +19,17 @@
 #define NIP_CONFIG_NAME "configs/sp_config_test/no_image_prefix.config"
 #define NIS_CONFIG_NAME "configs/sp_config_test/no_image_suffix.config"
 #define NNOI_CONFIG_NAME "configs/sp_config_test/no_num_of_images.config"
+#define PWS_CONFIG_NAME "configs/sp_config_test/parameters_with_spaces.config"
 #define ISV_CONFIG_NAME "configs/sp_config_test/invalid_string_value.config"
-#define IIV_CONFIG_NAME "configs/sp_config_test/invalid_int_value.config"
+#define IIVS_CONFIG_NAME "configs/sp_config_test/invalid_int_value_spaces.config"
+#define IIVC_CONFIG_NAME "configs/sp_config_test/invalid_int_value_chars.config"
 #define IBV_CONFIG_NAME "configs/sp_config_test/invalid_bool_value.config"
 #define IEVS_CONFIG_NAME "configs/sp_config_test/invalid_enum_value_spaces.config"
 #define IEVNV_CONFIG_NAME "configs/sp_config_test/invalid_enum_value_no_value.config"
 #define DV_CONFIG_NAME "configs/sp_config_test/default_values.config"
 #define VV_CONFIG_NAME "configs/sp_config_test/valid_values.config"
+#define SV_CONFIG_NAME "configs/sp_config_test/scrambled_values.config"
+
 
 bool testNullConfig() {
   SPConfig config;
@@ -97,6 +101,15 @@ bool testNoNumOfImages() {
   return true;
 }
 
+bool testParametersWithSpaces() {
+  SPConfig config;
+  SP_CONFIG_MSG msg;
+  config = spConfigCreate(PWS_CONFIG_NAME, &msg);
+  ASSERT_TRUE(SP_CONFIG_INVALID_STRING == msg);
+  ASSERT_TRUE(NULL == config);
+  return true;
+}
+
 bool testInvalidStringValue() {
   SPConfig config;
   SP_CONFIG_MSG msg;
@@ -106,10 +119,19 @@ bool testInvalidStringValue() {
   return true;
 }
 
-bool testInvalidIntValue() {
+bool testInvalidIntValueSpaces() {
   SPConfig config;
   SP_CONFIG_MSG msg;
-  config = spConfigCreate(IIV_CONFIG_NAME, &msg);
+  config = spConfigCreate(IIVS_CONFIG_NAME, &msg);
+  ASSERT_TRUE(SP_CONFIG_INVALID_INTEGER == msg);
+  ASSERT_TRUE(NULL == config);
+  return true;
+}
+
+bool testInvalidIntValueChars() {
+  SPConfig config;
+  SP_CONFIG_MSG msg;
+  config = spConfigCreate(IIVC_CONFIG_NAME, &msg);
   ASSERT_TRUE(SP_CONFIG_INVALID_INTEGER == msg);
   ASSERT_TRUE(NULL == config);
   return true;
@@ -153,6 +175,18 @@ bool testDefaultValues() {
   config = spConfigCreate(DV_CONFIG_NAME, &msg);
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
   ASSERT_FALSE(NULL == config);
+
+  msg = spConfigGetImagePath(buffer, config, 0);
+  ASSERT_FALSE(0 == strcmp("./images/img0.jpg", buffer));
+  ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
+
+  msg = spConfigGetImagePath(buffer, config, 1);
+  ASSERT_TRUE(0 == strcmp("./images/img1.jpg", buffer));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = spConfigGetImagePath(buffer, config, 2);
+  ASSERT_FALSE(0 == strcmp("./images/img2.jpg", buffer));
+  ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
   msg = SP_CONFIG_ALLOC_FAIL;
   ASSERT_TRUE(20 == spConfigGetPCADim(config, &msg));
@@ -213,6 +247,7 @@ bool testValidValues() {
   ASSERT_FALSE(NULL == config);
 
   msg = spConfigGetImagePath(buffer, config, -1);
+  ASSERT_FALSE(0 == strcmp("./pictures/pic-1.bmp", buffer));
   ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
   msg = spConfigGetImagePath(buffer, config, 7);
@@ -268,6 +303,75 @@ bool testValidValues() {
   return true;
 }
 
+bool testScrambledValues() {
+  SPConfig config;
+  SP_CONFIG_MSG msg;
+  char buffer[STRING_MAX_LENGTH];
+
+  /* To make sure buffer is zero terminated */
+  buffer[STRING_MAX_LENGTH - 1] = '\0';
+
+  config = spConfigCreate(SV_CONFIG_NAME, &msg);
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+  ASSERT_FALSE(NULL == config);
+
+  msg = spConfigGetImagePath(buffer, config, -1);
+  ASSERT_FALSE(0 == strcmp("./gallery/photo-1.jpg", buffer));
+  ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
+
+  msg = spConfigGetImagePath(buffer, config, 3);
+  ASSERT_TRUE(0 == strcmp("./gallery/photo4.jpg", buffer));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = spConfigGetImagePath(buffer, config, 7);
+  ASSERT_FALSE(0 == strcmp("./gallery/photo7.jpg", buffer));
+  ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
+
+  ASSERT_TRUE(17 == spConfigGetPCADim(config, &msg));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  msg = spConfigGetPCAPath(buffer, config);
+  ASSERT_TRUE(0 == strcmp("./gallery/pca1.txt", buffer));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  ASSERT_TRUE(200 == spConfigGetNumOfFeatures(config, &msg));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  ASSERT_TRUE(false == spConfigIsExtractionMode(config, &msg));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  ASSERT_TRUE(3 == spConfigGetNumSimilarImages(config, &msg));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  ASSERT_TRUE(15 == spConfigGetKNN(config, &msg));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  ASSERT_TRUE(INCREMENTAL == spConfigGetSplitMethod(config, &msg));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  ASSERT_TRUE(true == spConfigMinimalGui(config, &msg));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  ASSERT_TRUE(2 == spConfigGetLoggerLevel(config, &msg));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  msg = SP_CONFIG_ALLOC_FAIL;
+  msg = spConfigGetLoggerFilename(buffer, config);
+  ASSERT_TRUE(0 == strcmp("log", buffer));
+  ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
+
+  spConfigDestroy(config);
+  return true;
+}
+
 int main() {
   /* Declare logger */
   SP_LOGGER_MSG msg = spLoggerCreate(UT_LOGGER_FILENAME, UT_LOGGER_LEVEL);
@@ -284,14 +388,17 @@ int main() {
   RUN_TEST(testNoImagesPrefix);
   RUN_TEST(testNoImagesSuffix);
   RUN_TEST(testNoNumOfImages);
+  RUN_TEST(testParametersWithSpaces);
   RUN_TEST(testInvalidStringValue);
-  RUN_TEST(testInvalidIntValue);
+  RUN_TEST(testInvalidIntValueSpaces);
+  RUN_TEST(testInvalidIntValueChars);
   RUN_TEST(testInvalidBoolValue);
   RUN_TEST(testInvalidEnumValueSpaces);
   RUN_TEST(testInvalidEnumValueNoValue);
   RUN_TEST(testDefaultValues);
   RUN_TEST(testValidValues);
-  
+  RUN_TEST(testScrambledValues);
+
   spLoggerDestroy();
   return 0;
 }
