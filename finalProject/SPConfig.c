@@ -106,7 +106,7 @@ void spCaseChoose(SPConfig config, int i, SPVar* var) {
     setLoggerLevel(config, var);
     break;
   case 8:
-    setNumOfFeatures(config, var);
+    setMinimalGUI(config, var);
     break;
   case 9:
     setNumOfFeatures(config, var);
@@ -391,9 +391,6 @@ void setImagesDirectory(SPConfig config,SPVar* str){
     strcpy(config->spImagesDirectory,str->after);
 }
 void setExtractionMode(SPConfig config,SPVar* str){
-  // Bool is not a string  
-  //strcpy(config->spExtractionMode,str->after);
-  printf("setExtractionMode is called but not implemented\n");
-  if (str) {}
-  config->spExtractionMode = false;
+  	config->spExtractionMode=(bool)strcmp("true",str->after);
+
 }
