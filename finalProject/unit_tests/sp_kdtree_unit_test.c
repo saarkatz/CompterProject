@@ -36,9 +36,9 @@ TCT - test create tree
 #define TCT_USE_MAX_SPREAD_SPLIT_AFTER 10
 #define TCT_USE_INCREMENTAL_SPLIT_AFTER 20
 
-#define TCT_CONFIG_RANDOM_SPLIT "configs/random_split.config"
-#define TCT_CONFIG_MAX_SPREAD_SPLIT "configs/max_spread_split.config"
-#define TCT_CONFIG_INCREMENTAL_SPLIT "configs/incremental_split.config"
+#define TCT_CONFIG_RANDOM_SPLIT "configs/sp_kdtree_test/random_split.config"
+#define TCT_CONFIG_MAX_SPREAD_SPLIT "configs/sp_kdtree_test/max_spread_split.config"
+#define TCT_CONFIG_INCREMENTAL_SPLIT "configs/sp_kdtree_test/incremental_split.config"
 
 /* Signutures of helper function defined in this section */
 typedef enum metrix_generator_option {
@@ -374,8 +374,8 @@ int main() {
     return -1;
   }
 
-  //RUN_TEST(testCreateTree);
-  RUN_TEST(testKNearestSearch);
+  RUN_TEST(testCreateTree);
+  //RUN_TEST(testKNearestSearch);
 
   spLoggerDestroy();
   return 0;
