@@ -106,7 +106,7 @@ void spCaseChoose(SPConfig config, int i, SPVar* var) {
     setLoggerLevel(config, var);
     break;
   case 8:
-    setNumOfFeatures(config, var);
+    setMinimalGUI(config, var);
     break;
   case 9:
     setNumOfFeatures(config, var);
@@ -134,10 +134,10 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg) {
   /* define all the variables */
   SPConfig config;
 
-  bool ImagesDirectoryDefined;
-  bool ImagesPrefixDefined;
-  bool ImagesSuffixDefined;
-  bool NumOfImagesDefined;
+  bool ImagesDirectoryDefined=0;
+  bool ImagesPrefixDefined=0;
+  bool ImagesSuffixDefined=0;
+  bool NumOfImagesDefined=0;
 
   char* arg_arr[14] = { "spImagesDirectory",
     "spExtractionMode",
@@ -205,10 +205,10 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg) {
         tmp = (SPVar*)bsearch(tmp, var_array, var_num, sizeof(SPVar), spCmpVar);
         if (tmp != NULL) {
           spCaseChoose(config, i, tmp);
-          ImagesDirectoryDefined |= (i = 0);
-          ImagesPrefixDefined |= (i = 2);
-          ImagesSuffixDefined |= (i = 3);
-          NumOfImagesDefined |= (i = 10);
+          ImagesDirectoryDefined |= (i == 0);
+          ImagesPrefixDefined |= (i == 2);
+          ImagesSuffixDefined |= (i == 3);
+          NumOfImagesDefined |= (i == 10);
         }
       }
 
@@ -391,9 +391,13 @@ void setImagesDirectory(SPConfig config,SPVar* str){
     strcpy(config->spImagesDirectory,str->after);
 }
 void setExtractionMode(SPConfig config,SPVar* str){
-  // Bool is not a string  
-  //strcpy(config->spExtractionMode,str->after);
-  printf("setExtractionMode is called but not implemented\n");
-  if (str) {}
-  config->spExtractionMode = false;
+  	config->spExtractionMode=(bool)strcmp("true",str->after);
+
+}
+
+void print_config(SPConfig config){
+	printf("spImagesDirectory: %s, spExtractionMode: %d, spImagesPrefix: %s, spImagesSuffix: %s\n",config->spImagesDirectory,config->spExtractionMode,config->spImagesPrefix,config->spImagesSuffix);
+	printf( "spKDTreeSplitMethod: %d, spKNN: %d, spLoggerFilename: %s, spLoggerLevel: %d\n",config->spKDTreeSplitMethod,config->spKNN,config->spLoggerFilename,config->spLoggerLevel);
+	printf(  "spMinimalGUI: %d, spNumOfFeatures: %d, spNumOfImages: %d\n",config->spMinimalGUI,config->spNumOfFeatures,config->spNumOfImages);
+	printf( "spNumOfSimilarImages: %d, spPCADimension: %d, spPCAFilename: %s\n",config->spNumOfSimilarImages,config->spPCADimension,config->spPCAFilename);
 }
