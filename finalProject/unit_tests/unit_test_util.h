@@ -8,7 +8,8 @@ extern "C" {
 #include <stdio.h>
 
 #define FAIL(msg) do {\
-		fprintf(stderr,"%s Line %d: %s\n", __FILE__, __LINE__, msg);\
+		fprintf(stderr,"%s : %s Line %d: %s\n", __FILE__, __func__, __LINE__,\
+          msg);\
 		fflush(NULL);\
 		return false;\
 	} while(0)
