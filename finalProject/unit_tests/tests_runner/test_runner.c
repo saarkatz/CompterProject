@@ -16,6 +16,9 @@
 #include <signal.h>
 #include <errno.h>
 
+#include <stdlib.h>
+
+
 // dirent.h does not ship with visual studio! for more information see 
 // https://www.gnu.org/software/libc/manual/html_node/Opening-a-Directory.html
 #include <dirent.h> 
