@@ -86,6 +86,8 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
     printf("Error occured while creating the tree.");
     free(tree_result);
     return NULL;
+  
+
   }
   split_result = split(arr, split_dim);
   tree_result->dim = split_dim;
