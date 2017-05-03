@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-#define FILENAME "example.config"
+#define FILENAME "/home/ohad/workspace/SProject/finalProject/unit_tests/configs/sp_config_test/no_num_of_images.config"
 #define MAXBUF 1024 
 
 typedef struct config_var 
@@ -44,7 +44,7 @@ int main ()
   if (file != NULL){ 
     char line[MAXBUF];
     while(fgets(line, sizeof(line), file) != NULL){
-          if(line[first_nonwhitespace(line)]!='#') 
+          if(line[0]!='\n'&&line[first_nonwhitespace(line)]!='#') 
             var_array[var_num++]=get_var(line);
                 } // End while
                 fclose(file);

@@ -176,16 +176,14 @@ bool testDefaultValues() {
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
   ASSERT_FALSE(NULL == config);
 
-  msg = spConfigGetImagePath(buffer, config, 0);
-  ASSERT_FALSE(0 == strcmp("./images/img0.jpg", buffer));
+  msg = spConfigGetImagePath(buffer, config, -1);
   ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
-  msg = spConfigGetImagePath(buffer, config, 1);
-  ASSERT_TRUE(0 == strcmp("./images/img1.jpg", buffer));
+  msg = spConfigGetImagePath(buffer, config, 0);
+  ASSERT_TRUE(0 == strcmp("./images/img0.jpg", buffer));
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
-  msg = spConfigGetImagePath(buffer, config, 2);
-  ASSERT_FALSE(0 == strcmp("./images/img2.jpg", buffer));
+  msg = spConfigGetImagePath(buffer, config, 1);
   ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
   msg = SP_CONFIG_ALLOC_FAIL;
@@ -247,7 +245,6 @@ bool testValidValues() {
   ASSERT_FALSE(NULL == config);
 
   msg = spConfigGetImagePath(buffer, config, -1);
-  ASSERT_FALSE(0 == strcmp("./pictures/pic-1.bmp", buffer));
   ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
   msg = spConfigGetImagePath(buffer, config, 7);
@@ -255,7 +252,6 @@ bool testValidValues() {
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = spConfigGetImagePath(buffer, config, 11);
-  ASSERT_FALSE(0 == strcmp("./pictures/pic11.bmp", buffer));
   ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
   ASSERT_TRUE(15 == spConfigGetPCADim(config, &msg));
@@ -316,15 +312,13 @@ bool testScrambledValues() {
   ASSERT_FALSE(NULL == config);
 
   msg = spConfigGetImagePath(buffer, config, -1);
-  ASSERT_FALSE(0 == strcmp("./gallery/photo-1.jpg", buffer));
   ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
   msg = spConfigGetImagePath(buffer, config, 3);
-  ASSERT_TRUE(0 == strcmp("./gallery/photo4.jpg", buffer));
+  ASSERT_TRUE(0 == strcmp("./gallery/photo3.jpg", buffer));
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = spConfigGetImagePath(buffer, config, 7);
-  ASSERT_FALSE(0 == strcmp("./gallery/photo7.jpg", buffer));
   ASSERT_TRUE(SP_CONFIG_INDEX_OUT_OF_RANGE == msg);
 
   ASSERT_TRUE(17 == spConfigGetPCADim(config, &msg));
