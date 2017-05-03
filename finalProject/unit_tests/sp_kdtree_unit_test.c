@@ -41,11 +41,17 @@ TCT - test create tree
 #define TCT_CONFIG_INCREMENTAL_SPLIT "configs/incremental_split.config"
 
 /* Signutures of helper function defined in this section */
+typedef enum metrix_generator_option {
+  G_RANDOM,
+  G_LINE
+} MG_OPTION;
+
 
 unsigned int getIntFracTime();
 double rand_double();
 double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
-  double val_min, double val_max, int *x, int *y, unsigned int *seed);
+  double val_min, double val_max, MG_OPTION option, int *x, int *y,
+  unsigned int *seed);
 void destroyDoubleMatrix(double **matrix, int x);
 void destroySPPointArray(SPPoint **point_arr, int length);
 
@@ -68,6 +74,8 @@ double rand_double() {
 }
 
 /**
+COMMENT NOT UPDATED - Added MG_OPTION enum
+
 Helper function
 
 Generates (allocates) a random matrix of doubles of random size within 
@@ -88,7 +96,7 @@ invalid of if memory allocation failed.
 Don't forget to free the matrix after use.
 */
 double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
-  double val_min, double val_max, int *x, int *y, unsigned int *seed) {
+  double val_min, double val_max, MG_OPTION option, int *x, int *y, unsigned int *seed) {
   /* Declare variables */
   double **matrix;
 
@@ -131,9 +139,14 @@ double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
   /* Initialize matrix */
   for (int i = 0; i < (*x); i++) {
     for (int j = 0; j < (*y); j++) {
-      matrix[i][j] = val_min;
-      if (val_max > val_min)
-        matrix[i][j] += rand_double() * (val_max - val_min);
+      if (G_RANDOM == option) {
+        matrix[i][j] = val_min;
+        if (val_max > val_min)
+          matrix[i][j] += rand_double() * (val_max - val_min);
+      }
+      else if (G_LINE == option) {
+        matrix[i][j] = val_min + val_max * i;
+      }
     }
   }
 
@@ -181,10 +194,10 @@ bool testCreateTree() {
     /* Initializing data array */
     seed = 0;
     data = generatDoubleMatrix(TCT_MIN_X, TCT_MAX_X, TCT_MIN_Y, TCT_MAX_Y,
-      TCT_VAL_MIN, TCT_VAL_MAX, &x, &y, &seed);
+      TCT_VAL_MIN, TCT_VAL_MAX, G_RANDOM, &x, &y, &seed);
     if (NULL == data) {
-      PRINT_E("Internal error in test %s (%s, line %d), aborting!\n",
-        __func__, __FILE__, __LINE__);
+      PRINT_E("Internal error, aborting!\n");
+      returnv = false;
       break;
     }
     PRINT("Iteration %d, using seed %d\n", i, seed);
@@ -193,6 +206,7 @@ bool testCreateTree() {
       point_arr = (SPPoint**)malloc(x * sizeof(SPPoint*));
       if (NULL == point_arr) {
         PRINT_E("Failed to initialize point_arr.\n");
+        returnv = false;
         break;
       }
       for (int j = 0; j < x; j++) {
@@ -200,6 +214,7 @@ bool testCreateTree() {
         if (NULL == point_arr[j]) {
           PRINT_E("Failed to initialize SPPoint.\n");
           destroySPPointArray(point_arr, j);
+          returnv = false;
           break;
         }
       }
@@ -208,6 +223,7 @@ bool testCreateTree() {
         kdarr = init(point_arr, x);
         if (NULL == kdarr) {
           PRINT_E("Failed to initialize KDArray.\n");
+          returnv = false;
           break;
         }
         do {
@@ -231,16 +247,17 @@ bool testCreateTree() {
             returnv = false;
             break;
           }
-
-          PRINT("Creating tree using split method %d\n",
-            spConfigGetSplitMethod(config, &msg));
-
-
-          kdtree = create_tree(NULL, kdarr, 0);
-          if (NULL == kdtree) {} // To prevent unused warning.
+          do {
+            PRINT("Creating tree using split method %d\n",
+              spConfigGetSplitMethod(config, &msg));
 
 
-          PRINT("No method for destroying KDTree!\n");
+            kdtree = create_tree(NULL, kdarr, 0);
+
+
+            spKDTreeDestroy(kdtree);
+          } while (0);
+          spConfigDestroy(config);
         } while (0);
         spKDArrayDestroy();
       } while (0);
@@ -249,9 +266,105 @@ bool testCreateTree() {
     destroyDoubleMatrix(data, x);
   }
 
-  spConfigDestroy(config);
   return returnv;
 }
+
+/* Test create_tree */
+bool testKNearestSearch() {
+  /* Declare variables */
+  bool returnv = true;
+  double **data;
+  int x;
+  int y;
+  SPPoint **point_arr;
+  SPKDArray *kdarr;
+  SPKDTreeNode *kdtree;
+
+  /* Declear config */
+  SP_CONFIG_MSG msg;
+  SPConfig config;
+
+  PRINT("Repeating %d times:\n", TCT_REPEAT);
+  for (int i = 0; i < TCT_REPEAT && true == returnv; i++) {
+    /* Initializing data array */
+    data = generatDoubleMatrix(TCT_MAX_X, TCT_MAX_X, TCT_MAX_Y, TCT_MAX_Y,
+      TCT_VAL_MIN, TCT_VAL_MAX, G_LINE, &x, &y, NULL);
+    if (NULL == data) {
+      PRINT_E("Internal error, aborting!\n");
+      returnv = false;
+      break;
+    }
+    PRINT("Iteration %d\n", i);
+    do {
+      /* Initialize point array */
+      point_arr = (SPPoint**)malloc(x * sizeof(SPPoint*));
+      if (NULL == point_arr) {
+        PRINT_E("Failed to initialize point_arr.\n");
+        returnv = false;
+        break;
+      }
+      for (int j = 0; j < x; j++) {
+        point_arr[j] = spPointCreate(data[j], y, j);
+        if (NULL == point_arr[j]) {
+          PRINT_E("Failed to initialize SPPoint.\n");
+          destroySPPointArray(point_arr, j);
+          returnv = false;
+          break;
+        }
+      }
+      do {
+        /* Initialize kdArray */
+        kdarr = init(point_arr, x);
+        if (NULL == kdarr) {
+          PRINT_E("Failed to initialize KDArray.\n");
+          returnv = false;
+          break;
+        }
+        do {
+          if (msg || kdtree || config) {}
+          /* Create KDTree */
+          /* Choose split method */
+          //if (i >= TCT_USE_INCREMENTAL_SPLIT_AFTER) {
+          //  config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+          //}
+          //else if (i >= TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
+          //  config = spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
+          //}
+          //else if (i >= TCT_USE_RANDOM_SPLIT_AFTER) {
+          //  config = spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
+          //}
+          //else {
+          //  config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+          //}
+
+          //if (NULL == config) {
+          //  PRINT_E("Unable to load config file: %d\n", msg);
+          //  returnv = false;
+          //  break;
+          //}
+          //do {
+          //  PRINT("Creating tree using split method %d\n",
+          //    spConfigGetSplitMethod(config, &msg));
+
+
+          //  kdtree = create_tree(NULL, kdarr, 0);
+
+
+          //  spKDTreeDestroy(kdtree);
+          //} while (0);
+          //spConfigDestroy(config);
+          PRINT_E("Implement\n");
+        } while (0);
+        spKDArrayDestroy();
+      } while (0);
+      destroySPPointArray(point_arr, x);
+    } while (0);
+    destroyDoubleMatrix(data, x);
+  }
+
+  return returnv;
+}
+
 
 int main() {
   /* Declare logger */
@@ -261,7 +374,8 @@ int main() {
     return -1;
   }
 
-  RUN_TEST(testCreateTree);
+  //RUN_TEST(testCreateTree);
+  RUN_TEST(testKNearestSearch);
 
   spLoggerDestroy();
   return 0;
