@@ -78,7 +78,7 @@ typedef enum search_method_t {
 }SPSearchMethod;
 
 typedef struct sp_config_t* SPConfig;
-
+void print_config(SPConfig config);
 /**
  * Creates a new system configuration struct. The configuration struct
  * is initialized based on the configuration file given by 'filename'.
