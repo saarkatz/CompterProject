@@ -79,7 +79,7 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
     split_dim = choose_random(arr->num_of_points);
     break;
   case INCREMENTAL:
-    split_dim = (coor + 1) % spPointGetDimension(arr->point_array[0]);
+    split_dim = ((coor + 1) % (spPointGetDimension(arr->point_array[0]))-1);
     break;
   default:
     // TODO - Handle this better
