@@ -11,6 +11,7 @@
 typedef struct sp_kd_tree_node SPKDTreeNode;
 
 SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr,int coor);
+int spGetSplitDim(SPConfig config, SPKDArray* arr);
 
 void k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* p);
 
