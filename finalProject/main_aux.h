@@ -18,7 +18,7 @@ int createFeaturesFile(char *path, SPPoint **features, int dim, int index,
  * @param nFeatures - number of features extracted from file
  * @return
  */
-SPPoint **readFeaturesFile(const char *path, int *nFeatures);
+SPPoint** readFeaturesFile(const char *path, int *nFeatures);
 
 /**
  * Extract features from config file images
@@ -35,22 +35,22 @@ int extractFromImages(SPConfig config);
  * @return  features as SPPoints on a successful call, if error occurs
  *          return NULL pointer
  */
-SPPoint **extractFromFile(SPConfig config, int *totalNumOfFeatures);
+SPPoint** extractFromFile(SPConfig config, int *totalNumOfFeatures);
 
 /**
- * Returns a KDTree constructed from features of config images
+ * Returns a SPKDTreeNode = a KDTree constructed from features of config images
  * @param config - Configuration file
- * @return  KDTree on a successful call, if error occurs return
+ * @return  SPKDTreeNode on a successful call, if error occurs return
  *          NULL pointer
  */
-KDTree *extractKDTree(SPConfig config);
+SPKDTreeNode* extractKDTree(SPConfig config);
 
 /**
  *
  * @param config     - Configuration file
  * @param queryPath  - file path to query image
- * @param kdTree     - KDTree with features from all the images in
+ * @param kdTree     - SPKDTreeNode with features from all the images in
  *                     the configuration file
  * @return 1 on a successful call, otherwise 0
  */
-int searchSimilarImages(SPConfig config, char *queryPath, KDTree *kdTree);
+int searchSimilarImages(SPConfig config, char *queryPath, SPKDTreeNode *kdTree);

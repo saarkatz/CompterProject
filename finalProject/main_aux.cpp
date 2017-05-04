@@ -4,51 +4,48 @@ printConfigError(SP_CONFIG_MSG msg){
 extractFeatures(){
 
 }
-saveToDirectory(){
-
-}
-extractFromFile(){
-	
-}
-initDatabase(){
-
-}
-reciveCommand(){
-
-}
-findSimilarImages(){
-
-}
-showResults(){
+int saveFeatureToFile(SPConfig config, SPPoint** point){
 
 }
 
+char* reciveCommand(){
 
-
-int createFeaturesFile(char *path, SPPoint **features, int dim, int index,
-                       int numOfFeatures){
-	
 }
 
-SPPoint **readFeaturesFile(const char *path, int *nFeatures){
-	
+int* findSimilarImages(SPConfig config,SPKDTreeNode* tree,SPPoint* queryPoint){
+
+
+}
+void showResults(SPConfig config, int* array){
+
 }
 
+SPPoint** createPointFeaturesFromPath(SPConfig config, char* path,ImageProc* proc_util){
 
-int extractFromImages(SPConfig config){
-	
 }
 
-SPPoint **extractFromFile(SPConfig config, int *totalNumOfFeatures){
-	
+SPPoint***  extractFeaturesFromFeatureFiles(SPConfig config,ImageProc* proc_util){
+
 }
 
+//method to check if the input we recived was a request for another query.
+bool requestingQuery(char* cmd){
 
-KDTree *extractKDTree(SPConfig config){
-	
 }
 
+SPPoint***  createFeatureFiles(SPConfig config,ImageProc* proc_util){
+	char tmp_path[BUFF_SIZE];
+	SP_CONFIG_MSG msg;
+	proc_util=ImageProc(config);
+	SPPoint*** resultArray=(SPPoint***)malloc((config->spNumOfImages)*sizeof(SPPoint**));
+	for(int i=0;i<config->spNumOfImages;i++){//for every picture in the images folder
+		spConfigGetImagePath(tmp_path,config,i);
+		resultArray[i]=createPointFeaturesFromPath(config,tmp_path,proc_util);
+		saveFeatureToFile(config,resultArray[i]);
+	}
+	return resultArray;
+}
 
-int searchSimilarImages(SPConfig config, char *queryPath, KDTree *kdTree){
+char* getPath(char* cmd){
 	
 }

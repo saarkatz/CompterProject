@@ -375,7 +375,7 @@ int main() {
   }
 
   RUN_TEST(testCreateTree);
-  //RUN_TEST(testKNearestSearch);
+  RUN_TEST(testKNearestSearch);
 
   spLoggerDestroy();
   return 0;
