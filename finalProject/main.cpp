@@ -31,7 +31,7 @@ int main(int argc, char const *argv[]){
 	SPKDArray* kdarr;
 	SPKDTreeNode* tree;
 	int* resultArray;
-
+	int* nFeatures=(int*)malloc(sizeof(int));
 	resultArray=(int*)malloc(config->spKNN*sizeof(int));
 	kdarr  = init(featureArray,config->spNumOfImages);
 	tree =	create_tree_main(config,kdarr);
@@ -39,8 +39,8 @@ int main(int argc, char const *argv[]){
 		cmd = reciveCommand();
 		if(requestingQuery(cmd)){
 			path=getPath(cmd);
-			queryPointFeatures = createPointFeaturesFromPath(config,path,proc_util);
-			resultArray = findSimilarImages(config,tree,queryPoint);
+			queryPointFeatures = createPointFeaturesFromPath(config,path,proc_util,nFeatures);
+			resultArray = findSimilarImages(config,tree,queryPoint,*nFeatures);
 			showResults(config, resultArray);
 		}
 		else break;
