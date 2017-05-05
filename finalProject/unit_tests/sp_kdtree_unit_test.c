@@ -421,7 +421,7 @@ bool testKNearestSearch() {
             PRINT("Creating tree using split method %d\n",
               spConfigGetSplitMethod(config, &msg));
 
-            kdtree = create_tree(NULL, kdarr, 0);
+            kdtree = create_tree(config, kdarr, 0);
             if (NULL == kdtree) {
               PRINT_E("Failed to initialize KDTree.\n");
               returnv = false;
