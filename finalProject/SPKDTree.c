@@ -85,7 +85,7 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
     split_dim = choose_random(spPointGetDimension(arr->point_array[0]));
     break;
   case INCREMENTAL:
-    split_dim = ((coor + 1) % (spPointGetDimension(arr->point_array[0]))-1);
+    split_dim = ((coor + 1) % (spPointGetDimension(arr->point_array[0])));
     break;
   default:
     // TODO - Handle this better
@@ -93,6 +93,7 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
     free(tree_result);
     return NULL;
   }
+
   split_result = split(arr, split_dim);
   tree_result->dim = split_dim;
   tree_result->val = spPointGetAxisCoor(arr->point_array[arr->index_array[split_dim][arr->num_of_points / 2].point_index], split_dim);
