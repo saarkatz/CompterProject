@@ -175,7 +175,7 @@ void shuffle(SPPoint **arr, size_t n)
   {
     for (i = 0; i < n - 1; i++)
     {
-      j = i + (size_t)(rand_double(false) * (n - i)) + 1;
+      j = i + (size_t)(rand_double(false) * (n - i));
       t = arr[j];
       arr[j] = arr[i];
       arr[i] = t;
@@ -451,17 +451,17 @@ bool testKNearestSearch() {
                   /* Run k_nearest_search */
                   k_nearest_search(kdtree, priority_queue, query_point);
 
-                  for (int i = 0; i < num_similay_images; i++) {
+                  for (int k = 0; k < num_similay_images; k++) {
                     spBPQueuePeek(priority_queue, res);
                     /* This might not work due to rounding error */
-                    if (0 == i % 2) {
+                    if (0 == k % 2) {
                       ASSERT_TRUE_NO_EXIT(
-                        res->index == spPointGetIndex(query_point) + i,
+                        res->index == spPointGetIndex(query_point) + k,
                         returnv);
                     }
                     else {
                       ASSERT_TRUE_NO_EXIT(
-                        res->index == spPointGetIndex(query_point) - i,
+                        res->index == spPointGetIndex(query_point) - k,
                         returnv);
                     }
 
@@ -500,7 +500,7 @@ int main() {
     return -1;
   }
 
-  //RUN_TEST(testCreateTree);
+  RUN_TEST(testCreateTree);
   RUN_TEST(testKNearestSearch);
 
   spLoggerDestroy();
