@@ -106,7 +106,7 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
 double tree_median();
 
 bool isLeaf(SPKDTreeNode* kdnode){
-  return kdnode->data==NULL;
+  return kdnode->dim == -1;
 }
 
 void k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point) {
@@ -115,7 +115,7 @@ void k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point
   }
   if (isLeaf(kdnode)) {
     double dist = spPointL2SquaredDistance(kdnode->data, query_point);
-    spBPQueueEnqueue(bpq, spPointGetIndex(query_point), dist);
+    spBPQueueEnqueue(bpq, spPointGetIndex(kdnode->data), dist);
     /* Add the current point to the BPQ. Note that this is a no-op if the
          point is not as good as the points we've seen so far.*/
 
