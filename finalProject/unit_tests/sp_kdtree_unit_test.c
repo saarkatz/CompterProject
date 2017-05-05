@@ -444,30 +444,30 @@ bool testKNearestSearch() {
                 do {
 //                  PRINT("6\n");
                   if (kdtree || query_point) {}
-                  ///* Run k_nearest_search */
-                  //k_nearest_search(kdtree, priority_queue, query_point);
+                  /* Run k_nearest_search */
+                  k_nearest_search(kdtree, priority_queue, query_point);
 
-                  //for (int i = 0; i < num_similay_images; i++) {
-                  //  spBPQueuePeek(priority_queue, res);
-                  //  /* This might not work due to rounding error */
-                  //  if (0 == i % 2) {
-                  //    ASSERT_TRUE_NO_EXIT(
-                  //      res->index == spPointGetIndex(query_point) + i,
-                  //      returnv);
-                  //  }
-                  //  else {
-                  //    ASSERT_TRUE_NO_EXIT(
-                  //      res->index == spPointGetIndex(query_point) - i,
-                  //      returnv);
-                  //  }
+                  for (int i = 0; i < num_similay_images; i++) {
+                    spBPQueuePeek(priority_queue, res);
+                    /* This might not work due to rounding error */
+                    if (0 == i % 2) {
+                      ASSERT_TRUE_NO_EXIT(
+                        res->index == spPointGetIndex(query_point) + i,
+                        returnv);
+                    }
+                    else {
+                      ASSERT_TRUE_NO_EXIT(
+                        res->index == spPointGetIndex(query_point) - i,
+                        returnv);
+                    }
 
-                  //  if (false == returnv) {
-                  //    /* Stop on failure */
-                  //    break;
-                  //  }
+                    if (false == returnv) {
+                      /* Stop on failure */
+                      break;
+                    }
 
-                  //  spBPQueueDequeue(priority_queue);
-                  //}
+                    spBPQueueDequeue(priority_queue);
+                  }
                 } while (0);
                 free(res);
               } while (0);
