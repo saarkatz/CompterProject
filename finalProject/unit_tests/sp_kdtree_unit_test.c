@@ -253,7 +253,7 @@ bool testCreateTree() {
 
 
             kdtree = create_tree(config, kdarr, 0);
-
+            ASSERT_FALSE(NULL == kdtree);
 
             spKDTreeDestroy(kdtree);
           } while (0);
@@ -287,8 +287,8 @@ bool testKNearestSearch() {
   PRINT("Repeating %d times:\n", TCT_REPEAT);
   for (int i = 0; i < TCT_REPEAT && true == returnv; i++) {
     /* Initializing data array */
-    data = generatDoubleMatrix(TCT_MAX_X, TCT_MAX_X, TCT_MAX_Y, TCT_MAX_Y,
-      TCT_VAL_MIN, TCT_VAL_MAX, G_LINE, &x, &y, NULL);
+    data = generatDoubleMatrix(TCT_MAX_X - 1, TCT_MAX_X, TCT_MAX_Y - 1,
+      TCT_MAX_Y, TCT_VAL_MIN, TCT_VAL_MAX, G_LINE, &x, &y, NULL);
     if (NULL == data) {
       PRINT_E("Internal error, aborting!\n");
       returnv = false;
