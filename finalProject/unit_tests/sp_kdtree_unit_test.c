@@ -324,38 +324,38 @@ bool testKNearestSearch() {
           if (msg || kdtree || config) {}
           /* Create KDTree */
           /* Choose split method */
-          //if (i >= TCT_USE_INCREMENTAL_SPLIT_AFTER) {
-          //  config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
-          //}
-          //else if (i >= TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
-          //  config = spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
-          //}
-          //else if (i >= TCT_USE_RANDOM_SPLIT_AFTER) {
-          //  config = spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
-          //}
-          //else {
-          //  config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
-          //}
+          if (i >= TCT_USE_INCREMENTAL_SPLIT_AFTER) {
+           config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+          }
+          else if (i >= TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
+           config = spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
+          }
+          else if (i >= TCT_USE_RANDOM_SPLIT_AFTER) {
+           config = spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
+          }
+          else {
+           config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+          }
 
-          //if (NULL == config) {
-          //  PRINT_E("Unable to load config file: %d\n", msg);
-          //  returnv = false;
-          //  break;
-          //}
-          //do {
-          //  PRINT("Creating tree using split method %d\n",
-          //    spConfigGetSplitMethod(config, &msg));
-
-
-          //  kdtree = create_tree(NULL, kdarr, 0);
+          if (NULL == config) {
+           PRINT_E("Unable to load config file: %d\n", msg);
+           returnv = false;
+           break;
+          }
+          do {
+           PRINT("Creating tree using split method %d\n",
+             spConfigGetSplitMethod(config, &msg));
 
 
-          //  spKDTreeDestroy(kdtree);
-          //} while (0);
-          //spConfigDestroy(config);
+           kdtree = create_tree(NULL, kdarr, 0);
+
+
+           spKDTreeDestroy(kdtree);
+          } while (0);
+          spConfigDestroy(config);
           PRINT_E("Implement\n");
         } while (0);
-        spKDArrayDestroy();
+        spKDArrayDestroy(kdarr);
       } while (0);
       destroySPPointArray(point_arr, x);
     } while (0);
@@ -374,7 +374,7 @@ int main() {
     return -1;
   }
 
-  RUN_TEST(testCreateTree);
+  //RUN_TEST(testCreateTree);
   RUN_TEST(testKNearestSearch);
 
   spLoggerDestroy();
