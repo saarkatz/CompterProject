@@ -33,13 +33,39 @@ extern "C" {
 			}else{ fprintf(stderr, "%s  FAIL\n",#f);\
 			} }while (0)
 
+#define FAIL_NO_EXIT(msg) do {\
+		fprintf(stderr,"%s : %s Line %d: %s\n", __FILE__, __func__, __LINE__,\
+          msg);\
+		fflush(NULL);\
+	} while(0)
+
+#define ASSERT_TRUE_NO_EXIT(expression, res) do { \
+                if(!((expression))) { \
+                        FAIL_NO_EXIT("expression is false :: " #expression); \
+                        res = false; \
+                } \
+                else { \
+                        res = true;\
+                } \
+        } while (0)
+
+#define ASSERT_FALSE_NO_EXIT(expression, res) do { \
+                if((expression)) { \
+                        FAIL_NO_EXIT("expression is true  :: " #expression); \
+                        res = false; \
+                } \
+                else { \
+                        res = true;\
+                } \
+		} while (0)
+
 #define PRINT(...) printf(__VA_ARGS__)
 #define PRINT_E(...) do {\
       printf("%s line %d: ", __FILE__, __LINE__); \
       printf(__VA_ARGS__); \
       } while (0)
 
-
+#define MIN(x, y) (x > y ? y : x)
 
 #ifdef __cplusplus
 }

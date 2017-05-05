@@ -9,6 +9,7 @@
 #include "../SPLogger.h"
 #include "../SPConfig.h"
 #include "../SPPoint.h"
+#include "../SPBPriorityQueue.h"
 #include "../SPKDArray.h"
 #include "../SPKDTree.h"
 
@@ -46,14 +47,36 @@ typedef enum metrix_generator_option {
   G_LINE
 } MG_OPTION;
 
-
+/* Declerations of function in this section */
 unsigned int getIntFracTime();
-double rand_double();
+double rand_double(bool include_one);
 double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
-  double val_min, double val_max, MG_OPTION option, int *x, int *y,
-  unsigned int *seed);
+  double val_min, double val_max, MG_OPTION option, int *x, int *y);
+void shuffle(SPPoint **point_arr, size_t n);
 void destroyDoubleMatrix(double **matrix, int x);
 void destroySPPointArray(SPPoint **point_arr, int length);
+/**
+Initializes the random number generator to seed
+If seed is not NULL the the value within seed is checked. If it is 0 the a
+random seed will be used and stored in seed, otherwise the value of seed will
+be used. If seed is NULL a random number will be used and won't be stored in
+seed.
+*/
+void set_random_generator(unsigned int *seed) {
+  /* Set random generator */
+  if (seed) {
+    if (*seed) {
+      srand(*seed);
+    }
+    else {
+      *seed = getIntFracTime();
+      srand(*seed);
+    }
+  }
+  else {
+    srand(getIntFracTime());
+  }
+}
 
 /**
   Returns an unsigned fraction of the time in microsecond (loops around).
@@ -69,8 +92,14 @@ unsigned int getIntFracTime() {
 Generates a number between 0 and 1.
 Use only after srand() has been called.
 */
-double rand_double() {
-  return (double)rand() / (double)RAND_MAX;
+double rand_double(bool include_one) {
+  int val = rand();
+  if (include_one || 0 == val) {
+    return (double)val / (double)RAND_MAX;
+  }
+  else {
+    return (double)(rand() - 1) / (double)RAND_MAX;
+  }
 }
 
 /**
@@ -85,18 +114,13 @@ If val_min is equal to val_max then all the values are set to val_min.
 
 x and y are set to the dimention of the matrix.
 
-Use seed for reproducebility. If seed is not NULL the the value within seed is
-checked. If it is 0 the a random seed will be used and stored in seed,
-otherwise the value of seed will be used. If seed is NULL a random number will
-be used and won't be stored in seed.
-
 The return value is the pointer to the matrix or NULL if the ranges are
 invalid of if memory allocation failed.
 
 Don't forget to free the matrix after use.
 */
 double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
-  double val_min, double val_max, MG_OPTION option, int *x, int *y, unsigned int *seed) {
+  double val_min, double val_max, MG_OPTION option, int *x, int *y) {
   /* Declare variables */
   double **matrix;
 
@@ -107,20 +131,6 @@ double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
   }
 
   /* Generate random variables */
-  /* Set random generator */
-  if (seed) {
-    if (*seed) {
-      srand(*seed);
-    }
-    else {
-      *seed = getIntFracTime();
-      srand(*seed);
-    }
-  }
-  else {
-    srand(getIntFracTime());
-  }
-
   *x = x_start + rand() % (x_end - x_start);
   *y = y_start + rand() % (y_end - y_start);
   /* Allocate matrix */
@@ -142,7 +152,7 @@ double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
       if (G_RANDOM == option) {
         matrix[i][j] = val_min;
         if (val_max > val_min)
-          matrix[i][j] += rand_double() * (val_max - val_min);
+          matrix[i][j] += rand_double(true) * (val_max - val_min);
       }
       else if (G_LINE == option) {
         matrix[i][j] = val_min + val_max * i;
@@ -151,6 +161,26 @@ double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
   }
 
   return matrix;
+}
+
+/**
+Arrange the N elements of ARRAY in random order.
+*/
+void shuffle(SPPoint **arr, size_t n)
+{
+  size_t i;
+  size_t j;
+  SPPoint *t;
+  if (n > 1)
+  {
+    for (i = 0; i < n - 1; i++)
+    {
+      j = i + (size_t)(rand_double(false) * (n - i)) + 1;
+      t = arr[j];
+      arr[j] = arr[i];
+      arr[i] = t;
+    }
+  }
 }
 
 /* Frees the double matrix */
@@ -193,8 +223,9 @@ bool testCreateTree() {
   for (int i = 0; i < TCT_REPEAT && true == returnv; i++) {
     /* Initializing data array */
     seed = 0;
+    set_random_generator(&seed);
     data = generatDoubleMatrix(TCT_MIN_X, TCT_MAX_X, TCT_MIN_Y, TCT_MAX_Y,
-      TCT_VAL_MIN, TCT_VAL_MAX, G_RANDOM, &x, &y, &seed);
+      TCT_VAL_MIN, TCT_VAL_MAX, G_RANDOM, &x, &y);
     if (NULL == data) {
       PRINT_E("Internal error, aborting!\n");
       returnv = false;
@@ -210,7 +241,12 @@ bool testCreateTree() {
         break;
       }
       for (int j = 0; j < x; j++) {
-        point_arr[j] = spPointCreate(data[j], y, j);
+        if (j < x / 2) {
+          point_arr[j] = spPointCreate(data[j], y, 0);
+        }
+        else {
+          point_arr[j] = spPointCreate(data[j], y, j);
+        }
         if (NULL == point_arr[j]) {
           PRINT_E("Failed to initialize SPPoint.\n");
           destroySPPointArray(point_arr, j);
@@ -219,6 +255,9 @@ bool testCreateTree() {
         }
       }
       do {
+        /* Shuffle the array before initializing the kdArray */
+        shuffle(point_arr, x);
+
         /* Initialize kdArray */
         kdarr = init(point_arr, x);
         if (NULL == kdarr) {
@@ -269,10 +308,11 @@ bool testCreateTree() {
   return returnv;
 }
 
-/* Test create_tree */
+/* Test k_nearest_search */
 bool testKNearestSearch() {
   /* Declare variables */
   bool returnv = true;
+  unsigned int seed;
   double **data;
   int x;
   int y;
@@ -284,11 +324,19 @@ bool testKNearestSearch() {
   SP_CONFIG_MSG msg;
   SPConfig config;
 
+  /* Declear priority queue and query point */
+  SPBPQueue *priority_queue;
+  BPQueueElement *res;
+  int num_similay_images;
+  SPPoint *query_point;
+  int query_point_index;
+
   PRINT("Repeating %d times:\n", TCT_REPEAT);
   for (int i = 0; i < TCT_REPEAT && true == returnv; i++) {
     /* Initializing data array */
+    set_random_generator(&seed);
     data = generatDoubleMatrix(TCT_MAX_X - 1, TCT_MAX_X, TCT_MAX_Y - 1,
-      TCT_MAX_Y, TCT_VAL_MIN, TCT_VAL_MAX, G_LINE, &x, &y, NULL);
+      TCT_MAX_Y, TCT_VAL_MIN, TCT_VAL_MAX, G_LINE, &x, &y);
     if (NULL == data) {
       PRINT_E("Internal error, aborting!\n");
       returnv = false;
@@ -296,7 +344,19 @@ bool testKNearestSearch() {
     }
     PRINT("Iteration %d\n", i);
     do {
-      /* Initialize point array */
+      /* Choose number of similar points */
+      num_similay_images = (int)(rand_double(true) * x / 2);
+      if (num_similay_images < 1) num_similay_images = 1;
+
+      /* Choose query point and initialize point array */
+      query_point_index = num_similay_images / 2 + 
+        (int)(rand_double(false) * (x - num_similay_images / 2));
+      if (query_point_index >= x) {
+        PRINT_E("Chosen query point is out of range!\n");
+        returnv = false;
+        break;
+      }
+
       point_arr = (SPPoint**)malloc(x * sizeof(SPPoint*));
       if (NULL == point_arr) {
         PRINT_E("Failed to initialize point_arr.\n");
@@ -311,8 +371,17 @@ bool testKNearestSearch() {
           returnv = false;
           break;
         }
+        /* Pick the chosen point */
+        if (j == query_point_index) {
+          query_point = point_arr[j];
+        }
       }
+
       do {
+//        PRINT("1\n");
+        /* Suffle point array before initializing kdArray */
+        shuffle(point_arr, x);
+//        PRINT("1.5\n");
         /* Initialize kdArray */
         kdarr = init(point_arr, x);
         if (NULL == kdarr) {
@@ -321,41 +390,94 @@ bool testKNearestSearch() {
           break;
         }
         do {
+//          PRINT("2\n");
           if (msg || kdtree || config) {}
-          /* Create KDTree */
           /* Choose split method */
-          //if (i >= TCT_USE_INCREMENTAL_SPLIT_AFTER) {
-          //  config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
-          //}
-          //else if (i >= TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
-          //  config = spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
-          //}
-          //else if (i >= TCT_USE_RANDOM_SPLIT_AFTER) {
-          //  config = spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
-          //}
-          //else {
-          //  config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
-          //}
+          if (i >= TCT_USE_INCREMENTAL_SPLIT_AFTER) {
+            config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+          }
+          else if (i >= TCT_USE_MAX_SPREAD_SPLIT_AFTER) {
+            config = spConfigCreate(TCT_CONFIG_MAX_SPREAD_SPLIT, &msg);
+          }
+          else if (i >= TCT_USE_RANDOM_SPLIT_AFTER) {
+            config = spConfigCreate(TCT_CONFIG_RANDOM_SPLIT, &msg);
+          }
+          else {
+            config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
+          }
 
-          //if (NULL == config) {
-          //  PRINT_E("Unable to load config file: %d\n", msg);
-          //  returnv = false;
-          //  break;
-          //}
-          //do {
-          //  PRINT("Creating tree using split method %d\n",
-          //    spConfigGetSplitMethod(config, &msg));
+          if (NULL == config) {
+            PRINT_E("Unable to load config file: %d\n", msg);
+            returnv = false;
+            break;
+          }
+          do {
+//            PRINT("3\n");
+            /* Create KDTree */
+            PRINT("Creating tree using split method %d\n",
+              spConfigGetSplitMethod(config, &msg));
 
+            kdtree = create_tree(NULL, kdarr, 0);
+            if (NULL == kdtree) {
+              PRINT_E("Failed to initialize KDTree.\n");
+              returnv = false;
+              break;
+            }
+            do {
+//              PRINT("4\n");
+              /* Create BPriorityQueue */
+              priority_queue = spBPQueueCreate(num_similay_images);
+              if (NULL == priority_queue) {
+                PRINT_E("Failed to initialize priority queue!\n");
+                returnv = false;
+                break;
+              }
+              do {
+//                PRINT("5\n");
+                /* Create queue element */
+                res = (BPQueueElement*)malloc(sizeof(*res));
+                if (NULL == res) {
+                  PRINT_E("Failed to initialize queue element!\n");
+                  returnv = false;
+                  break;
+                }
+                do {
+//                  PRINT("6\n");
+                  if (kdtree || query_point) {}
+                  ///* Run k_nearest_search */
+                  //k_nearest_search(kdtree, priority_queue, query_point);
 
-          //  kdtree = create_tree(NULL, kdarr, 0);
+                  //for (int i = 0; i < num_similay_images; i++) {
+                  //  spBPQueuePeek(priority_queue, res);
+                  //  /* This might not work due to rounding error */
+                  //  if (0 == i % 2) {
+                  //    ASSERT_TRUE_NO_EXIT(
+                  //      res->index == spPointGetIndex(query_point) + i,
+                  //      returnv);
+                  //  }
+                  //  else {
+                  //    ASSERT_TRUE_NO_EXIT(
+                  //      res->index == spPointGetIndex(query_point) - i,
+                  //      returnv);
+                  //  }
 
+                  //  if (false == returnv) {
+                  //    /* Stop on failure */
+                  //    break;
+                  //  }
 
-          //  spKDTreeDestroy(kdtree);
-          //} while (0);
-          //spConfigDestroy(config);
-          PRINT_E("Implement\n");
+                  //  spBPQueueDequeue(priority_queue);
+                  //}
+                } while (0);
+                free(res);
+              } while (0);
+              spBPQueueDestroy(priority_queue);
+            } while (0);
+            spKDTreeDestroy(kdtree);
+          } while (0);
+          spConfigDestroy(config);
         } while (0);
-        spKDArrayDestroy();
+        spKDArrayDestroy(kdarr);
       } while (0);
       destroySPPointArray(point_arr, x);
     } while (0);
