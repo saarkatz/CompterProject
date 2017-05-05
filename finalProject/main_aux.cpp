@@ -1,3 +1,5 @@
+#include "main_aux.h"
+
 printConfigError(SP_CONFIG_MSG msg){
 
 }

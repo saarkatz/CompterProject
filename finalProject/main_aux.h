@@ -1,3 +1,12 @@
+#include "SPImageProc.h"
+
+extern "C" {
+#include "SPGlobals.h"
+#include "SPLogger.h"
+#include "SPPoint.h"
+#include "SPConfig.h"
+#include "SPKDTree.h"
+}
 
 /**
  * Create a file where features are stored for future use

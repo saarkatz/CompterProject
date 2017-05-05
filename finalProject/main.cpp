@@ -1,5 +1,9 @@
+#include "main_aux.h"
+
 
 #define DEFAULT_FILE "spcbir.config"
+
+
 typedef enum create_features_enum{QUERY,DATABASE_IMAGE}SPFeatureCreateMode;
 int main(int argc, char const *argv[]){
 	SP_CONFIG_MSG msg;
