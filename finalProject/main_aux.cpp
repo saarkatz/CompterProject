@@ -4,8 +4,31 @@ printConfigError(SP_CONFIG_MSG msg){
 extractFeatures(){
 
 }
-int saveFeatureToFile(SPConfig config, SPPoint** point){
 
+int saveFeatureToFile(SPConfig config, SPPoint** point,char* path,int nFeatures){
+	FILE* output_file =(FILE*)fopen(path,"w");
+	int dim = spPointGetDimension(*point);
+	fwrite(&nFeatures,sizeof(int),1,output_file);
+	for(int i=0;i<nFeatures;i++){
+		for(int j=0;j<dim;j++){
+			fwrite(spPointGetAxisCoor(point[i],j),sizeof(double),1,output_file);
+		}
+	}
+	return 0;
+}
+
+
+SPPoint** readPointFeaturesFromFile(SPConfig config,int index, char* path,int* nFeatures){
+	FILE* input_file =(FILE*)fopen(path,"r");
+	fread(nFeatures,sizeof(int),1,input_file);
+	int dim = config->spPCADimension;
+	double* data = (double*)malloc(dim*sizeof(double));
+	SPPoint** pointFeatures = (SPPoint**)malloc(nFeatures*sizeof(SPPoint*));
+	for(int i=0;i<nFeatures;i++){
+		fread(data,sizeof(double),dim,output_file);
+		pointFeatures[i]=spPointCreate(data,dim,index)
+	}
+	return pointFeatures;
 }
 
 char* reciveCommand(){
@@ -58,8 +81,8 @@ int spCounterCmp(const void* p1,const void* p2){
 
 
 
-SPPoint** createPointFeaturesFromPath(SPConfig config, char* path,ImageProc* proc_util){
-
+SPPoint** createPointFeaturesFromPath(SPConfig config,char* path,int index ,ImageProc* proc_util){
+	return proc_util.getImageFeatures(config,index,path);
 }
 
 
