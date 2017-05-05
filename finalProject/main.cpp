@@ -35,7 +35,7 @@ int main(int argc, char const *argv[]){
 	SPKDTreeNode* tree;
 	int* resultArray;
 	int* nFeatures=(int*)malloc(sizeof(int));
-	resultArray=(int*)malloc(config->spKNN*sizeof(int));
+	//resultArray=(int*)malloc(config->spKNN*sizeof(int));
 
 
 	//SPPoint** database = (SPPoint**)malloc(totalNumOfFeatures*sizeof(SPPoint*));

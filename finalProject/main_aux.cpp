@@ -3,7 +3,8 @@ printConfigError(SP_CONFIG_MSG msg){
 }
 
 int saveFeatureToFile(SPConfig config, SPPoint** point,char* path,int nFeatures){
-	FILE* output_file =(FILE*)fopen(path,"w");
+	char* featPath = createFeatPath(config,point,path);
+	FILE* output_file =(FILE*)fopen(featPath,"w");
 	int dim = spPointGetDimension(*point);
 	fwrite(&nFeatures,sizeof(int),1,output_file);
 	for(int i=0;i<nFeatures;i++){
@@ -42,7 +43,7 @@ bool requestingQuery(char* cmd){
 
 SPPoint** downgradeStar(SPConfig config,SPPoint*** array,int* numFeatureArray,int size){
 	SPPoint** database = (SPPoint**)malloc(totalNumOfFeatures*sizeof(SPPoint*));
-
+	//TODO
 	return database;
 }
 
@@ -61,8 +62,8 @@ typedef struct sp_counter{
 	int index;
 }SPCounter;
 
-int* findSimilarImages(SPConfig config,SPKDTreeNode* tree,SPPoint** queryPoint,int nFeatures){
 
+int* findSimilarImages(SPConfig config,SPKDTreeNode* tree,SPPoint** queryPoint,int nFeatures){
 	SPCounter* matchCountArray = (SPCounter*)malloc(config->spNumOfImages*sizeof(SPCounter));
 	//for every feature of the query
 	//run knn search and for increment the counter 
@@ -117,12 +118,14 @@ SPPoint***  createFeatureFiles(SPConfig config,ImageProc* proc_util,int* nFeatur
 	return resultArray;
 }
 
-SPPoint***  extractFeaturesFromFeatureFiles(SPConfig config,ImageProc* proc_util,int* nFeaturesArray){
+SPPoint***  extractFeaturesFromFeatureFiles(SPConfig config,
+		ImageProc* proc_util,int* nFeaturesArray){
 	SPPoint*** database = (SPPoint***)malloc(config->spNumOfImages*sizeof(SPPoint**));
-	//for every file we stored
+	char tmp_path[BUFF_SIZE];
 	int* nFeatures = (int*)malloc(sizeof(int));
-	for (int i = 0; i < config->spNumOfImages; ++i){
-	database[i]= readPointFeaturesFromFile(config,path,nFeatures);
+	for (int i = 0; i < config->spNumOfImages; ++i){		
+	spConfigGetImagePath(tmp_path,config,i);
+	database[i]= readPointFeaturesFromFile(config,tmp_path,nFeaturesArray[i]);
 	}
 	return database;
 	//more stuff here
