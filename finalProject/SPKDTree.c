@@ -89,7 +89,7 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
     break;
   default:
     // TODO - Handle this better
-    printf("Error occured while creating the tree.");
+    printf("Error occured while creating the tree.\n");
     free(tree_result);
     return NULL;
   }
