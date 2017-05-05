@@ -40,6 +40,11 @@ bool requestingQuery(char* cmd){
 
 }
 
+SPPoint** downgradeStar(SPConfig config,SPPoint*** array,int* numFeatureArray,int size){
+	SPPoint** database = (SPPoint**)malloc(totalNumOfFeatures*sizeof(SPPoint*));
+
+	return database;
+}
 
 
 void showResults(SPConfig config, int* array){
@@ -61,8 +66,13 @@ int* findSimilarImages(SPConfig config,SPKDTreeNode* tree,SPPoint** queryPoint,i
 	SPCounter* matchCountArray = (SPCounter*)malloc(config->spNumOfImages*sizeof(SPCounter));
 	//for every feature of the query
 	//run knn search and for increment the counter 
+	SPBPQueue* bpq;
+
 	for(int i=0;i<nFeatures;i++){
-		//k_nearest_search()///TODO
+		bpq = spBPQueueCreate(config->spKNN);
+		k_nearest_search(tree,bpq,queryPoint[i]);
+		incCounters(bpq,matchCountArray);
+		spBPQueueDestroy(bpq);
 	}
 	qsort(matchCountArray,config->spNumOfImages,sizeof(SPCounter),spCounterCmp);
 	int* bestArray = (int*)malloc(config->spKNN*sizeof(int));
@@ -71,11 +81,21 @@ int* findSimilarImages(SPConfig config,SPKDTreeNode* tree,SPPoint** queryPoint,i
 	}
 	return bestArray;
 }
+
 int spCounterCmp(const void* p1,const void* p2){
 	return (((SPCounter*)p1)->counter)-(((SPCounter*)p1)->counter) ;
 }
 
-
+void incCounters(SPConfig config,SPBPQueue* bpq,SPCounter* matchCountArray){
+	BPQueueElement* peekElement = (BPQueueElement*)malloc(sizeof(BPQueueElement));
+  	for (int i = 0; i < config->spKNN; i++) {
+    spBPQueuePeek(bpq, peekElement);
+    matchCountArray[peekElement->index].counter++;
+    spBPQueueDequeue(bpq);
+    //printf("rank %d:  , image index: %d,distace: %hf\n",i+1,peekElement->index,peekElement->value);
+  }
+	free(peekElement);
+}
 
 
 SPPoint** createPointFeaturesFromPath(SPConfig config,char* path,int index ,ImageProc* proc_util){
@@ -84,7 +104,7 @@ SPPoint** createPointFeaturesFromPath(SPConfig config,char* path,int index ,Imag
 
 
 
-SPPoint***  createFeatureFiles(SPConfig config,ImageProc* proc_util,int** nFeaturesArray){
+SPPoint***  createFeatureFiles(SPConfig config,ImageProc* proc_util,int* nFeaturesArray){
 	char tmp_path[BUFF_SIZE];
 	SP_CONFIG_MSG msg;
 	proc_util=ImageProc(config);
@@ -97,12 +117,12 @@ SPPoint***  createFeatureFiles(SPConfig config,ImageProc* proc_util,int** nFeatu
 	return resultArray;
 }
 
-SPPoint***  extractFeaturesFromFeatureFiles(SPConfig config,ImageProc* proc_util,int** nFeaturesArray){
+SPPoint***  extractFeaturesFromFeatureFiles(SPConfig config,ImageProc* proc_util,int* nFeaturesArray){
 	SPPoint*** database = (SPPoint***)malloc(config->spNumOfImages*sizeof(SPPoint**));
 	//for every file we stored
 	int* nFeatures = (int*)malloc(sizeof(int));
 	for (int i = 0; i < config->spNumOfImages; ++i){
-	database[i]= readPointFeaturesFromFile(config,im path,nFeatures);
+	database[i]= readPointFeaturesFromFile(config,path,nFeatures);
 	}
 	return database;
 	//more stuff here
