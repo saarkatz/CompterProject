@@ -74,7 +74,7 @@ void print_var_arr(SPVar* array,int size){
 
 int first_nonwhitespace(char* s){
     size_t i = 0;
-    while(s[i] == ' ' || s[i] == '\t'|| s[i] == '\n' || s[i] == '\r' || s[i] == '\f' || s[i] == '\v')
+    while(s[i] == ' ' || s[i] == '\t' || s[i] == '\r' || s[i] == '\f' || s[i] == '\v')
     {
         ++i;
     }
@@ -258,10 +258,11 @@ SPVar* v;
 
       while (fgets(line, sizeof(line), file) != NULL) {
  		 str_trap[0]='\0';
-        if (line[0]!='\n'&&(line[first_nonwhitespace(line)] != '#')&&var_num<14){
+         char first_no_white = line[first_nonwhitespace(line)];
+         if ('\n' != first_no_white && '#' != first_no_white && var_num < 14){
         	v = &(var_array[var_num]);
        		sscanf(line,"%[^= ] = %s %s",v->before,v->after,str_trap);
-       		if(str_trap[0]!='\0'){
+            if(str_trap[0]!='\0'){
        			ret = spCaseChoose(config,v);
        			if(ret==12||ret==11||ret==10||ret==9||ret==7||ret==5){
         			*msg =SP_CONFIG_INVALID_INTEGER;
@@ -276,8 +277,7 @@ SPVar* v;
        			*msg=SP_CONFIG_INVALID_STRING;
        			break;
        		}
-       		else var_num++;
-
+            else var_num++;
        		 //char *strchr(const char *str, int c)
         }
       }
