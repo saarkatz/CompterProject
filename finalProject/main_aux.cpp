@@ -1,9 +1,6 @@
 printConfigError(SP_CONFIG_MSG msg){
 
 }
-extractFeatures(){
-
-}
 
 int saveFeatureToFile(SPConfig config, SPPoint** point,char* path,int nFeatures){
 	FILE* output_file =(FILE*)fopen(path,"w");
@@ -87,20 +84,28 @@ SPPoint** createPointFeaturesFromPath(SPConfig config,char* path,int index ,Imag
 
 
 
-SPPoint***  createFeatureFiles(SPConfig config,ImageProc* proc_util){
+SPPoint***  createFeatureFiles(SPConfig config,ImageProc* proc_util,int** nFeaturesArray){
 	char tmp_path[BUFF_SIZE];
 	SP_CONFIG_MSG msg;
 	proc_util=ImageProc(config);
 	SPPoint*** resultArray=(SPPoint***)malloc((config->spNumOfImages)*sizeof(SPPoint**));
 	for(int i=0;i<config->spNumOfImages;i++){//for every picture in the images folder
 		spConfigGetImagePath(tmp_path,config,i);
-		resultArray[i]=createPointFeaturesFromPath(config,tmp_path,proc_util);
+		resultArray[i]=createPointFeaturesFromPath(config,tmp_path,proc_util,nFeaturesArray[i]);
 		saveFeatureToFile(config,resultArray[i]);
 	}
 	return resultArray;
 }
 
-SPPoint***  extractFeaturesFromFeatureFiles(SPConfig config,ImageProc* proc_util){
+SPPoint***  extractFeaturesFromFeatureFiles(SPConfig config,ImageProc* proc_util,int** nFeaturesArray){
+	SPPoint*** database = (SPPoint***)malloc(config->spNumOfImages*sizeof(SPPoint**));
+	//for every file we stored
+	int* nFeatures = (int*)malloc(sizeof(int));
+	for (int i = 0; i < config->spNumOfImages; ++i){
+	database[i]= readPointFeaturesFromFile(config,im path,nFeatures);
+	}
+	return database;
+	//more stuff here
 
 }
 
