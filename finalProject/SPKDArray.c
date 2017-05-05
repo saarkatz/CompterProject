@@ -8,11 +8,12 @@
 
 //
 SPKDArray* init(SPPoint** arr, int size) {
-	SPPoint** p_arr = copyPointArray(arr,size);
-	SPKDArray* result=(SPKDArray*)malloc(sizeof(SPKDArray*));
-	matrix_entry** i_arr= (matrix_entry**)malloc(spPointGetDimension(arr[0])*sizeof(matrix_entry*));//TODO
+	SPPoint** p_arr = copyPointArray(arr,size);//free this in DESTROY
+	SPKDArray* result=(SPKDArray*)malloc(sizeof(SPKDArray*));//return this
+	matrix_entry** i_arr= 
+	(matrix_entry**)malloc(spPointGetDimension(arr[0])*sizeof(matrix_entry*));//free this in DESTROY
 	for (int i = 0; i < spPointGetDimension(arr[0]); ++i){
-		i_arr[i]=(matrix_entry*)malloc(((size)*sizeof(matrix_entry)));
+		i_arr[i]=(matrix_entry*)malloc(((size)*sizeof(matrix_entry)));//free this in DESTORY
 		for (int j = 0; j < size; ++j){
 			i_arr[i][j].point=p_arr[j];
 			i_arr[i][j].cor=i;
@@ -32,7 +33,7 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 	SPKDArray* left=(SPKDArray*)malloc(sizeof(SPKDArray*));;
 	SPKDArray* right=(SPKDArray*)malloc(sizeof(SPKDArray*));;
 	SPKDArray** result=(SPKDArray**)malloc(2*sizeof(SPKDArray*));
-	int* X = (int*)malloc(kdArr->num_of_points*sizeof(int));
+	int* X = (int*)malloc(kdArr->num_of_points*sizeof(int));//free this before exiting
 	int P1_size = kdArr->num_of_points-kdArr->num_of_points/2;
 	int P2_size = kdArr->num_of_points/2;
 	//TODO -check malloc
@@ -40,7 +41,7 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 		X[i]=1;
 	}
 	for (int i = 0; i < P1_size; ++i){
-		X[kdArr->index_array[coor][i].point_index]=0;
+		X[kdArr->index_array[coor][i].point_index]=0;///
 	}
 
 	
@@ -111,12 +112,21 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 	right->index_array=M2;
 	right->num_of_points=P2_size;
 	result[0]=left;	
-	result[1]=right;	
+	result[1]=right;
+
 	return result;
 }
 
-void spKDArrayDestroy() { 
-  printf("spKDArrayDestroy is called but not implemented!\n");
+void spKDArrayDestroy(SPKDArray* kdarr) { 
+	if(kdarr!=NULL){
+	if(kdarr->num_of_points>0){
+		
+	destroyMatrixEntryArray(kdarr->index_array,spPointGetDimension(kdarr->point_array[0]));
+	destroyPointArray(kdarr->point_array,kdarr->num_of_points);
+	}
+ 	 //printf("spKDArrayDestroy is called but not implemented!\n");
+	}
+	free(kdarr);		
 }
 	
 int compare_entry(const void* p1,const void* p2){
@@ -133,4 +143,16 @@ SPPoint** copyPointArray(SPPoint** arr,int size){
 		result[i]=spPointCopy(arr[i]);
 	}
 	return result;
+}
+void destroyMatrixEntryArray(matrix_entry** index_array,int dim){
+	for(int i=0;i<dim;i++){
+		free(index_array[i]);
+	}
+	free(index_array);
+}
+void destroyPointArray(SPPoint** point_array,int num){
+	for(int i=0;i<num;i++){
+		spPointDestroy(point_array[i]);
+	}
+	free(point_array);
 }

@@ -252,14 +252,14 @@ bool testCreateTree() {
               spConfigGetSplitMethod(config, &msg));
 
 
-            kdtree = create_tree(NULL, kdarr, 0);
+            kdtree = create_tree(config, kdarr, 0);
             ASSERT_FALSE(NULL == kdtree);
 
             spKDTreeDestroy(kdtree);
           } while (0);
           spConfigDestroy(config);
         } while (0);
-        spKDArrayDestroy();
+        spKDArrayDestroy(kdarr);
       } while (0);
       destroySPPointArray(point_arr, x);
     } while (0);
@@ -375,7 +375,7 @@ int main() {
   }
 
   RUN_TEST(testCreateTree);
-  //RUN_TEST(testKNearestSearch);
+  RUN_TEST(testKNearestSearch);
 
   spLoggerDestroy();
   return 0;

@@ -19,10 +19,10 @@ TEST = .
 _INCLUDE = /usr/local/lib/opencv-3.1.0/include/  $(TEST) $(HOME)
 INCLUDEPATH = $(foreach dir,$(_INCLUDE),-I$(dir))
 
-CPP_COMP_FLAG = -std=c++11 -Wall -Wextra \
+CPP_COMP_FLAG = -g -std=c++11 -Wall -Wextra \
 -Werror -pedantic-errors -DNDEBUG
 
-C_COMP_FLAG = -std=c99 -Wall -Wextra \
+C_COMP_FLAG = -g -std=c99 -Wall -Wextra \
 -Werror -pedantic-errors -DNDEBUG
 
 $(EXEC): $(OBJS)

@@ -16,23 +16,7 @@ struct sp_kd_tree_node{
 };
  
 int choose_random(int n) {
-  if ((n - 1) == RAND_MAX) {
-    return rand();
-  }
-  else {
-    // Chop off all of the values that would cause skew...
-    long end = RAND_MAX / n; // truncate skew
-                             //assert (end > 0L);
-    end *= n;
-
-    // ... and ignore results from rand() that fall above that limit.
-    // (Worst case the loop condition should succeed 50% of the time,
-    // so we can expect to bail out of this loop pretty quickly.)
-    int r;
-    while ((r = rand()) >= end);
-
-    return r % n;
-  }
+  return rand()%n;
 }
 
 //TODO
@@ -57,6 +41,27 @@ int choose_max_spread(SPKDArray* kdarr) {
   return max_dim;
 }
 
+SPKDTreeNode* create_tree_main(SPConfig config, SPKDArray* arr) {
+
+  return create_tree(config,arr,spGetSplitDim(config,arr));
+}
+
+int spGetSplitDim(SPConfig config, SPKDArray* arr){
+ // int split_dim;
+  SP_CONFIG_MSG msg;
+  switch (spConfigGetSplitMethod(config, &msg)) {
+  case MAX_SPREAD:
+    return choose_max_spread(arr);
+  case RANDOM:
+    return choose_random(spPointGetDimension(arr->point_array[0]));
+  case INCREMENTAL:
+    return 0;
+  default:
+    return -1;
+  }
+
+}
+
 //coor is the current coordinate
 SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
   SP_CONFIG_MSG msg;
@@ -71,15 +76,16 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
     return tree_result;
   }
   SPKDArray** split_result;
+  //printf("spConfigGetSplitMethod(config, &msg): %d\n", spConfigGetSplitMethod(config, &msg));
   switch (spConfigGetSplitMethod(config, &msg)) {
   case MAX_SPREAD:
     split_dim = choose_max_spread(arr);
     break;
   case RANDOM:
-    split_dim = choose_random(arr->num_of_points);
+    split_dim = choose_random(spPointGetDimension(arr->point_array[0]));
     break;
   case INCREMENTAL:
-    split_dim = (coor + 1) % spPointGetDimension(arr->point_array[0]);
+    split_dim = ((coor + 1) % (spPointGetDimension(arr->point_array[0]))-1);
     break;
   default:
     // TODO - Handle this better
@@ -99,7 +105,7 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
 double tree_median();
 
 bool isLeaf(SPKDTreeNode* kdnode){
-	return kdnode->data==NULL;
+  return kdnode->data==NULL;
 }
 
 void k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point) {
@@ -142,4 +148,5 @@ void spKDTreeDestroy(SPKDTreeNode *tree) {
   spKDTreeDestroy(tree->right);
   free(tree);
 }
+
 
