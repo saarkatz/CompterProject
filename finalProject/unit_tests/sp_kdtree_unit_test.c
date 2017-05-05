@@ -254,6 +254,8 @@ bool testCreateTree() {
           break;
         }
       }
+      if (false == returnv) break;
+
       do {
         /* Shuffle the array before initializing the kdArray */
         shuffle(point_arr, x);
@@ -376,6 +378,8 @@ bool testKNearestSearch() {
           query_point = point_arr[j];
         }
       }
+
+      if (false == returnv) break;
 
       do {
 //        PRINT("1\n");
