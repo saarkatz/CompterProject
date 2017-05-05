@@ -123,6 +123,8 @@ double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
   double val_min, double val_max, MG_OPTION option, int *x, int *y) {
   /* Declare variables */
   double **matrix;
+  double min;
+  double max;
 
   /* Validate arguments */
   if (1 > x_start || 1 > y_start ||
@@ -146,16 +148,25 @@ double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
     }
   }
 
+  if (G_LINE == option) {
+    min = val_min + rand_double(true) * (val_max - val_min);
+    max = val_min + rand_double(true) * (val_max - val_min);
+  }
+  else if (G_RANDOM == option) {
+    min = val_min;
+    max = val_max;
+  }
+
   /* Initialize matrix */
   for (int i = 0; i < (*x); i++) {
     for (int j = 0; j < (*y); j++) {
       if (G_RANDOM == option) {
-        matrix[i][j] = val_min;
-        if (val_max > val_min)
-          matrix[i][j] += rand_double(true) * (val_max - val_min);
+        matrix[i][j] = min;
+        if (max > min)
+          matrix[i][j] += rand_double(true) * (max - min);
       }
       else if (G_LINE == option) {
-        matrix[i][j] = val_min + val_max * i;
+        matrix[i][j] = min + max * i;
       }
     }
   }
@@ -292,7 +303,6 @@ bool testCreateTree() {
             PRINT("Creating tree using split method %d\n",
               spConfigGetSplitMethod(config, &msg));
 
-
             kdtree = create_tree(config, kdarr, 0);
             ASSERT_FALSE(NULL == kdtree);
 
@@ -336,15 +346,16 @@ bool testKNearestSearch() {
   PRINT("Repeating %d times:\n", TCT_REPEAT);
   for (int i = 0; i < TCT_REPEAT && true == returnv; i++) {
     /* Initializing data array */
+    seed = 0;
     set_random_generator(&seed);
-    data = generatDoubleMatrix(TCT_MAX_X - 1, TCT_MAX_X, TCT_MAX_Y - 1,
+    data = generatDoubleMatrix(TCT_MIN_X, TCT_MAX_X, TCT_MIN_Y,
       TCT_MAX_Y, TCT_VAL_MIN, TCT_VAL_MAX, G_LINE, &x, &y);
     if (NULL == data) {
       PRINT_E("Internal error, aborting!\n");
       returnv = false;
       break;
     }
-    PRINT("Iteration %d\n", i);
+    PRINT("Iteration %d, using seed: %d\n", i, seed);
     do {
       /* Choose number of similar points */
       num_similay_images = (int)(rand_double(true) * x / 2);
@@ -352,7 +363,7 @@ bool testKNearestSearch() {
 
       /* Choose query point and initialize point array */
       query_point_index = num_similay_images / 2 + 
-        (int)(rand_double(false) * (x - num_similay_images / 2));
+        (int)(rand_double(false) * (x - num_similay_images));
       if (query_point_index >= x) {
         PRINT_E("Chosen query point is out of range!\n");
         returnv = false;
@@ -382,10 +393,9 @@ bool testKNearestSearch() {
       if (false == returnv) break;
 
       do {
-//        PRINT("1\n");
         /* Suffle point array before initializing kdArray */
         shuffle(point_arr, x);
-//        PRINT("1.5\n");
+
         /* Initialize kdArray */
         kdarr = init(point_arr, x);
         if (NULL == kdarr) {
@@ -394,8 +404,6 @@ bool testKNearestSearch() {
           break;
         }
         do {
-//          PRINT("2\n");
-          if (msg || kdtree || config) {}
           /* Choose split method */
           if (i >= TCT_USE_INCREMENTAL_SPLIT_AFTER) {
             config = spConfigCreate(TCT_CONFIG_INCREMENTAL_SPLIT, &msg);
@@ -416,7 +424,6 @@ bool testKNearestSearch() {
             break;
           }
           do {
-//            PRINT("3\n");
             /* Create KDTree */
             PRINT("Creating tree using split method %d\n",
               spConfigGetSplitMethod(config, &msg));
@@ -428,7 +435,6 @@ bool testKNearestSearch() {
               break;
             }
             do {
-//              PRINT("4\n");
               /* Create BPriorityQueue */
               priority_queue = spBPQueueCreate(num_similay_images);
               if (NULL == priority_queue) {
@@ -437,7 +443,6 @@ bool testKNearestSearch() {
                 break;
               }
               do {
-//                PRINT("5\n");
                 /* Create queue element */
                 res = (BPQueueElement*)malloc(sizeof(*res));
                 if (NULL == res) {
@@ -446,27 +451,21 @@ bool testKNearestSearch() {
                   break;
                 }
                 do {
-//                  PRINT("6\n");
-                  if (kdtree || query_point) {}
                   /* Run k_nearest_search */
                   k_nearest_search(kdtree, priority_queue, query_point);
 
+                  /* Check that the correct indices are returned */
+                  /* Due to rounding error this is a tiny bit limited */
                   for (int k = 0; k < num_similay_images; k++) {
                     spBPQueuePeek(priority_queue, res);
-                    /* This might not work due to rounding error */
-                    if (0 == k % 2) {
-                      ASSERT_TRUE_NO_EXIT(
-                        res->index == spPointGetIndex(query_point) + k,
-                        returnv);
-                    }
-                    else {
-                      ASSERT_TRUE_NO_EXIT(
-                        res->index == spPointGetIndex(query_point) - k,
-                        returnv);
-                    }
-
+                    ASSERT_TRUE_NO_EXIT(
+                      res->index == 
+                      spPointGetIndex(query_point) + (k + 1) / 2 ||
+                      res->index == spPointGetIndex(query_point) - (k + 1) / 2,
+                      returnv);
                     if (false == returnv) {
                       /* Stop on failure */
+                      printf("k: %d\nquery index: %d\nres->index: %d\n", k, spPointGetIndex(query_point), res->index);
                       break;
                     }
 
