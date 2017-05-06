@@ -21,6 +21,22 @@
  * A data-structure which is used for configuring the system.
  */
 
+#define SIM_NUM "spNumOfSimilarImages"
+#define PCA_DIM "spPCADimension"
+#define IMG_NUM "spNumOfImages"
+#define NUM_FEAT "spNumOfFeatures"
+#define MINIMAL_GUI "spMinimalGUI"
+#define LOGGERLVL "spLoggerLevel"
+#define LOGGER_FILENAME "spLoggerFilename"
+#define KNN "spKNN"
+#define SPLIT_METHOD "spKDTreeSplitMethod"
+#define IMAG_SUFIX "spImagesSuffix"
+#define IMG_PREFIX "spImagesPrefix"
+#define EXTRACT_MODE "spExtractionMode"
+#define IMG_DIR "spImagesDirectory"
+#define RANDOM_STR "RANDOM"
+#define MAX_SPREAD_STR "MAX_SPREAD"
+#define INCREMENTAL_STR "INCREMENTAL"
 /* System variables
 Variable that MUST be initialized:
   spImagesDirectory - string, Constraint: the string contains no spaces
@@ -83,6 +99,8 @@ void printConstranitNotMet(const char* filename,int linenumber);
 void printParameterNotSet(const char* filename,int linenumbers,const char* path);
 
 typedef struct sp_config_t* SPConfig;
+static char *const PCA_FILENAME = "spPCAFilename";
+
 void print_config(SPConfig config);
 /**
  * Creates a new system configuration struct. The configuration struct
