@@ -30,7 +30,6 @@ int main(int argc, char const *argv[]) {
   /* Read command line arguments */
   if (1 == argc) {
     config = spConfigCreate(DEFAULT_CONFIG, &config_msg);
-    printf("config_msg: %d\n", config_msg);
     if (SP_CONFIG_CANNOT_OPEN_FILE == config_msg) {
       printf(CL_DEFAULT_CONFIG_NO_OPEN_MESSAGE, DEFAULT_CONFIG);
       return EXIT_FAILURE;
@@ -48,9 +47,6 @@ int main(int argc, char const *argv[]) {
     return EXIT_FAILURE;
   }
   do {
-    /* Initialize imageProc */
-    imageProc = new sp::ImageProc(config);
-
     /* Initialize the logger */
     config_msg = spConfigGetLoggerFilename(buffer, config);
     if (SP_CONFIG_SUCCESS != config_msg) {
@@ -59,13 +55,23 @@ int main(int argc, char const *argv[]) {
       returnv = EXIT_FAILURE;
       break;
     }
-    logger_msg = spLoggerCreate(buffer,
-      (SP_LOGGER_LEVEL)spConfigGetLoggerLevel(config, &config_msg));
+    if (0 == strcmp(STDOUT_FILENAME, buffer)) {
+      logger_msg = spLoggerCreate(NULL,
+        (SP_LOGGER_LEVEL)spConfigGetLoggerLevel(config, &config_msg));
+    }
+    else {
+      logger_msg = spLoggerCreate(buffer,
+        (SP_LOGGER_LEVEL)spConfigGetLoggerLevel(config, &config_msg));
+    }
     if (SP_LOGGER_SUCCESS != logger_msg || SP_CONFIG_SUCCESS != config_msg) {
       printf("Fatal: failed to create logger, aborting\n");
       returnv = EXIT_FAILURE;
       break;
     }
+
+    /* Initialize imageProc */
+    imageProc = new sp::ImageProc(config);
+
     do {
       /* Initialize array of numbers of features */
       nFeatures = (int*)malloc(sizeof(*nFeatures) *
@@ -136,99 +142,107 @@ int main(int argc, char const *argv[]) {
               imagesList[i] = readFeaturesFile(buffer, nFeatures + i);
               if (NULL == imagesList[i]) {
                 LOG_E(MSG_MEMORY_ALLOC_FAILURE);
-                //imagesListDestroy(imagesList, i, nFeatures);
+                imagesListDestroy(imagesList, i, nFeatures);
                 returnv = EXIT_FAILURE;
                 break;
               }
             }
             if (EXIT_FAILURE == returnv) break;
           }
-
-          /* Turn images list to a single features list */
-          /* The points within the images list won't be copied. Only their
-          pointers, */
-
-          /* So DO NOT free the points pointed to by featuresList! */
-          /* These points are going to be freed along with imagesList */
-
-          featuresList = imagesListToFeatureList(config, imagesList, nFeatures,
-            &size);      
-          if (NULL == featuresList) {
-            LOG_E(MSG_MEMORY_ALLOC_FAILURE);
-            returnv = EXIT_FAILURE;
-            break;
-          }
           do {
-            /* Initialize kdArray */
-            kdArray = init(featuresList, size);
-            if (NULL == kdArray) {
-              LOG_E(MSG_FAILED_KDARRAY);
+            /* Turn images list to a single features list */
+            /* The points within the images list won't be copied. Only their
+            pointers, */
+
+            /* So DO NOT free the points pointed to by featuresList! */
+            /* These points are going to be freed along with imagesList */
+
+            featuresList = imagesListToFeatureList(config, imagesList, nFeatures,
+              &size);
+            if (NULL == featuresList) {
+              LOG_E(MSG_MEMORY_ALLOC_FAILURE);
               returnv = EXIT_FAILURE;
               break;
             }
             do {
-              /* Initialize kdTree */
-              kdTree = create_tree_main(config, kdArray); // En-Capsulate reqursive call
-              if (NULL == kdTree) {
-                LOG_E(MSG_FAILED_KDTREE);
+              /* Initialize kdArray */
+              kdArray = init(featuresList, size);
+              if (NULL == kdArray) {
+                LOG_E(MSG_FAILED_KDARRAY);
                 returnv = EXIT_FAILURE;
                 break;
               }
               do {
-                /* Main interaction loop */
-                while (getCommand(buffer)) {
-                  /* Search for similar images */
-               		//printf("kdTree%sNULL\n",(kdTree==NULL)?"==":"!=" );
-                  similarImagesIndecies = searchSimilarImages(config, buffer,
-                    kdTree);
-                  if (NULL == similarImagesIndecies) {
-                    printf(MSG_FAILED_TO_SEARCH_SIMIMG, buffer);
-                    continue;
-                  }
-                  do {
-                    /* Show results */
-                    if (spConfigIsMinimalGui(config, &config_msg)) {
-                      /* Minimal gui */
-                      for (int i = 0;
-                        i < spConfigGetNumSimilarImages(config, &config_msg);
-                        i++) {
-                        config_msg =
-                          spConfigGetImagePath(buffer, config,
-                            similarImagesIndecies[i]);
-                        imageProc->showImage(buffer);
-                      }
-                    }
-                    else {
-                      /* Non-minimal gui */
-                      printf(CL_BEST_FOR_IMG, buffer);
-                      for (int i = 0;
-                        i < spConfigGetNumSimilarImages(config, &config_msg);
-                        i++) {
-                        config_msg =
-                          spConfigGetImagePath(buffer, config,
-                            similarImagesIndecies[i]);
-                        printf(CL_CANDIDATE_IMG, buffer);
-                      }
-                    }
-                    printf(CL_EXIT_MSG);
-                  } while (0);
-                  free(similarImagesIndecies);
+                /* Initialize kdTree */
+                kdTree = create_tree_main(config, kdArray);
+                if (NULL == kdTree) {
+                  LOG_E(MSG_FAILED_KDTREE);
+                  returnv = EXIT_FAILURE;
+                  break;
                 }
+                do {
+                  /* Main interaction loop */
+                  while (getCommand(buffer)) {
+                    /* Search for similar images */
+                      //printf("kdTree%sNULL\n",(kdTree==NULL)?"==":"!=" );
+                    printf("Searching minimal images\n");
+                    similarImagesIndecies = searchSimilarImages(config, buffer,
+                      kdTree);
+                    if (NULL == similarImagesIndecies) {
+                      printf(MSG_FAILED_TO_SEARCH_SIMIMG, buffer);
+                      continue;
+                    }
+
+                    do {
+                      /* Show results */
+                      printf("Showing result\n");
+                      if (spConfigIsMinimalGui(config, &config_msg)) {
+                        /* Minimal gui */
+                        for (int i = 0;
+                          i < spConfigGetNumSimilarImages(config, &config_msg);
+                          i++) {
+                          config_msg =
+                            spConfigGetImagePath(buffer, config,
+                              similarImagesIndecies[i]);
+                          imageProc->showImage(buffer);
+                        }
+                      }
+                      else {
+                        /* Non-minimal gui */
+                        printf(CL_BEST_FOR_IMG, buffer);
+                        for (int i = 0;
+                          i < spConfigGetNumSimilarImages(config, &config_msg);
+                          i++) {
+                          config_msg =
+                            spConfigGetImagePath(buffer, config,
+                              similarImagesIndecies[i]);
+                          printf(CL_CANDIDATE_IMG, buffer);
+                        }
+                      }
+                    } while (0);
+
+                    free(similarImagesIndecies);
+                  } /* end while (getCommand(buffer)) */
+                  printf(CL_EXIT_MSG);
+                } while (0);
+                spKDTreeDestroy(kdTree);
               } while (0);
-              spKDTreeDestroy(kdTree);
+              spKDArrayDestroy(kdArray);
             } while (0);
-            spKDArrayDestroy(kdArray);
+            free(featuresList);
           } while (0);
-          free(featuresList);
+          imagesListDestroy(imagesList,
+            spConfigGetNumOfImages(config, &config_msg), nFeatures);
         } while (0);
-        //imagesListDestroy(imagesList,spConfigGetNumOfImages(config, &config_msg), nFeatures);
+        free(imagesList);
       } while (0);
       free(nFeatures);
     } while (0);
-    spLoggerDestroy();
 
     /* Free imageProc */
     delete imageProc;
+
+    spLoggerDestroy();
   } while (0);
   spConfigDestroy(config);
   

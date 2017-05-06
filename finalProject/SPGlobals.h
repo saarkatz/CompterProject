@@ -43,6 +43,9 @@
 #define MSG_FAILED_KDTREE "Failed to generate KDTree.\n"
 #define MSG_FAILED_KDARRAY "Failed to initialise kdArray.\n"
 
+/* Logger */
+#define STDOUT_FILENAME "stdout"
+
 /* Macro to handle the prints to the logger */
 #define LOG_E(...) do {\
 char __strbuff__[STRING_MAX_LENGTH]; \
