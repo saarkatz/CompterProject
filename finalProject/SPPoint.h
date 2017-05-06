@@ -64,6 +64,12 @@ SPPoint* spPointCopy(SPPoint* source);
 void spPointDestroy(SPPoint* point);
 
 /**
+ * Free all memory allocation associated with spPoint array,
+ * if the array in NULL nothig happens.
+ */
+void spPointArrayDestroy(SPPoint **point_arr, int length);
+
+/**
  * A getter for the dimension of the point
  *
  * @param point - The source point

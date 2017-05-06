@@ -54,7 +54,7 @@ double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
   double val_min, double val_max, MG_OPTION option, int *x, int *y);
 void shuffle(SPPoint **point_arr, size_t n);
 void destroyDoubleMatrix(double **matrix, int x);
-void destroySPPointArray(SPPoint **point_arr, int length);
+
 /**
 Initializes the random number generator to seed
 If seed is not NULL the the value within seed is checked. If it is 0 the a
@@ -204,16 +204,6 @@ void destroyDoubleMatrix(double **matrix, int x) {
   }
 }
 
-/* Frees SPPoint array */
-void destroySPPointArray(SPPoint **point_arr, int length) {
-  if (point_arr) {
-    for (int i = 0; i < length; i++) {
-      spPointDestroy(point_arr[i]);
-    }
-    free(point_arr);
-  }
-}
-
 /* Test create_tree */
 bool testCreateTree() {
   /* Declare variables */
@@ -260,7 +250,7 @@ bool testCreateTree() {
         }
         if (NULL == point_arr[j]) {
           PRINT_E("Failed to initialize SPPoint.\n");
-          destroySPPointArray(point_arr, j);
+          spPointArrayDestroy(point_arr, j);
           returnv = false;
           break;
         }
@@ -312,7 +302,7 @@ bool testCreateTree() {
         } while (0);
         spKDArrayDestroy(kdarr);
       } while (0);
-      destroySPPointArray(point_arr, x);
+      spPointArrayDestroy(point_arr, x);
     } while (0);
     destroyDoubleMatrix(data, x);
   }
@@ -380,7 +370,7 @@ bool testKNearestSearch() {
         point_arr[j] = spPointCreate(data[j], y, j);
         if (NULL == point_arr[j]) {
           PRINT_E("Failed to initialize SPPoint.\n");
-          destroySPPointArray(point_arr, j);
+          spPointArrayDestroy(point_arr, j);
           returnv = false;
           break;
         }
@@ -482,7 +472,7 @@ bool testKNearestSearch() {
         } while (0);
         spKDArrayDestroy(kdarr);
       } while (0);
-      destroySPPointArray(point_arr, x);
+      spPointArrayDestroy(point_arr, x);
     } while (0);
     destroyDoubleMatrix(data, x);
   }

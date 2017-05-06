@@ -6,6 +6,7 @@
 #include <ctype.h>
 
 #include "SPConfig.h"
+#include "SPGlobals.h"
 
 #define MAXBUF 1024 
 
@@ -347,7 +348,7 @@ bool spConfigIsExtractionMode(const SPConfig config, SP_CONFIG_MSG* msg) {
   return config->spExtractionMode;
 }
 
-bool spConfigMinimalGui(const SPConfig config, SP_CONFIG_MSG* msg){
+bool spConfigIsMinimalGui(const SPConfig config, SP_CONFIG_MSG* msg){
   if (NULL == config) {
     *msg = SP_CONFIG_INVALID_ARGUMENT;
     return false;
@@ -383,18 +384,32 @@ int spConfigGetPCADim(const SPConfig config, SP_CONFIG_MSG* msg){
   return config->spPCADimension;
 }
 
-SP_CONFIG_MSG spConfigGetImagePath(char* imagePath, const SPConfig config,int index){
-  if (!imagePath || !config) {  
-  	return SP_CONFIG_INVALID_ARGUMENT;
-	}
-	if(index>=config->spNumOfImages||index<0){
-  	return SP_CONFIG_INDEX_OUT_OF_RANGE;
+SP_CONFIG_MSG spConfigGetImagePath(char* imagePath, const SPConfig config, int index) {
+  if (!imagePath || !config) {
+    return SP_CONFIG_INVALID_ARGUMENT;
+  }
+  if (index >= config->spNumOfImages || index < 0) {
+    return SP_CONFIG_INDEX_OUT_OF_RANGE;
+  }
 
-	}
+  sprintf(imagePath, "%s%s%d%s", config->spImagesDirectory,
+    config->spImagesPrefix, index, config->spImagesSuffix);
 
-  //printf("spConfigGetPCAPath is called but not implemented!\n");
-  sprintf(imagePath,"%s%s%d%s",config->spImagesDirectory,config->spImagesPrefix,index,config->spImagesSuffix);
-  //printf("in spConfigGetPCAPath: pcaPath =%s\n",pcaPath );
+  return SP_CONFIG_SUCCESS;
+}
+
+SP_CONFIG_MSG spConfigGetFeatsFilePath(char* featsFilePath, const SPConfig config,
+  int index) {
+  if (!featsFilePath || !config) {
+    return SP_CONFIG_INVALID_ARGUMENT;
+  }
+  if (index >= config->spNumOfImages || index < 0) {
+    return SP_CONFIG_INDEX_OUT_OF_RANGE;
+  }
+
+  sprintf(featsFilePath, "%s%s%d%s", config->spImagesDirectory,
+    config->spImagesPrefix, index, FEATURE_FILE_SUFFIX);
+
   return SP_CONFIG_SUCCESS;
 }
 

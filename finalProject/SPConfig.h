@@ -124,12 +124,12 @@ bool spConfigIsExtractionMode(const SPConfig config, SP_CONFIG_MSG* msg);
  * @param config - the configuration structure
  * @assert msg != NULL
  * @param msg - pointer in which the msg returned by the function is stored
- * @return true if spExtractionMode = true, false otherwise.
+ * @return true if spMinimalGUI = true, false otherwise.
  *
  * - SP_CONFIG_INVALID_ARGUMENT - if config == NULL
  * - SP_CONFIG_SUCCESS - in case of success
  */
-bool spConfigMinimalGui(const SPConfig config, SP_CONFIG_MSG* msg);
+bool spConfigIsMinimalGui(const SPConfig config, SP_CONFIG_MSG* msg);
 
 /*
  * Returns the number of images set in the configuration file, i.e the value
@@ -199,6 +199,34 @@ int spConfigGetPCADim(const SPConfig config, SP_CONFIG_MSG* msg);
  */
 SP_CONFIG_MSG spConfigGetImagePath(char* imagePath, const SPConfig config,
 		int index);
+
+/**
+* Given an index 'index' the function stores in featsFilePath the full
+* path of the ith images .feats file.
+*
+* For example:
+* Given that the value of:
+*  spImagesDirectory = "./images/"
+*  spImagesPrefix = "img"
+*  spNumOfImages = 17
+*  index = 10
+*
+* The functions stores "./images/img10.feats" to the address given by
+* featsFilePath. Thus the address given by featsFilePath must contain enough
+* space to store the resulting string.
+*
+* @param featsFilePath - an address to store the result in, it must contain
+*         enough space.
+* @param config - the configuration structure
+* @param index - the index of the image.
+*
+* @return
+* - SP_CONFIG_INVALID_ARGUMENT - if featsFilePath == NULL or config == NULL
+* - SP_CONFIG_INDEX_OUT_OF_RANGE - if index >= spNumOfImages or index < 0
+* - SP_CONFIG_SUCCESS - in case of success
+*/
+SP_CONFIG_MSG spConfigGetFeatsFilePath(char* featsFilePath,
+        const SPConfig config, int index);
 
 /**
  * The function stores in pcaPath the full path of the pca file.

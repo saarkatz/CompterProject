@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "SPImageProc.h"
 
 extern "C" {
@@ -10,56 +12,64 @@ extern "C" {
 
 /**
  * Create a file where features are stored for future use
- * @param path          - a path to where file is created
- * @param features      - features to save
- * @param dim           - dimension of features
+ * @param filepath      - a path to where file is created
  * @param index         - the index of the image from which the features
- *                        where extracted
- * @param numOfFeatures - number of features
+ * @param nFeatures     - number of features
+ * @param features_list - features to save
+ *
  * @return 1 on a successful call, otherwise 0
  */
-int createFeaturesFile(char *path, SPPoint **features, int dim, int index,
-                       int numOfFeatures);
+int saveFeatureToFile(char *filepath, int index, int nFeatures,
+  SPPoint** featureList);
 
 /**
  * Read features from file return them and assign nFeatures
- * @param path      - path to file
- * @param nFeatures - number of features extracted from file
- * @return
- */
-SPPoint** readFeaturesFile(const char *path, int *nFeatures);
-
-/**
- * Extract features from config file images
- * @param config - Configuration file
- * @return 1 on a successful call, otherwise 0
- */
-int extractFromImages(SPConfig config);
-
-/**
- * Extract and return features from .feats files, assign total number
- * of features extracted to totalNumOfFeatures
- * @param config                - Configuration file
- * @param totalNumOfFeatures    - total number of features extracted
- * @return  features as SPPoints on a successful call, if error occurs
- *          return NULL pointer
- */
-SPPoint** extractFromFile(SPConfig config, int *totalNumOfFeatures);
-
-/**
- * Returns a SPKDTreeNode = a KDTree constructed from features of config images
- * @param config - Configuration file
- * @return  SPKDTreeNode on a successful call, if error occurs return
- *          NULL pointer
- */
-SPKDTreeNode* extractKDTree(SPConfig config);
-
-/**
+ * @param filepath  - path to file
+ * @param nFeatures - number of features that were extracted from the file
  *
+ * @return pointer to the newly created SPPoint array.
+ */
+SPPoint** readFeaturesFile(const char *filepath, int *nFeatures);
+
+/**
+ * Craetes a single list out of the list of lists 'imagesList'. The created
+ * list contains pointers to the points WITHIN imagesList and therefor the
+ * points SHOULD NOT be freed through the returned list.
+ * Don't forget to DO free the list itself.
+ * @param config     - the config object
+ * @param imagesList - the list of lists to flatten
+ * @param nFeatures  - an array of the sizes of the lists within imagesList
+ * @param size       - a pointer to an integer in which the final size will be
+ *                     returned.
+ *
+ * @return the pointer to the list of NULL if memory allocation failed
+ */
+SPPoint **imagesListToFeatureList(SPConfig config, SPPoint*** imagesList,
+  int* nFeatures, int *size);
+
+/**
+ * Requests the user for a query path. Sets command to the path and returns 1
+ * OR if the command recieved from the user is CL_STOP_QUERYING the returns 0
+ * @param command - the recieved command will be stored in this variable. For
+ *                  that reason command should be large enough to contain the
+ *                  command
+ * @return 1 or 0 if the command is CL_STOP_QUERYING (see SPGlobals.h)
+ */
+int getCommand(char *command);
+
+/**
+ * Searches the kdTree for similar images to the queryPath
  * @param config     - Configuration file
  * @param queryPath  - file path to query image
  * @param kdTree     - SPKDTreeNode with features from all the images in
  *                     the configuration file
- * @return 1 on a successful call, otherwise 0
+ * @return a pointer the a list of similar images or NULL is searching failed.
  */
-int searchSimilarImages(SPConfig config, char *queryPath, SPKDTreeNode *kdTree);
+int *searchSimilarImages(SPConfig config, char *queryPath,
+  SPKDTreeNode *kdTree);
+
+/**
+ * Frees all memory allocation associated with the images list, if the list is
+ * NULL nothing happens
+ */
+void imagesListDestroy(SPPoint ***imagesList, int length, int *nFeatures);

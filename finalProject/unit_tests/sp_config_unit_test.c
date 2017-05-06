@@ -216,7 +216,7 @@ bool testDefaultValues() {
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = SP_CONFIG_ALLOC_FAIL;
-  ASSERT_TRUE(false == spConfigMinimalGui(config, &msg));
+  ASSERT_TRUE(false == spConfigIsMinimalGui(config, &msg));
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = SP_CONFIG_ALLOC_FAIL;
@@ -283,7 +283,7 @@ bool testValidValues() {
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = SP_CONFIG_ALLOC_FAIL;
-  ASSERT_TRUE(true == spConfigMinimalGui(config, &msg));
+  ASSERT_TRUE(true == spConfigIsMinimalGui(config, &msg));
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = SP_CONFIG_ALLOC_FAIL;
@@ -350,7 +350,7 @@ bool testScrambledValues() {
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = SP_CONFIG_ALLOC_FAIL;
-  ASSERT_TRUE(true == spConfigMinimalGui(config, &msg));
+  ASSERT_TRUE(true == spConfigIsMinimalGui(config, &msg));
   ASSERT_TRUE(SP_CONFIG_SUCCESS == msg);
 
   msg = SP_CONFIG_ALLOC_FAIL;

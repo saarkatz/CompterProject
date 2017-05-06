@@ -53,6 +53,15 @@ void spPointDestroy(SPPoint* point) {
   }
 }
 
+void spPointArrayDestroy(SPPoint **point_arr, int length) {
+  if (point_arr) {
+    for (int i = 0; i < length; i++) {
+      spPointDestroy(point_arr[i]);
+    }
+    free(point_arr);
+  }
+}
+
 int spPointGetDimension(SPPoint* point) {
   assert(point != NULL);
   return point->dim;

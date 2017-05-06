@@ -1,137 +1,220 @@
 #include "main_aux.h"
 
-printConfigError(SP_CONFIG_MSG msg){
+typedef struct sp_counter {
+  int counter;
+  int index;
+} SPCounter;
 
-}
+int saveFeatureToFile(char *filepath, int index, int nFeatures,
+  SPPoint** featureList) {
+  FILE* file;
 
-int saveFeatureToFile(SPConfig config, SPPoint** point,char* path,int nFeatures){
-	char* featPath = createFeatPath(config,point,path);
-	FILE* output_file =(FILE*)fopen(featPath,"w");
-	int dim = spPointGetDimension(*point);
-	fwrite(&nFeatures,sizeof(int),1,output_file);
-	for(int i=0;i<nFeatures;i++){
-		for(int j=0;j<dim;j++){
-			fwrite(spPointGetAxisCoor(point[i],j),sizeof(double),1,output_file);
-		}
-	}
-	return 0;
-}
+  /* Not checking argument validity */
 
-
-SPPoint** readPointFeaturesFromFile(SPConfig config,int index, char* path,int* nFeatures){
-	FILE* input_file =(FILE*)fopen(path,"r");
-	fread(nFeatures,sizeof(int),1,input_file);
-	int dim = config->spPCADimension;
-	double* data = (double*)malloc(dim*sizeof(double));
-	SPPoint** pointFeatures = (SPPoint**)malloc(nFeatures*sizeof(SPPoint*));
-	for(int i=0;i<nFeatures;i++){
-		fread(data,sizeof(double),dim,output_file);
-		pointFeatures[i]=spPointCreate(data,dim,index)
-	}
-	return pointFeatures;
-}
-
-char* reciveCommand(){
-
-}
-char* getPath(char* cmd){
-	
-}
-
-//method to check if the input we recived was a request for another query.
-bool requestingQuery(char* cmd){
-
-}
-
-SPPoint** downgradeStar(SPConfig config,SPPoint*** array,int* numFeatureArray,int size){
-	SPPoint** database = (SPPoint**)malloc(totalNumOfFeatures*sizeof(SPPoint*));
-	//TODO
-	return database;
-}
-
-
-void showResults(SPConfig config, int* array){
-	if(config->spMinimalGUI){
-		//TODO
-	}
-	else{
-		//TODO
-	}
-}
-
-typedef struct sp_counter{
-	int counter;
-	int index;
-}SPCounter;
-
-
-int* findSimilarImages(SPConfig config,SPKDTreeNode* tree,SPPoint** queryPoint,int nFeatures){
-	SPCounter* matchCountArray = (SPCounter*)malloc(config->spNumOfImages*sizeof(SPCounter));
-	//for every feature of the query
-	//run knn search and for increment the counter 
-	SPBPQueue* bpq;
-
-	for(int i=0;i<nFeatures;i++){
-		bpq = spBPQueueCreate(config->spKNN);
-		k_nearest_search(tree,bpq,queryPoint[i]);
-		incCounters(bpq,matchCountArray);
-		spBPQueueDestroy(bpq);
-	}
-	qsort(matchCountArray,config->spNumOfImages,sizeof(SPCounter),spCounterCmp);
-	int* bestArray = (int*)malloc(config->spKNN*sizeof(int));
-	for (int i = 0; i < config->spKNN; ++i){
-		bestArray[i]=matchCountArray[i]->index;
-	}
-	return bestArray;
-}
-
-int spCounterCmp(const void* p1,const void* p2){
-	return (((SPCounter*)p1)->counter)-(((SPCounter*)p1)->counter) ;
-}
-
-void incCounters(SPConfig config,SPBPQueue* bpq,SPCounter* matchCountArray){
-	BPQueueElement* peekElement = (BPQueueElement*)malloc(sizeof(BPQueueElement));
-  	for (int i = 0; i < config->spKNN; i++) {
-    spBPQueuePeek(bpq, peekElement);
-    matchCountArray[peekElement->index].counter++;
-    spBPQueueDequeue(bpq);
-    //printf("rank %d:  , image index: %d,distace: %hf\n",i+1,peekElement->index,peekElement->value);
+  file = fopen(filepath, F_WRITE);
+  if (NULL == file) {
+    LOG_E(MSG_CANT_OPEN_FILE, filepath);
+    return 0;
   }
-	free(peekElement);
+
+  /* Write the features to the file */
+  fprintf(file, FEATURE_FILE_HEAD "\n", index, nFeatures,
+    spPointGetDimension(featureList[0]));
+  for (int i = 0; i < nFeatures; i++) {
+    for (int j = 0; j < spPointGetDimension(featureList[i]); j++) {
+      fprintf(file, FEATURE_FILE_LINE_VALUE " ",
+        spPointGetAxisCoor(featureList[i], j));
+    }
+    fprintf(file, FEATURE_FILE_LINE_END);
+  }
+
+  fclose(file);
+  return 1;
 }
 
+SPPoint** readFeaturesFile(const char *filepath, int *nFeatures) {
+  SPPoint** returnv;
+  int index;
+  int dimention;
+  double *data;
+  SPPoint **image;
+  FILE *file;
 
-SPPoint** createPointFeaturesFromPath(SPConfig config,char* path,int index ,ImageProc* proc_util){
-	return proc_util.getImageFeatures(config,index,path);
+  /* Not checking argument validity */
+
+  file = fopen(filepath, F_READ);
+  if (NULL == file) {
+    LOG_E(MSG_CANT_OPEN_FILE, filepath);
+    return NULL;
+  }
+  do {
+    fscanf(file, FEATURE_FILE_HEAD, &index, nFeatures, &dimention);
+    data = (double*)malloc(sizeof(*data) * dimention);
+    if (NULL == data) {
+      LOG_E(MSG_MEMORY_ALLOC_FAILURE);
+      returnv = NULL;
+      break;
+    }
+    do {
+      returnv = (SPPoint**)malloc(sizeof(*returnv) * (*nFeatures));
+      if (NULL == returnv) {
+        LOG_E(MSG_MEMORY_ALLOC_FAILURE);
+        break;
+      }
+      /* Read data from file */
+      for (int i = 0; i < *nFeatures && NULL != returnv; i++) {
+        for (int j = 0; j < dimention; j++) {
+          fscanf(file, FEATURE_FILE_LINE_VALUE, data[j]);
+        }
+
+        returnv[i] = spPointCreate(data, dimention, index);
+        if (NULL == returnv[i]) {
+          LOG_E(MSG_MEMORY_ALLOC_FAILURE);
+          spPointArrayDestroy(returnv, i);
+          returnv = NULL;
+          break;
+        }
+      }
+    } while (0);
+    free(data);
+  } while (0);
+  fclose(file);
+  return returnv;
 }
 
-
-
-SPPoint***  createFeatureFiles(SPConfig config,ImageProc* proc_util,int* nFeaturesArray){
-	char tmp_path[BUFF_SIZE];
-	SP_CONFIG_MSG msg;
-	proc_util=ImageProc(config);
-	SPPoint*** resultArray=(SPPoint***)malloc((config->spNumOfImages)*sizeof(SPPoint**));
-	for(int i=0;i<config->spNumOfImages;i++){//for every picture in the images folder
-		spConfigGetImagePath(tmp_path,config,i);
-		resultArray[i]=createPointFeaturesFromPath(config,tmp_path,proc_util,nFeaturesArray[i]);
-		saveFeatureToFile(config,resultArray[i]);
-	}
-	return resultArray;
+int getCommand(char *command){
+  scanf("%s", command);
+  if (0 == strcmp(CL_STOP_QUERYING, command)) {
+    return 0;
+  }
+  return 1;
 }
 
-SPPoint***  extractFeaturesFromFeatureFiles(SPConfig config,
-		ImageProc* proc_util,int* nFeaturesArray){
-	SPPoint*** database = (SPPoint***)malloc(config->spNumOfImages*sizeof(SPPoint**));
-	char tmp_path[BUFF_SIZE];
-	int* nFeatures = (int*)malloc(sizeof(int));
-	for (int i = 0; i < config->spNumOfImages; ++i){		
-	spConfigGetImagePath(tmp_path,config,i);
-	database[i]= readPointFeaturesFromFile(config,tmp_path,nFeaturesArray[i]);
-	}
-	return database;
-	//more stuff here
+SPPoint **imagesListToFeatureList(SPConfig config, SPPoint*** imagesList,
+  int* nFeatures, int *size) {
+  SPPoint **featuresList;
+  SP_CONFIG_MSG msg;
+  *size = 0;
 
+  /* Not checking argument validity */
+
+  for (int i = 0; i < spConfigGetNumOfImages(config, &msg); i++) {
+    size += nFeatures[i];
+  }
+
+  featuresList = (SPPoint**)malloc(sizeof(*featuresList) * (*size));
+  if (NULL == featuresList) {
+    LOG_E(MSG_MEMORY_ALLOC_FAILURE);
+    return NULL;
+  }
+  /* ONLY the pointers are being copied */
+  for (int i = 0, int j = 0, int k = 0; i < *size; i++, k++) {
+    if (nFeatures[j] == k) {
+      j++;
+      k = 0;
+    }
+
+    featuresList[i] = imagesList[j][k];
+  }
+  return featuresList;
+}
+
+int spCounterCmp(const void* p1, const void* p2) {
+  return (((SPCounter*)p1)->counter) - (((SPCounter*)p1)->counter);
+}
+
+/* Increment the count of all pictures that appear in bpq in matchArray */
+void incCounters(SPConfig config, SPBPQueue* bpq, SPCounter* matchArray) {
+  SP_CONFIG_MSG msg;
+  BPQueueElement* peekElement = (BPQueueElement*)malloc(sizeof(*peekElement));
+  for (int i = 0; i < spConfigGetKNN(config, &msg); i++) {
+    spBPQueuePeek(bpq, peekElement);
+    matchArray[peekElement->index].counter++;
+    spBPQueueDequeue(bpq);
+  }
+  free(peekElement);
+}
+
+int *searchSimilarImages(SPConfig config, char *queryPath,
+  SPKDTreeNode *kdTree) {
+  SP_CONFIG_MSG msg;
+  int *returnv;
+
+  SPCounter *matchArray;
+  SPPoint **queryImage;
+  int nFeatures;
+
+  SPBPQueue* bpq;
+
+  /* Not checking arguments validity */
+
+  sp::ImageProc *imageProc = new sp::ImageProc(config);
+
+  queryImage = imageProc->getImageFeatures(queryPath,
+    spConfigGetNumOfImages(config, &msg), &nFeatures);
+  if (NULL == queryImage) {
+    delete imageProc;
+    return NULL;
+  }
+  delete imageProc;
+
+  do {
+    matchArray = (SPCounter*)malloc(spConfigGetNumOfImages(config, &msg) *
+      sizeof(*matchArray));
+    if (NULL == matchArray) {
+      returnv = NULL;
+      break;
+    }
+    do {
+      bpq = spBPQueueCreate(spConfigGetKNN(config, &msg));
+      if (NULL == bpq) {
+        returnv = NULL;
+        break;
+      }
+      do {
+        /* for every feature of the query */
+        /* run knn search and and increment the counter */
+
+        for (int i = 0; i < nFeatures; i++) {
+          k_nearest_search(kdTree, bpq, queryImage[i]);
+          incCounters(config, bpq, matchArray);
+          spBPQueueDestroy(bpq);
+        }
+
+        returnv = (int*)malloc(spConfigGetKNN(config, &msg) *
+          sizeof(*returnv));
+        if (NULL == returnv) {
+          break;
+        }
+
+        /* Sort the matching array according to the count of each image */
+        qsort(matchArray, spConfigGetNumSimilarImages(config, &msg),
+          sizeof(SPCounter), spCounterCmp);
+
+        /* Get the NumSimilarImages best images indices */
+        for (int i = 0; i < spConfigGetKNN(config, &msg); i++) {
+          returnv[i] = matchArray[i].index;
+        }
+      } while (0);
+      spBPQueueDestroy(bpq);
+    } while (0);
+    free(matchArray);
+  } while (0);
+  spPointArrayDestroy(queryImage);
+  return returnv;
+}
+
+void imagesListDestroy(SPPoint ***imagesList, int length, int *nFeatures) {
+  if (imagesList) {
+    if (!nFeatures) {
+      LOG_E("Attempting to free imagesList without sending nFeatures "
+        "array!\n");
+      return;
+    }
+    for (int i = 0; i < length; i++) {
+      spPointArrayDestroy(imagesList[i], nFeatures[i]);
+    }
+  }
 }
 
 
