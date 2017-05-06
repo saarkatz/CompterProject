@@ -106,16 +106,14 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 	return result;
 }
 
-void spKDArrayDestroy(SPKDArray* kdarr) { 
-	if(kdarr!=NULL){
-	if(kdarr->num_of_points>0){
-		
-	destroyMatrixEntryArray(kdarr->index_array,spPointGetDimension(kdarr->point_array[0]));
-	destroyPointArray(kdarr->point_array,kdarr->num_of_points);
-	}
- 	 //printf("spKDArrayDestroy is called but not implemented!\n");
-	}
-	free(kdarr);		
+void spKDArrayDestroy(SPKDArray* kdarr) {
+  if (kdarr != NULL) {
+    if (kdarr->num_of_points > 0) {
+      destroyMatrixEntryArray(kdarr->index_array, spPointGetDimension(kdarr->point_array[0]));
+      spPointArrayDestroy(kdarr->point_array, kdarr->num_of_points);
+    }
+  }
+  free(kdarr);
 }
 	
 int compare_entry(const void* p1,const void* p2){
@@ -139,9 +137,4 @@ void destroyMatrixEntryArray(matrix_entry** index_array,int dim){
 	}
 	free(index_array);
 }
-void destroyPointArray(SPPoint** point_array,int num){
-	for(int i=0;i<num;i++){
-		spPointDestroy(point_array[i]);
-	}
-	free(point_array);
-}
+
