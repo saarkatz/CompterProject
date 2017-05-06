@@ -21,6 +21,7 @@
  * A data-structure which is used for configuring the system.
  */
 
+#define PCA_FILENAME "spPCAFilename"
 #define SIM_NUM "spNumOfSimilarImages"
 #define PCA_DIM "spPCADimension"
 #define IMG_NUM "spNumOfImages"
@@ -75,17 +76,17 @@ Default values of variables:
 */
 
 typedef enum sp_config_msg_t {
-	SP_CONFIG_MISSING_DIR,
-	SP_CONFIG_MISSING_PREFIX,
-	SP_CONFIG_MISSING_SUFFIX,
-	SP_CONFIG_MISSING_NUM_IMAGES,
-	SP_CONFIG_CANNOT_OPEN_FILE,
-	SP_CONFIG_ALLOC_FAIL,
-	SP_CONFIG_INVALID_INTEGER,
-	SP_CONFIG_INVALID_STRING,
-	SP_CONFIG_INVALID_ARGUMENT,
-	SP_CONFIG_INDEX_OUT_OF_RANGE,
-	SP_CONFIG_SUCCESS
+  SP_CONFIG_MISSING_DIR,
+  SP_CONFIG_MISSING_PREFIX,
+  SP_CONFIG_MISSING_SUFFIX,
+  SP_CONFIG_MISSING_NUM_IMAGES,
+  SP_CONFIG_CANNOT_OPEN_FILE,
+  SP_CONFIG_ALLOC_FAIL,
+  SP_CONFIG_INVALID_INTEGER,
+  SP_CONFIG_INVALID_STRING,
+  SP_CONFIG_INVALID_ARGUMENT,
+  SP_CONFIG_INDEX_OUT_OF_RANGE,
+  SP_CONFIG_SUCCESS
 } SP_CONFIG_MSG;
 
 typedef enum search_method_t {
@@ -99,7 +100,6 @@ void printConstranitNotMet(const char* filename,int linenumber);
 void printParameterNotSet(const char* filename,int linenumbers,const char* path);
 
 typedef struct sp_config_t* SPConfig;
-static char *const PCA_FILENAME = "spPCAFilename";
 
 void print_config(SPConfig config);
 /**

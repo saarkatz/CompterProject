@@ -97,7 +97,7 @@ int main(int argc, char const *argv[]) {
               }
               imagesList[i] = imageProc->getImageFeatures(buffer, i,
                 nFeatures + i);
-              if (NULL != imagesList[i]) {
+              if (NULL == imagesList[i]) {
                 LOG_E(MSG_CANT_OPEN_FILE, buffer);
                 returnv = EXIT_FAILURE;
                 break;
@@ -136,7 +136,7 @@ int main(int argc, char const *argv[]) {
               imagesList[i] = readFeaturesFile(buffer, nFeatures + i);
               if (NULL == imagesList[i]) {
                 LOG_E(MSG_MEMORY_ALLOC_FAILURE);
-                imagesListDestroy(imagesList, i, nFeatures);
+                //imagesListDestroy(imagesList, i, nFeatures);
                 returnv = EXIT_FAILURE;
                 break;
               }
@@ -168,7 +168,7 @@ int main(int argc, char const *argv[]) {
             }
             do {
               /* Initialize kdTree */
-              kdTree = create_tree(config, kdArray, 0); // En-Capsulate reqursive call
+              kdTree = create_tree_main(config, kdArray); // En-Capsulate reqursive call
               if (NULL == kdTree) {
                 LOG_E(MSG_FAILED_KDTREE);
                 returnv = EXIT_FAILURE;
@@ -178,6 +178,7 @@ int main(int argc, char const *argv[]) {
                 /* Main interaction loop */
                 while (getCommand(buffer)) {
                   /* Search for similar images */
+               		//printf("kdTree%sNULL\n",(kdTree==NULL)?"==":"!=" );
                   similarImagesIndecies = searchSimilarImages(config, buffer,
                     kdTree);
                   if (NULL == similarImagesIndecies) {
@@ -220,8 +221,7 @@ int main(int argc, char const *argv[]) {
           } while (0);
           free(featuresList);
         } while (0);
-        imagesListDestroy(imagesList,
-          spConfigGetNumOfImages(config, &config_msg), nFeatures);
+        //imagesListDestroy(imagesList,spConfigGetNumOfImages(config, &config_msg), nFeatures);
       } while (0);
       free(nFeatures);
     } while (0);

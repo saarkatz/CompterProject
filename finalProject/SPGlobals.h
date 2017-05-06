@@ -39,7 +39,7 @@
 #define MSG_CANT_OPEN_FILE "Unable to open file '%s'.\n"
 #define MSG_FAILED_TO_SAVE_FILE "Failed to save to file '%s'\n"
 #define MSG_FAILED_TO_SEARCH_SIMIMG \
-  "Faild to search for similar images to image '%s'.\n"
+  "Failed to search for similar images to image '%s'.\n"
 #define MSG_FAILED_KDTREE "Failed to generate KDTree.\n"
 #define MSG_FAILED_KDARRAY "Failed to initialise kdArray.\n"
 

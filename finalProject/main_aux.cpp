@@ -98,7 +98,7 @@ SPPoint **imagesListToFeatureList(SPConfig config, SPPoint*** imagesList,
   /* Not checking argument validity */
 
   for (int i = 0; i < spConfigGetNumOfImages(config, &msg); i++) {
-    size += nFeatures[i];
+    *size += nFeatures[i];
   }
 
   featuresList = (SPPoint**)malloc(sizeof(*featuresList) * (*size));
