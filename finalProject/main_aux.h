@@ -66,7 +66,7 @@ int getCommand(char *command);
  * @return a pointer the a list of similar images or NULL is searching failed.
  */
 int *searchSimilarImages(SPConfig config, char *queryPath,
-  SPKDTreeNode *kdTree);
+  SPKDTreeNode *kdTree, sp::ImageProc *imageProc);
 
 /**
  * Frees all memory allocation associated with the images list, if the list is

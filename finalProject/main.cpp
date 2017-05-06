@@ -187,7 +187,7 @@ int main(int argc, char const *argv[]) {
                       //printf("kdTree%sNULL\n",(kdTree==NULL)?"==":"!=" );
                     printf("Searching minimal images\n");
                     similarImagesIndecies = searchSimilarImages(config, buffer,
-                      kdTree);
+                      kdTree, imageProc);
                     if (NULL == similarImagesIndecies) {
                       printf(MSG_FAILED_TO_SEARCH_SIMIMG, buffer);
                       continue;

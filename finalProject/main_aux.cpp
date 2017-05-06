@@ -120,7 +120,7 @@ SPPoint **imagesListToFeatureList(SPConfig config, SPPoint*** imagesList,
 }
 
 int spCounterCmp(const void* p1, const void* p2) {
-  return (((SPCounter*)p1)->counter) - (((SPCounter*)p2)->counter);
+  return (((SPCounter*)p2)->counter - ((SPCounter*)p1)->counter);
 }
 
 /* Increment the count of all pictures that appear in bpq in matchArray */
@@ -136,7 +136,7 @@ void incCounters(SPConfig config, SPBPQueue* bpq, SPCounter* matchArray) {
 }
 
 int *searchSimilarImages(SPConfig config, char *queryPath,
-  SPKDTreeNode *kdTree) {
+  SPKDTreeNode *kdTree, sp::ImageProc *imageProc) {
   SP_CONFIG_MSG msg;
   int *returnv;
 
@@ -148,18 +148,13 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
 
   /* Not checking arguments validity */
 
-  sp::ImageProc *imageProc = new sp::ImageProc(config);
-
   printf("Getting sift of query\n");
 
   queryImage = imageProc->getImageFeatures(queryPath,
     spConfigGetNumOfImages(config, &msg), &nFeatures);
   if (NULL == queryImage) {
-    delete imageProc;
     return NULL;
   }
-
-  delete imageProc;
 
   do {
     printf("Initializing counts array\n");
@@ -169,10 +164,9 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
       returnv = NULL;
       break;
     }
-    for(int i=0;i<config->spNumOfImages;i++){
-      matchArray[i].counter=0;
-      matchArray[i].index=i;
-
+    for (int i = 0; i < spConfigGetNumOfImages(config, &msg); i++) {
+      matchArray[i].counter = 0;
+      matchArray[i].index = i;
     }
     do {
       printf("Initializing bpq\n");
@@ -187,12 +181,12 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
 
         printf("k_nearest_search:\n");
         for (int i = 0; i < nFeatures; i++) {
-          printf("\tSearching sift (%d, %p)\n", i, (void*)queryImage[i]);
+          //printf("\tSearching sift (%d, %p)\n", i, (void*)queryImage[i]);
           k_nearest_search(kdTree, bpq, queryImage[i]);
           incCounters(config, bpq, matchArray);
         }
 
-        returnv = (int*)malloc(spConfigGetKNN(config, &msg) *
+        returnv = (int*)malloc(spConfigGetNumSimilarImages(config, &msg) *
           sizeof(*returnv));
         if (NULL == returnv) {
           break;
@@ -201,12 +195,12 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
         printf("Sorting counts array\n");
 
         /* Sort the matching array according to the count of each image */
-        qsort(matchArray, spConfigGetNumSimilarImages(config, &msg),
+        qsort(matchArray, spConfigGetNumOfImages(config, &msg),
           sizeof(SPCounter), spCounterCmp);
 
         printf("Copy best images\n");
         /* Get the NumSimilarImages best images indices */
-        for (int i = 0; i < spConfigGetKNN(config, &msg); i++) {
+        for (int i = 0; i < spConfigGetNumSimilarImages(config, &msg); i++) {
           returnv[i] = matchArray[i].index;
         }
       } while (0);
