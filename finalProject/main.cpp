@@ -11,7 +11,7 @@ int main(int argc, char const *argv[]) {
 
   SP_LOGGER_MSG logger_msg;
 
-  sp::ImageProc *imageProc = new sp::ImageProc(config);
+  sp::ImageProc *imageProc;
 
   SPPoint ***imagesList;
   int *nFeatures;
@@ -26,11 +26,11 @@ int main(int argc, char const *argv[]) {
 
   /* Buffers */
   char buffer[STRING_MAX_LENGTH];
-  FILE *file;
 
   /* Read command line arguments */
   if (1 == argc) {
     config = spConfigCreate(DEFAULT_CONFIG, &config_msg);
+    printf("config_msg: %d\n", config_msg);
     if (SP_CONFIG_CANNOT_OPEN_FILE == config_msg) {
       printf(CL_DEFAULT_CONFIG_NO_OPEN_MESSAGE, DEFAULT_CONFIG);
       return EXIT_FAILURE;
@@ -48,6 +48,9 @@ int main(int argc, char const *argv[]) {
     return EXIT_FAILURE;
   }
   do {
+    /* Initialize imageProc */
+    imageProc = new sp::ImageProc(config);
+
     /* Initialize the logger */
     config_msg = spConfigGetLoggerFilename(buffer, config);
     if (SP_CONFIG_SUCCESS != config_msg) {
@@ -223,10 +226,11 @@ int main(int argc, char const *argv[]) {
       free(nFeatures);
     } while (0);
     spLoggerDestroy();
+
+    /* Free imageProc */
+    delete imageProc;
   } while (0);
   spConfigDestroy(config);
   
-  /* Free imageProc */
-  delete imageProc;
   return returnv;
 }

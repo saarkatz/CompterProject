@@ -1,7 +1,7 @@
 CC = gcc
 CPP = g++
 #put all your object files here
-OBJS = main.o SPImageProc.o SPPoint.o 
+OBJS = main.o main_aux.o SPImageProc.o SPPoint.o SPLogger.o SPConfig.o SPKDTree.o SPKDArray.o SPBPriorityQueue.o
 #The executabel filename
 EXEC = SPCBIR
 INCLUDEPATH=/usr/local/lib/opencv-3.1.0/include/
@@ -18,7 +18,7 @@ C_COMP_FLAG = -std=c99 -Wall -Wextra \
 
 $(EXEC): $(OBJS)
 	$(CPP) $(OBJS) -L$(LIBPATH) $(LIBS) -o $@
-main.o: main.cpp #put dependencies here!
+main.o: main.cpp main_aux.h SPImageProc.h
 	$(CPP) $(CPP_COMP_FLAG) -I$(INCLUDEPATH) -c $*.cpp
 #a rule for building a simple c++ source file
 #use g++ -MM SPImageProc.cpp to see dependencies
@@ -26,7 +26,19 @@ SPImageProc.o: SPImageProc.cpp SPImageProc.h SPConfig.h SPPoint.h SPLogger.h
 	$(CPP) $(CPP_COMP_FLAG) -I$(INCLUDEPATH) -c $*.cpp
 #a rule for building a simple c source file
 #use "gcc -MM SPPoint.c" to see the dependencies
+main_aux.o: main_aux.cpp main_aux.h SPConfig.h SPImageProc.h SPPoint.h SPLogger.h SPGlobals.h SPConfig.h SPKDTree.h
+	$(CPP) $(CPP_COMP_FLAG) -I$(INCLUDEPATH) -c $*.cpp
 SPPoint.o: SPPoint.c SPPoint.h 
+	$(CC) $(C_COMP_FLAG) -c $*.c
+SPKDTree.o: SPKDTree.c SPKDTree.h SPPoint.h SPKDArray.h SPBPriorityQueue.h SPConfig.h SPLogger.h
+	$(CC) $(C_COMP_FLAG) -c $*.c
+SPKDArray.o: SPKDArray.c SPKDArray.h SPPoint.h SPLogger.h
+	$(CC) $(C_COMP_FLAG) -c $*.c
+SPBPriorityQueue.o: SPBPriorityQueue.c SPBPriorityQueue.h
+	$(CC) $(C_COMP_FLAG) -c $*.c
+SPLogger.o: SPLogger.c SPLogger.h SPGlobals.h
+	$(CC) $(C_COMP_FLAG) -c $*.c
+SPConfig.o: SPConfig.c SPConfig.h SPLogger.h
 	$(CC) $(C_COMP_FLAG) -c $*.c
 clean:
 	rm -f $(OBJS) $(EXEC)

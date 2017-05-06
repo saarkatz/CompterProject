@@ -37,7 +37,6 @@ SPPoint** readFeaturesFile(const char *filepath, int *nFeatures) {
   int index;
   int dimention;
   double *data;
-  SPPoint **image;
   FILE *file;
 
   /* Not checking argument validity */
@@ -64,7 +63,7 @@ SPPoint** readFeaturesFile(const char *filepath, int *nFeatures) {
       /* Read data from file */
       for (int i = 0; i < *nFeatures && NULL != returnv; i++) {
         for (int j = 0; j < dimention; j++) {
-          fscanf(file, FEATURE_FILE_LINE_VALUE, data[j]);
+          fscanf(file, FEATURE_FILE_LINE_VALUE, data + j);
         }
 
         returnv[i] = spPointCreate(data, dimention, index);
@@ -108,7 +107,7 @@ SPPoint **imagesListToFeatureList(SPConfig config, SPPoint*** imagesList,
     return NULL;
   }
   /* ONLY the pointers are being copied */
-  for (int i = 0, int j = 0, int k = 0; i < *size; i++, k++) {
+  for (int i = 0, j = 0, k = 0; i < *size; i++, k++) {
     if (nFeatures[j] == k) {
       j++;
       k = 0;
@@ -120,7 +119,7 @@ SPPoint **imagesListToFeatureList(SPConfig config, SPPoint*** imagesList,
 }
 
 int spCounterCmp(const void* p1, const void* p2) {
-  return (((SPCounter*)p1)->counter) - (((SPCounter*)p1)->counter);
+  return (((SPCounter*)p1)->counter) - (((SPCounter*)p2)->counter);
 }
 
 /* Increment the count of all pictures that appear in bpq in matchArray */
@@ -200,7 +199,7 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
     } while (0);
     free(matchArray);
   } while (0);
-  spPointArrayDestroy(queryImage);
+  spPointArrayDestroy(queryImage, nFeatures);
   return returnv;
 }
 

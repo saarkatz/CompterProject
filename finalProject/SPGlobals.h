@@ -18,7 +18,7 @@
 /* Feature files */
 #define FEATURE_FILE_SUFFIX ".feats"
 #define FEATURE_FILE_HEAD "%d %d %d"
-#define FEATURE_FILE_LINE_VALUE "%f"
+#define FEATURE_FILE_LINE_VALUE "%lf"
 #define FEATURE_FILE_LINE_END "\n"
 
 /* Various messages retured by the program */
