@@ -82,6 +82,7 @@ SPPoint** readFeaturesFile(const char *filepath, int *nFeatures) {
 }
 
 int getCommand(char *command){
+  printf(CL_QUERY_MSG);
   scanf("%s", command);
   if (0 == strcmp(CL_STOP_QUERYING, command)) {
     return 0;
@@ -149,15 +150,19 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
 
   sp::ImageProc *imageProc = new sp::ImageProc(config);
 
+  printf("Getting sift of query\n");
+
   queryImage = imageProc->getImageFeatures(queryPath,
     spConfigGetNumOfImages(config, &msg), &nFeatures);
   if (NULL == queryImage) {
     delete imageProc;
     return NULL;
   }
+
   delete imageProc;
 
   do {
+    printf("Initializing counts array\n");
     matchArray = (SPCounter*)malloc(spConfigGetNumOfImages(config, &msg) *
       sizeof(*matchArray));
     if (NULL == matchArray) {
@@ -165,6 +170,7 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
       break;
     }
     do {
+      printf("Initializing bpq\n");
       bpq = spBPQueueCreate(spConfigGetKNN(config, &msg));
       if (NULL == bpq) {
         returnv = NULL;
@@ -174,10 +180,11 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
         /* for every feature of the query */
         /* run knn search and and increment the counter */
 
+        printf("k_nearest_search:\n");
         for (int i = 0; i < nFeatures; i++) {
+          printf("\tSearching sift (%d, %p)\n", i, (void*)queryImage[i]);
           k_nearest_search(kdTree, bpq, queryImage[i]);
           incCounters(config, bpq, matchArray);
-          spBPQueueDestroy(bpq);
         }
 
         returnv = (int*)malloc(spConfigGetKNN(config, &msg) *
@@ -186,10 +193,13 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
           break;
         }
 
+        printf("Sorting counts array\n");
+
         /* Sort the matching array according to the count of each image */
         qsort(matchArray, spConfigGetNumSimilarImages(config, &msg),
           sizeof(SPCounter), spCounterCmp);
 
+        printf("Copy best images\n");
         /* Get the NumSimilarImages best images indices */
         for (int i = 0; i < spConfigGetKNN(config, &msg); i++) {
           returnv[i] = matchArray[i].index;
