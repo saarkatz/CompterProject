@@ -6,7 +6,10 @@
 #include <ctype.h>
 
 #include "SPConfig.h"
-
+#define JPG ".jpg"
+#define PNG ".png"
+#define BMP ".bmp"
+#define GIF ".gif"
 #define MAXBUF 1024 
 
 typedef struct config_var 
@@ -220,7 +223,8 @@ SPVar* v;
 
   SPVar var_array[14];
 
-      int ret;
+  int linenumber=0;
+  int ret;
   int var_num = 0;
 
   char line[MAXBUF];
@@ -255,23 +259,22 @@ SPVar* v;
       config->spKDTreeSplitMethod = SP_DEFUALT_SPLITMETHOD;
       config->spLoggerLevel = SP_DEFUALT_LOGGERLEVEL;
       strcpy(config->spLoggerFilename, SP_DEFUALT_LOGGERFILENAME);
-
       while (fgets(line, sizeof(line), file) != NULL) {
- 		 str_trap[0]='\0';
-         char first_no_white = line[first_nonwhitespace(line)];
-         if ('\n' != first_no_white && '#' != first_no_white && var_num < 14){
+        str_trap[0]='\0';
+        char first_no_white = line[first_nonwhitespace(line)];
+        if ('\n' != first_no_white && '#' != first_no_white && var_num < 14){
         	v = &(var_array[var_num]);
        		sscanf(line,"%[^= ] = %s %s",v->before,v->after,str_trap);
             if(str_trap[0]!='\0'){
        			ret = spCaseChoose(config,v);
        			if(ret==12||ret==11||ret==10||ret==9||ret==7||ret==5){
         			*msg =SP_CONFIG_INVALID_INTEGER;
-        			break;
        			}
        			 if(ret==-1||ret==13||ret==8||ret==6||ret==4||ret==3||ret==2||ret==1||ret==0){
         			*msg =SP_CONFIG_INVALID_STRING;
+            }
+              printInvalidLine(filename,linenumber);
         			break;
-       			}
        		}
        		else if(strchr(v->before,' ')!=NULL){
        			*msg=SP_CONFIG_INVALID_STRING;
@@ -280,6 +283,7 @@ SPVar* v;
             else var_num++;
        		 //char *strchr(const char *str, int c)
         }
+        linenumber++;
       }
       if(*msg != SP_CONFIG_SUCCESS)break;
 
@@ -298,6 +302,7 @@ SPVar* v;
           	else{
           		*msg =SP_CONFIG_INVALID_INTEGER;
           	}
+            printConstranitNotMet(filename,linenumber);
           	break;
           }
       }
@@ -305,18 +310,22 @@ SPVar* v;
       /* Check that all the mandatory variables are defined */
       if (!ImagesDirectoryDefined) {
         *msg = SP_CONFIG_MISSING_DIR;
+        printParameterNotSet(filename,linenumber,"spImagesDirectory");
         break;
       }
       if (!ImagesPrefixDefined) {
         *msg = SP_CONFIG_MISSING_PREFIX;
+        printParameterNotSet(filename,linenumber,"spImagesPrefix");
         break;
       }
       if (!ImagesSuffixDefined) {
         *msg = SP_CONFIG_MISSING_SUFFIX;
+        printParameterNotSet(filename,linenumber,"spImagesSuffix");
         break;
       }
       if (!NumOfImagesDefined) {
         *msg = SP_CONFIG_MISSING_NUM_IMAGES;
+        printParameterNotSet(filename,linenumber,"spNumOfImages");
         break;
       }
     } while (0);
@@ -467,26 +476,26 @@ int setPCAFilename(SPConfig config,SPVar* str){
 }
 int setPCADimension(SPConfig config,SPVar* str){
 	config->spPCADimension=atoi(str->after);
-	if(config->spPCADimension==0){
+	if(config->spPCADimension>128||config->spPCADimension<10){
 		return 1;
 	}
 	else return 0;
 }
 int setNumOfSimilarImages(SPConfig config,SPVar* str){
 	config->spNumOfSimilarImages=atoi(str->after);
-	if(config->spNumOfSimilarImages==0){
+	if(config->spNumOfSimilarImages<=0){
 		return 1;
 	}else return 0;
 }
 int setNumOfImages(SPConfig config,SPVar* str){
 	config->spNumOfImages=atoi(str->after);
-	if(config->spNumOfImages==0){
+	if(config->spNumOfImages<=0){
 		return 1;
 	}else return 0;
 }
 int setNumOfFeatures(SPConfig config,SPVar* str){
 	config->spNumOfFeatures=atoi(str->after);
-	if(config->spNumOfFeatures==0){
+	if(config->spNumOfFeatures<=0){
 		return 1;
 	}else return 0;
 }
@@ -501,7 +510,7 @@ int setMinimalGUI(SPConfig config,SPVar* str){
 }
 int setLoggerLevel(SPConfig config,SPVar* str){
 	config->spLoggerLevel=atoi(str->after);
-	if(config->spLoggerLevel==0){
+	if(config->spLoggerLevel<1||config->spLoggerLevel>4){
 		return 1;
 	} else return 0;
 }
@@ -534,8 +543,13 @@ int setKDTreeSplitMethod(SPConfig config,SPVar* str){
 	}
 }
 int setImagesSuffix(SPConfig config,SPVar* str){
+    if(strcmp(JPG,str->after)==0||strcmp(PNG,str->after)==0||strcmp(BMP,str->after)==0||strcmp(GIF,str->after)==0){
     strcpy(config->spImagesSuffix,str->after);
-     return 0;
+    return 0;
+  }
+  else{
+    return 1;
+  }
 }
 int setImagesPrefix(SPConfig config,SPVar* str){
     strcpy(config->spImagesPrefix,str->after);
@@ -561,3 +575,20 @@ int setExtractionMode(SPConfig config,SPVar* str){
 	printf(  "spMinimalGUI: %d, spNumOfFeatures: %d, spNumOfImages: %d\n",config->spMinimalGUI,config->spNumOfFeatures,config->spNumOfImages);
 	printf( "spNumOfSimilarImages: %d, spPCADimension: %d, spPCAFilename: %s\n",config->spNumOfSimilarImages,config->spPCADimension,config->spPCAFilename);
 }*/
+
+
+void printInvalidLine(const char* filename,int linenumber){
+//1 - invalid line meaning not a comment or a parameter 
+printf("File: %s\nLine: %d\nMessage: Invalid configuration line\n",filename,linenumber);
+}
+
+void printConstranitNotMet(const char* filename,int linenumber){
+//2 - any of the constraints on the system parameters are not met
+printf("File: %s\nLine: %d\nMessage: Invalid value - constraint not met\n",filename,linenumber);
+}
+
+void printParameterNotSet(const char* filename,int linenumbers,const char* parm){
+//3 - one of the default value is not set
+printf("File: %s\nLine: %d\nMessage: Parameter %s not set\n",filename,linenumbers,parm);
+}
+

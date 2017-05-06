@@ -76,6 +76,11 @@ typedef enum search_method_t {
   RANDOM, MAX_SPREAD,
   INCREMENTAL
 }SPSearchMethod;
+void printInvalidLine(const char* filename,int linenumber);
+
+void printConstranitNotMet(const char* filename,int linenumber);
+
+void printParameterNotSet(const char* filename,int linenumbers,const char* path);
 
 typedef struct sp_config_t* SPConfig;
 void print_config(SPConfig config);
