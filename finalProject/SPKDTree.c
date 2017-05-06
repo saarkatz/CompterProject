@@ -100,6 +100,9 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
   tree_result->left = create_tree(config, split_result[0], split_dim);
   tree_result->right = create_tree(config, split_result[1], split_dim);
   tree_result->data = NULL;
+  spKDArrayDestroy(split_result[0]);
+  spKDArrayDestroy(split_result[1]);
+  free(split_result);
   return tree_result;
 }
 
@@ -169,8 +172,14 @@ void spKDTreeDestroy(SPKDTreeNode *tree) {
   if (NULL == tree) {
     return;
   }
+  if (!isLeaf(tree)){
   spKDTreeDestroy(tree->left);
   spKDTreeDestroy(tree->right);
+  }
+  else{
+    spPointDestroy(tree->data);
+  }
+ 
   free(tree);
 }
 
