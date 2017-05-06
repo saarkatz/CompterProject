@@ -169,6 +169,11 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
       returnv = NULL;
       break;
     }
+    for(int i=0;i<config->spNumOfImages;i++){
+      matchArray[i].counter=0;
+      matchArray[i].index=i;
+
+    }
     do {
       printf("Initializing bpq\n");
       bpq = spBPQueueCreate(spConfigGetKNN(config, &msg));
