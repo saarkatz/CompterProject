@@ -113,7 +113,9 @@ SPKDArray** split(SPKDArray* kdArr, int coor){
 	right->num_of_points=P2_size;
 	result[0]=left;	
 	result[1]=right;
-
+	free(map1);
+	free(map2);
+	free(X);
 	return result;
 }
 

@@ -7,8 +7,12 @@
 
 #include "SPConfig.h"
 #include "SPGlobals.h"
-
+#define JPG ".jpg"
+#define PNG ".png"
+#define BMP ".bmp"
+#define GIF ".gif"
 #define MAXBUF 1024 
+
 
 typedef struct config_var 
 {
@@ -84,77 +88,77 @@ int first_nonwhitespace(char* s){
 
 int spCaseChoose(SPConfig config, SPVar* var) {
 	int result;
-  if(strcmp(var->before,"spImagesDirectory")==0){
+  if(strcmp(var->before,IMG_DIR)==0){
     result = setImagesDirectory(config, var);
   	if(result==0)result =  0;
   	else result = -1;	
   	  	if(strchr(var->after,' ')!=NULL) result=-1;
 
   }
-  else if(strcmp(var->before,"spExtractionMode")==0){
+  else if(strcmp(var->before,EXTRACT_MODE)==0){
     result = setExtractionMode(config, var);
   	if(result==0)result =  1;
   	else result = -1;
   	  if(strchr(var->after,' ')!=NULL) result=-1;
 
   }
-  else if(strcmp(var->before,"spImagesPrefix")==0){
+  else if(strcmp(var->before,IMG_PREFIX)==0){
     result = setImagesPrefix(config, var);
   	if(result==0)result =  2;
   	else result = -1;
   	 if(strchr(var->after,' ')!=NULL) result=-1;
 
   }
-  else if(strcmp(var->before,"spImagesSuffix")==0){
+  else if(strcmp(var->before,IMAG_SUFIX)==0){
     result = setImagesSuffix(config, var);
   	if(result==0)result =  3;
   	else result = -1;
   	if(strchr(var->after,' ')!=NULL) result=-1;
 	
   }
-  else if(strcmp(var->before,"spKDTreeSplitMethod")==0){
+  else if(strcmp(var->before,SPLIT_METHOD)==0){
     result = setKDTreeSplitMethod(config, var);
   	if(result==0)result =  4;
   	else result = -1;	
   	if(strchr(var->after,' ')!=NULL) result=-1;
 
   }
-  else if(strcmp(var->before,"spKNN")==0){
+  else if(strcmp(var->before,KNN)==0){
     result = setKNN(config, var);
   	if(result==0)result =  5;
   	else result = -2;
   	if(strchr(var->after,' ')!=NULL) result=-2;
 	
   }
-  else if(strcmp(var->before,"spLoggerFilename")==0){
+  else if(strcmp(var->before,LOGGER_FILENAME)==0){
     result = setLoggerFilename(config, var);
   	if(result==0)result =  6;
   	else result = -1;	
   	  	if(strchr(var->after,' ')!=NULL) result=-1;
 
   }
-  else if(strcmp(var->before,"spLoggerLevel")==0){
+  else if(strcmp(var->before,LOGGERLVL)==0){
     result = setLoggerLevel(config, var);
   	if(result==0)result =  7;
   	else result = -2;
   	  	if(strchr(var->after,' ')!=NULL) result=-2;
 	
   }
-  else if(strcmp(var->before,"spMinimalGUI")==0){
+  else if(strcmp(var->before,MINIMAL_GUI)==0){
     result = setMinimalGUI(config, var);
   	if(result==0)result =  8;
   	else result = -1;	
   	 if(strchr(var->after,' ')!=NULL) result=-1;
 
   }
-  else if(strcmp(var->before,"spNumOfFeatures")==0){
+  else if(strcmp(var->before,NUM_FEAT)==0){
     result = setNumOfFeatures(config, var);
   	if(result==0)result =  9;
   	else result = -2;
   	if(strchr(var->after,' ')!=NULL) result=-2;
   	///////////////////////////////////////////////////////////////////////////
   }
-  else if(strcmp(var->before,"spNumOfImages")==0){
+  else if(strcmp(var->before,IMG_NUM)==0){
     result = setNumOfImages(config, var);
   	if(result==0)result =  10;
   		else result = -2;
@@ -162,21 +166,21 @@ int spCaseChoose(SPConfig config, SPVar* var) {
   	///////////////////////////////////////////////////////////////////////////
 
   }
-  else if(strcmp(var->before,"spNumOfSimilarImages")==0){
+  else if(strcmp(var->before,SIM_NUM)==0){
     result = setNumOfSimilarImages(config, var);
   	if(result==0)result =  11;
   		else result = -2;
   	 if(strchr(var->after,' ')!=NULL) result=-2;
 
   }
-  else if(strcmp(var->before,"spPCADimension")==0){
+  else if(strcmp(var->before,PCA_DIM)==0){
     result = setPCADimension(config, var);
   	if(result==0)result =  12;
   		else result = -2;
   	if(strchr(var->after,' ')!=NULL) result=-2;
 
   }
-  else if(strcmp(var->before,"spPCAFilename")==0){
+  else if(strcmp(var->before, PCA_FILENAME) == 0){
     result = setPCAFilename(config, var);
   	if(result==0)result =  13;
   	else result = -1;
@@ -221,7 +225,8 @@ SPVar* v;
 
   SPVar var_array[14];
 
-      int ret;
+  int linenumber=0;
+  int ret;
   int var_num = 0;
 
   char line[MAXBUF];
@@ -256,23 +261,22 @@ SPVar* v;
       config->spKDTreeSplitMethod = SP_DEFUALT_SPLITMETHOD;
       config->spLoggerLevel = SP_DEFUALT_LOGGERLEVEL;
       strcpy(config->spLoggerFilename, SP_DEFUALT_LOGGERFILENAME);
-
       while (fgets(line, sizeof(line), file) != NULL) {
- 		 str_trap[0]='\0';
-         char first_no_white = line[first_nonwhitespace(line)];
-         if ('\n' != first_no_white && '#' != first_no_white && var_num < 14){
+        str_trap[0]='\0';
+        char first_no_white = line[first_nonwhitespace(line)];
+        if ('\n' != first_no_white && '#' != first_no_white && var_num < 14){
         	v = &(var_array[var_num]);
        		sscanf(line,"%[^= ] = %s %s",v->before,v->after,str_trap);
             if(str_trap[0]!='\0'){
        			ret = spCaseChoose(config,v);
        			if(ret==12||ret==11||ret==10||ret==9||ret==7||ret==5){
         			*msg =SP_CONFIG_INVALID_INTEGER;
-        			break;
        			}
        			 if(ret==-1||ret==13||ret==8||ret==6||ret==4||ret==3||ret==2||ret==1||ret==0){
         			*msg =SP_CONFIG_INVALID_STRING;
+            }
+              printInvalidLine(filename,linenumber);
         			break;
-       			}
        		}
        		else if(strchr(v->before,' ')!=NULL){
        			*msg=SP_CONFIG_INVALID_STRING;
@@ -281,6 +285,7 @@ SPVar* v;
             else var_num++;
        		 //char *strchr(const char *str, int c)
         }
+        linenumber++;
       }
       if(*msg != SP_CONFIG_SUCCESS)break;
 
@@ -299,6 +304,7 @@ SPVar* v;
           	else{
           		*msg =SP_CONFIG_INVALID_INTEGER;
           	}
+            printConstranitNotMet(filename,linenumber);
           	break;
           }
       }
@@ -306,18 +312,22 @@ SPVar* v;
       /* Check that all the mandatory variables are defined */
       if (!ImagesDirectoryDefined) {
         *msg = SP_CONFIG_MISSING_DIR;
+        printParameterNotSet(filename,linenumber,IMG_DIR);
         break;
       }
       if (!ImagesPrefixDefined) {
         *msg = SP_CONFIG_MISSING_PREFIX;
+        printParameterNotSet(filename,linenumber,IMG_PREFIX);
         break;
       }
       if (!ImagesSuffixDefined) {
         *msg = SP_CONFIG_MISSING_SUFFIX;
+        printParameterNotSet(filename,linenumber,IMAG_SUFIX);
         break;
       }
       if (!NumOfImagesDefined) {
         *msg = SP_CONFIG_MISSING_NUM_IMAGES;
+        printParameterNotSet(filename,linenumber,IMG_NUM);
         break;
       }
     } while (0);
@@ -482,26 +492,26 @@ int setPCAFilename(SPConfig config,SPVar* str){
 }
 int setPCADimension(SPConfig config,SPVar* str){
 	config->spPCADimension=atoi(str->after);
-	if(config->spPCADimension==0){
+	if(config->spPCADimension>128||config->spPCADimension<10){
 		return 1;
 	}
 	else return 0;
 }
 int setNumOfSimilarImages(SPConfig config,SPVar* str){
 	config->spNumOfSimilarImages=atoi(str->after);
-	if(config->spNumOfSimilarImages==0){
+	if(config->spNumOfSimilarImages<=0){
 		return 1;
 	}else return 0;
 }
 int setNumOfImages(SPConfig config,SPVar* str){
 	config->spNumOfImages=atoi(str->after);
-	if(config->spNumOfImages==0){
+	if(config->spNumOfImages<=0){
 		return 1;
 	}else return 0;
 }
 int setNumOfFeatures(SPConfig config,SPVar* str){
 	config->spNumOfFeatures=atoi(str->after);
-	if(config->spNumOfFeatures==0){
+	if(config->spNumOfFeatures<=0){
 		return 1;
 	}else return 0;
 }
@@ -516,7 +526,7 @@ int setMinimalGUI(SPConfig config,SPVar* str){
 }
 int setLoggerLevel(SPConfig config,SPVar* str){
 	config->spLoggerLevel=atoi(str->after);
-	if(config->spLoggerLevel==0){
+	if(config->spLoggerLevel<1||config->spLoggerLevel>4){
 		return 1;
 	} else return 0;
 }
@@ -532,15 +542,15 @@ int setKNN(SPConfig config,SPVar* str){
 }
 int setKDTreeSplitMethod(SPConfig config,SPVar* str){
 	//config->spKDTreeSplitMethod=(str->after);//TODO switch case
-	if(strcmp("RANDOM",str->after)==0){
+	if(strcmp(RANDOM_STR,str->after)==0){
 		config->spKDTreeSplitMethod=RANDOM;
 		return 0;
 	}
-	else if(strcmp("MAX_SPREAD",str->after)==0){
+	else if(strcmp(MAX_SPREAD_STR,str->after)==0){
 		config->spKDTreeSplitMethod=MAX_SPREAD;
 		return 0;
 	}
-	else if(strcmp("INCREMENTAL",str->after)==0){
+	else if(strcmp(INCREMENTAL_STR,str->after)==0){
 		config->spKDTreeSplitMethod=INCREMENTAL;
 		return 0;
 	}
@@ -549,8 +559,13 @@ int setKDTreeSplitMethod(SPConfig config,SPVar* str){
 	}
 }
 int setImagesSuffix(SPConfig config,SPVar* str){
+    if(strcmp(JPG,str->after)==0||strcmp(PNG,str->after)==0||strcmp(BMP,str->after)==0||strcmp(GIF,str->after)==0){
     strcpy(config->spImagesSuffix,str->after);
-     return 0;
+    return 0;
+  }
+  else{
+    return 1;
+  }
 }
 int setImagesPrefix(SPConfig config,SPVar* str){
     strcpy(config->spImagesPrefix,str->after);
@@ -576,3 +591,20 @@ int setExtractionMode(SPConfig config,SPVar* str){
 	printf(  "spMinimalGUI: %d, spNumOfFeatures: %d, spNumOfImages: %d\n",config->spMinimalGUI,config->spNumOfFeatures,config->spNumOfImages);
 	printf( "spNumOfSimilarImages: %d, spPCADimension: %d, spPCAFilename: %s\n",config->spNumOfSimilarImages,config->spPCADimension,config->spPCAFilename);
 }*/
+
+
+void printInvalidLine(const char* filename,int linenumber){
+//1 - invalid line meaning not a comment or a parameter 
+printf("File: %s\nLine: %d\nMessage: Invalid configuration line\n",filename,linenumber);
+}
+
+void printConstranitNotMet(const char* filename,int linenumber){
+//2 - any of the constraints on the system parameters are not met
+printf("File: %s\nLine: %d\nMessage: Invalid value - constraint not met\n",filename,linenumber);
+}
+
+void printParameterNotSet(const char* filename,int linenumbers,const char* parm){
+//3 - one of the default value is not set
+printf("File: %s\nLine: %d\nMessage: Parameter %s not set\n",filename,linenumbers,parm);
+}
+
