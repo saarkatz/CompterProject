@@ -34,14 +34,14 @@
 #define CL_EXIT_MSG "Exiting...\n"
 
 /* Error messages */
-#define MSG_MEMORY_ALLOC_FAILURE "Memory allocation failure.\n"
-#define MSG_ERROR_GETTING_VALUE "Failed to retrive value from config.\n"
-#define MSG_CANT_OPEN_FILE "Unable to open file '%s'.\n"
-#define MSG_FAILED_TO_SAVE_FILE "Failed to save to file '%s'\n"
+#define MSG_MEMORY_ALLOC_FAILURE "Memory allocation failure."
+#define MSG_ERROR_GETTING_VALUE "Failed to retrive value from config."
+#define MSG_CANT_OPEN_FILE "Unable to open file '%s'."
+#define MSG_FAILED_TO_SAVE_FILE "Failed to save to file '%s'"
 #define MSG_FAILED_TO_SEARCH_SIMIMG \
-  "Failed to search for similar images to image '%s'.\n"
-#define MSG_FAILED_KDTREE "Failed to generate KDTree.\n"
-#define MSG_FAILED_KDARRAY "Failed to initialise kdArray.\n"
+  "Failed to search for similar images to image '%s'."
+#define MSG_FAILED_KDTREE "Failed to generate KDTree."
+#define MSG_FAILED_KDARRAY "Failed to initialise kdArray."
 
 /* Logger */
 #define STDOUT_FILENAME "stdout"

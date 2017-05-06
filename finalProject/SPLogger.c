@@ -11,10 +11,10 @@
 #define SP_LOGGER_OPEN_MODE "w"
 
 // Logger messages formats
-#define SP_LOGGER_ERROR_FORMAT "---ERROR---\n-file: %s\n-function : %s\n-line : %d\n-message : %s"
-#define SP_LOGGER_WARNING_FORMAT "---WARNING---\n-file: %s\n-function : %s\n-line : %d\n-message : %s"
-#define SP_LOGGER_INFO_FORMAT "---INFO---\n-message : %s"
-#define SP_LOGGER_DEBUG_FORMAT "---DEBUG---\n-file: %s\n-function : %s\n-line : %d\n-message : %s"
+#define SP_LOGGER_ERROR_FORMAT "---ERROR---\n-file: %s\n-function : %s\n-line : %d\n-message : %s\n"
+#define SP_LOGGER_WARNING_FORMAT "---WARNING---\n-file: %s\n-function : %s\n-line : %d\n-message : %s\n"
+#define SP_LOGGER_INFO_FORMAT "---INFO---\n-message : %s\n"
+#define SP_LOGGER_DEBUG_FORMAT "---DEBUG---\n-file: %s\n-function : %s\n-line : %d\n-message : %s\n"
 
 // Global variable holding the logger
 SPLogger logger = NULL;
@@ -79,7 +79,6 @@ int spLoggerPrint(const char* message) {
       return fprintf(logger->outputChannel, "%s", message);
   else
     return -1;
-  return 0;
 }
 
 SP_LOGGER_MSG spLoggerPrintMessage(SP_LOGGER_LEVEL level, const char* msg, const char* file,
@@ -95,26 +94,26 @@ SP_LOGGER_MSG spLoggerPrintMessage(SP_LOGGER_LEVEL level, const char* msg, const
   {
   case SP_LOGGER_ERROR_LEVEL: // ERROR
     sprintf(message, SP_LOGGER_ERROR_FORMAT, file, function, line, msg);
-    if (spLoggerPrint(message) > 0)
+    if (spLoggerPrint(message) < 0)
       return SP_LOGGER_WRITE_FAIL;
     break;
   case SP_LOGGER_WARNING_ERROR_LEVEL: // WARNING
     sprintf(message, SP_LOGGER_WARNING_FORMAT, file, function, line, msg);
     if (SP_LOGGER_ERROR_LEVEL != logger->level)
-      if (spLoggerPrint(message) > 0)
+      if (spLoggerPrint(message) < 0)
         return SP_LOGGER_WRITE_FAIL;
     break;
   case SP_LOGGER_INFO_WARNING_ERROR_LEVEL: // INFO
     sprintf(message, SP_LOGGER_INFO_FORMAT, msg);
     if (SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL == logger->level ||
       SP_LOGGER_INFO_WARNING_ERROR_LEVEL == logger->level)
-      if (spLoggerPrint(message) > 0)
+      if (spLoggerPrint(message) < 0)
         return SP_LOGGER_WRITE_FAIL; 
     break;
   case SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL: // DEBUG
     sprintf(message, SP_LOGGER_DEBUG_FORMAT, file, function, line, msg);
     if (SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL == logger->level)
-      if (spLoggerPrint(message) > 0)
+      if (spLoggerPrint(message) < 0)
         return SP_LOGGER_WRITE_FAIL; 
     break;
   }
