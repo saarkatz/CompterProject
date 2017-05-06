@@ -72,7 +72,7 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
     tree_result->val = -1;
     tree_result->left = NULL;
     tree_result->right = NULL;
-    tree_result->data = arr->point_array[0];
+    tree_result->data = spPointCopy(arr->point_array[0]);
     return tree_result;
   }
   SPKDArray** split_result;

@@ -15,7 +15,7 @@ int main(int argc, char const *argv[]) {
 
   SPPoint ***imagesList;
   int *nFeatures;
-
+  
   SPPoint **featuresList;
   int size;
 
@@ -176,6 +176,7 @@ int main(int argc, char const *argv[]) {
               }
               do {
                 /* Main interaction loop */
+                printf("Please enter an image path:\n");
                 while (getCommand(buffer)) {
                   /* Search for similar images */
                		//printf("kdTree%sNULL\n",(kdTree==NULL)?"==":"!=" );
