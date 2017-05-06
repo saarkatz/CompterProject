@@ -103,29 +103,47 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
   return tree_result;
 }
 
-double tree_median();
-
 bool isLeaf(SPKDTreeNode* kdnode){
-  return kdnode->dim == -1;
+  return NULL == kdnode->left && NULL == kdnode->right;
 }
 
-void k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point) {
-  if (kdnode == NULL) {
-    return;
-  }
-  if (isLeaf(kdnode)) {
-    double dist = spPointL2SquaredDistance(kdnode->data, query_point);
-    spBPQueueEnqueue(bpq, spPointGetIndex(kdnode->data), dist);
-    /* Add the current point to the BPQ. Note that this is a no-op if the
-         point is not as good as the points we've seen so far.*/
-
-    return;
-  }
-  double eps = (kdnode->val) - spPointGetAxisCoor(query_point, kdnode->dim);
+int k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point) {
+  /* Declare variables */
+  double dist;
+  double diff;
   SPKDTreeNode* primary;
   SPKDTreeNode* secondary;
+  int returnv;
 
-  if (0 <= eps) {
+  if (NULL == bpq || NULL == query_point) {
+    return -1;
+  }
+  if (NULL == kdnode) {
+    return 0;
+  }
+  if (isLeaf(kdnode)) {
+    /* Add the current point to the BPQ */
+    dist = spPointL2SquaredDistance(kdnode->data, query_point);
+    spBPQueueEnqueue(bpq, spPointGetIndex(kdnode->data), dist);
+    return 0;
+  }
+
+  /* If we were using the not squered L2 distance then this would be
+  necessary */
+  /*if (kdnode->val > spPointGetAxisCoor(query_point, kdnode->dim)) {
+    diff = kdnode->val - spPointGetAxisCoor(query_point, kdnode->dim);
+  }
+  else {
+    diff = spPointGetAxisCoor(query_point, kdnode->dim) - kdnode->val;
+  }*/
+
+  diff = kdnode->val - spPointGetAxisCoor(query_point, kdnode->dim);
+  
+  /* We enqueue the L2 squered distance and therefor we need to squere diff */
+  diff = diff * diff;
+
+  /* Set subtrees according to the query point */
+  if (spPointGetAxisCoor(query_point, kdnode->dim) <= kdnode->val) {
     primary = kdnode->left;
     secondary = kdnode->right;
   }
@@ -133,12 +151,18 @@ void k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point
     primary = kdnode->right;
     secondary = kdnode->left;
   }
-  k_nearest_search(primary, bpq, query_point);
-  if (!spBPQueueIsFull(bpq) || eps < spBPQueueMaxValue(bpq)) {
-    //recursively search the other subtree on the next axis
-    k_nearest_search(secondary, bpq, query_point);
+
+  /* Recursively search the half of the tree that contains the query point. */
+  returnv = k_nearest_search(primary, bpq, query_point);
+  if (-1 == returnv) return returnv;
+
+  /* If the candidate hypersphere crosses this splitting plane, look on the
+  * other side of the plane by examining the other subtree*/
+  if (!spBPQueueIsFull(bpq) || diff < spBPQueueMaxValue(bpq)) {
+    returnv = k_nearest_search(secondary, bpq, query_point);
   }
-  return;
+
+  return returnv;
 }
 
 void spKDTreeDestroy(SPKDTreeNode *tree) {
