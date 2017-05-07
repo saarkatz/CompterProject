@@ -6,7 +6,7 @@
 #include "../SPLogger.h"
 #include "../SPGlobals.h"
 
-#define UT_LOGGER_FILENAME "logs/sp_kdtree_unit_test.log"
+#define UT_LOGGER_FILENAME "logs/sp_config_unit_test.log"
 #define UT_LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
 
 /* Test config */
