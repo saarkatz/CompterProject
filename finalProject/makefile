@@ -10,27 +10,23 @@ LIBS=-lopencv_xfeatures2d -lopencv_features2d \
 -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc -lopencv_core
 
 
-CPP_COMP_FLAG = -g -std=c++11 -Wall -Wextra \
+CPP_COMP_FLAG = -std=c++11 -Wall -Wextra \
 -Werror -pedantic-errors -DNDEBUG
 
-C_COMP_FLAG = -g -std=c99 -Wall -Wextra \
+C_COMP_FLAG = -std=c99 -Wall -Wextra \
 -Werror -pedantic-errors -DNDEBUG
 
 $(EXEC): $(OBJS)
 	$(CPP) $(OBJS) -L$(LIBPATH) $(LIBS) -o $@
 main.o: main.cpp main_aux.h SPImageProc.h
 	$(CPP) $(CPP_COMP_FLAG) -I$(INCLUDEPATH) -c $*.cpp
-#a rule for building a simple c++ source file
-#use g++ -MM SPImageProc.cpp to see dependencies
 SPImageProc.o: SPImageProc.cpp SPImageProc.h SPConfig.h SPPoint.h SPLogger.h
 	$(CPP) $(CPP_COMP_FLAG) -I$(INCLUDEPATH) -c $*.cpp
-#a rule for building a simple c source file
-#use "gcc -MM SPPoint.c" to see the dependencies
 main_aux.o: main_aux.cpp main_aux.h SPConfig.h SPImageProc.h SPPoint.h SPLogger.h SPGlobals.h SPConfig.h SPKDTree.h
 	$(CPP) $(CPP_COMP_FLAG) -I$(INCLUDEPATH) -c $*.cpp
 SPPoint.o: SPPoint.c SPPoint.h 
 	$(CC) $(C_COMP_FLAG) -c $*.c
-SPKDTree.o: SPKDTree.c SPKDTree.h SPPoint.h SPKDArray.h SPBPriorityQueue.h SPConfig.h SPLogger.h
+SPKDTree.o: SPKDTree.c SPKDTree.h SPPoint.h SPKDArray.h SPBPriorityQueue.h SPConfig.h SPLogger.h SPGlobals.h
 	$(CC) $(C_COMP_FLAG) -c $*.c
 SPKDArray.o: SPKDArray.c SPKDArray.h SPPoint.h SPLogger.h
 	$(CC) $(C_COMP_FLAG) -c $*.c
