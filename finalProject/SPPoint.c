@@ -28,8 +28,10 @@ SPPoint* spPointCreate(double* data, int dim, int index) {
   point->index = index;
   point->dim = dim;
   point->data = copyArray(dim ,data);
-  if (point->data == NULL)
+  if (point->data == NULL) {
+    free(point);
     return NULL;
+  }
   return point;
 }
 
@@ -41,8 +43,10 @@ SPPoint* spPointCopy(SPPoint* source) {
   point->index = source->index;
   point->dim = source->dim;
   point->data = copyArray(source->dim, source->data);
-  if (point->data == NULL)
+  if (point->data == NULL) {
+    free(point);
     return NULL;
+  }
   return point;
 }
 

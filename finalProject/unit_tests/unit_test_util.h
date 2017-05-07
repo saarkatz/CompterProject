@@ -65,8 +65,6 @@ extern "C" {
       printf(__VA_ARGS__); \
       } while (0)
 
-#define MIN(x, y) (x > y ? y : x)
-
 #ifdef __cplusplus
 }
 #endif

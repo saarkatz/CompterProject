@@ -6,6 +6,7 @@
 
 #include "unit_test_util.h"
 
+#include "../SPGlobals.h"
 #include "../SPLogger.h"
 #include "../SPConfig.h"
 #include "../SPPoint.h"
@@ -136,12 +137,12 @@ double **generatDoubleMatrix(int x_start, int x_end, int y_start, int y_end,
   *x = x_start + rand() % (x_end - x_start);
   *y = y_start + rand() % (y_end - y_start);
   /* Allocate matrix */
-  matrix = (double**)malloc((*x) * sizeof(double*));
+  matrix = (double**)malloc((*x) * sizeof(*matrix));
   if (NULL == matrix) {
     return NULL;
   }
   for (int i = 0; i < (*x); i++) {
-    matrix[i] = (double*)malloc((*y) * sizeof(double));
+    matrix[i] = (double*)malloc((*y) * sizeof(*matrix[i]));
     if (NULL == matrix[i]) {
       destroyDoubleMatrix(matrix, i);
       return NULL;
@@ -204,7 +205,7 @@ void destroyDoubleMatrix(double **matrix, int x) {
   }
 }
 
-/* Test create_tree */
+/* Test spKDTreeCreate */
 bool testCreateTree() {
   /* Declare variables */
   bool returnv = true;
@@ -220,7 +221,7 @@ bool testCreateTree() {
   SP_CONFIG_MSG msg;
   SPConfig config;
 
-  PRINT("Repeating %d times:\n", TCT_REPEAT);
+  LOG_I("Repeating %d times:", TCT_REPEAT);
   for (int i = 0; i < TCT_REPEAT && true == returnv; i++) {
     /* Initializing data array */
     seed = 0;
@@ -228,16 +229,16 @@ bool testCreateTree() {
     data = generatDoubleMatrix(TCT_MIN_X, TCT_MAX_X, TCT_MIN_Y, TCT_MAX_Y,
       TCT_VAL_MIN, TCT_VAL_MAX, G_RANDOM, &x, &y);
     if (NULL == data) {
-      PRINT_E("Internal error, aborting!\n");
+      LOG_E("Internal error, aborting!");
       returnv = false;
       break;
     }
-    PRINT("Iteration %d, using seed %d\n", i, seed);
+    LOG_I("Iteration %d, using seed %d", i, seed);
     do {
       /* Initialize point array */
-      point_arr = (SPPoint**)malloc(x * sizeof(SPPoint*));
+      point_arr = (SPPoint**)malloc(x * sizeof(*point_arr));
       if (NULL == point_arr) {
-        PRINT_E("Failed to initialize point_arr.\n");
+        LOG_E("Failed to initialize point_arr.");
         returnv = false;
         break;
       }
@@ -249,7 +250,7 @@ bool testCreateTree() {
           point_arr[j] = spPointCreate(data[j], y, j);
         }
         if (NULL == point_arr[j]) {
-          PRINT_E("Failed to initialize SPPoint.\n");
+          LOG_E("Failed to initialize SPPoint.");
           spPointArrayDestroy(point_arr, j);
           returnv = false;
           break;
@@ -262,9 +263,10 @@ bool testCreateTree() {
         shuffle(point_arr, x);
 
         /* Initialize kdArray */
-        kdarr = init(point_arr, x);
+        LOG_I("Initialize kdArray");
+        kdarr = spKDArrayCreate(point_arr, x);
         if (NULL == kdarr) {
-          PRINT_E("Failed to initialize KDArray.\n");
+          LOG_E("Failed to initialize KDArray.");
           returnv = false;
           break;
         }
@@ -285,15 +287,15 @@ bool testCreateTree() {
           }
 
           if (NULL == config) {
-            PRINT_E("Unable to load config file: %d\n", msg);
+            LOG_E("Unable to load config file: %d", msg);
             returnv = false;
             break;
           }
           do {
-            PRINT("Creating tree using split method %d\n",
+            LOG_I("Creating tree using split method %d",
               spConfigGetSplitMethod(config, &msg));
 
-            kdtree = create_tree(config, kdarr, 0);
+            kdtree = spKDTreeCreate(config, kdarr);
             ASSERT_FALSE(NULL == kdtree);
 
             spKDTreeDestroy(kdtree);
@@ -310,7 +312,7 @@ bool testCreateTree() {
   return returnv;
 }
 
-/* Test k_nearest_search */
+/* Test spKDTreeKNearestSearch */
 bool testKNearestSearch() {
   /* Declare variables */
   bool returnv = true;
@@ -333,7 +335,7 @@ bool testKNearestSearch() {
   SPPoint *query_point;
   int query_point_index;
 
-  PRINT("Repeating %d times:\n", TCT_REPEAT);
+  LOG_I("Repeating %d times:", TCT_REPEAT);
   for (int i = 0; i < TCT_REPEAT && true == returnv; i++) {
     /* Initializing data array */
     seed = 0;
@@ -341,11 +343,11 @@ bool testKNearestSearch() {
     data = generatDoubleMatrix(TCT_MIN_X, TCT_MAX_X, TCT_MIN_Y,
       TCT_MAX_Y, TCT_VAL_MIN, TCT_VAL_MAX, G_LINE, &x, &y);
     if (NULL == data) {
-      PRINT_E("Internal error, aborting!\n");
+      LOG_E("Internal error, aborting!");
       returnv = false;
       break;
     }
-    PRINT("Iteration %d, using seed: %d\n", i, seed);
+    LOG_I("Iteration %d, using seed: %d", i, seed);
     do {
       /* Choose number of similar points */
       num_similay_images = (int)(rand_double(true) * x / 2);
@@ -355,21 +357,21 @@ bool testKNearestSearch() {
       query_point_index = num_similay_images / 2 + 
         (int)(rand_double(false) * (x - num_similay_images));
       if (query_point_index >= x) {
-        PRINT_E("Chosen query point is out of range!\n");
+        LOG_E("Chosen query point is out of range!");
         returnv = false;
         break;
       }
 
-      point_arr = (SPPoint**)malloc(x * sizeof(SPPoint*));
+      point_arr = (SPPoint**)malloc(x * sizeof(*point_arr));
       if (NULL == point_arr) {
-        PRINT_E("Failed to initialize point_arr.\n");
+        LOG_E("Failed to initialize point_arr.");
         returnv = false;
         break;
       }
       for (int j = 0; j < x; j++) {
         point_arr[j] = spPointCreate(data[j], y, j);
         if (NULL == point_arr[j]) {
-          PRINT_E("Failed to initialize SPPoint.\n");
+          LOG_E("Failed to initialize SPPoint.");
           spPointArrayDestroy(point_arr, j);
           returnv = false;
           break;
@@ -387,9 +389,9 @@ bool testKNearestSearch() {
         shuffle(point_arr, x);
 
         /* Initialize kdArray */
-        kdarr = init(point_arr, x);
+        kdarr = spKDArrayCreate(point_arr, x);
         if (NULL == kdarr) {
-          PRINT_E("Failed to initialize KDArray.\n");
+          LOG_E("Failed to initialize KDArray.");
           returnv = false;
           break;
         }
@@ -409,18 +411,18 @@ bool testKNearestSearch() {
           }
 
           if (NULL == config) {
-            PRINT_E("Unable to load config file: %d\n", msg);
+            LOG_E("Unable to load config file: %d", msg);
             returnv = false;
             break;
           }
           do {
             /* Create KDTree */
-            PRINT("Creating tree using split method %d\n",
+            LOG_I("Creating tree using split method %d",
               spConfigGetSplitMethod(config, &msg));
 
-            kdtree = create_tree(config, kdarr, 0);
+            kdtree = spKDTreeCreate(config, kdarr);
             if (NULL == kdtree) {
-              PRINT_E("Failed to initialize KDTree.\n");
+              LOG_E("Failed to initialize KDTree.");
               returnv = false;
               break;
             }
@@ -428,7 +430,7 @@ bool testKNearestSearch() {
               /* Create BPriorityQueue */
               priority_queue = spBPQueueCreate(num_similay_images);
               if (NULL == priority_queue) {
-                PRINT_E("Failed to initialize priority queue!\n");
+                LOG_E("Failed to initialize priority queue!");
                 returnv = false;
                 break;
               }
@@ -436,13 +438,13 @@ bool testKNearestSearch() {
                 /* Create queue element */
                 res = (BPQueueElement*)malloc(sizeof(*res));
                 if (NULL == res) {
-                  PRINT_E("Failed to initialize queue element!\n");
+                  LOG_E("Failed to initialize queue element!");
                   returnv = false;
                   break;
                 }
                 do {
-                  /* Run k_nearest_search */
-                  k_nearest_search(kdtree, priority_queue, query_point);
+                  /* Run spKDTreeKNearestSearch */
+                  spKDTreeKNearestSearch(kdtree, priority_queue, query_point);
 
                   /* Check that the correct indices are returned */
                   /* Due to rounding error this is a tiny bit limited */
@@ -455,7 +457,7 @@ bool testKNearestSearch() {
                       returnv);
                     if (false == returnv) {
                       /* Stop on failure */
-                      printf("k: %d\nquery index: %d\nres->index: %d\n", k, spPointGetIndex(query_point), res->index);
+                      LOG_I("k: %d\nquery index: %d\nres->index: %d", k, spPointGetIndex(query_point), res->index);
                       break;
                     }
 
@@ -485,7 +487,7 @@ int main() {
   /* Declare logger */
   SP_LOGGER_MSG msg = spLoggerCreate(UT_LOGGER_FILENAME, UT_LOGGER_LEVEL);
   if (SP_LOGGER_DEFINED != msg && SP_LOGGER_SUCCESS != msg) {
-    PRINT_E("Unable to create logger (%d), aborting test suite.\n", msg);
+    PRINT_E("Unable to create logger (%d), aborting test suite.", msg);
     return -1;
   }
 

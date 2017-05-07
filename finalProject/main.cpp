@@ -50,8 +50,8 @@ int main(int argc, char const *argv[]) {
     /* Initialize the logger */
     config_msg = spConfigGetLoggerFilename(buffer, config);
     if (SP_CONFIG_SUCCESS != config_msg) {
-      printf("Fatal: failed to retrive logger filename from config, "
-        "aborting\n");
+      LOG_E("Fatal: failed to retrive logger filename from config, "
+        "aborting");
       returnv = EXIT_FAILURE;
       break;
     }
@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]) {
         (SP_LOGGER_LEVEL)spConfigGetLoggerLevel(config, &config_msg));
     }
     if (SP_LOGGER_SUCCESS != logger_msg || SP_CONFIG_SUCCESS != config_msg) {
-      printf("Fatal: failed to create logger, aborting\n");
+      LOG_E("Fatal: failed to create logger, aborting");
       returnv = EXIT_FAILURE;
       break;
     }
@@ -166,7 +166,7 @@ int main(int argc, char const *argv[]) {
             }
             do {
               /* Initialize kdArray */
-              kdArray = init(featuresList, size);
+              kdArray = spKDArrayCreate(featuresList, size);
               if (NULL == kdArray) {
                 LOG_E(MSG_FAILED_KDARRAY);
                 returnv = EXIT_FAILURE;
@@ -174,7 +174,7 @@ int main(int argc, char const *argv[]) {
               }
               do {
                 /* Initialize kdTree */
-                kdTree = create_tree_main(config, kdArray);
+                kdTree = spKDTreeCreate(config, kdArray);
                 if (NULL == kdTree) {
                   LOG_E(MSG_FAILED_KDTREE);
                   returnv = EXIT_FAILURE;
@@ -184,18 +184,17 @@ int main(int argc, char const *argv[]) {
                   /* Main interaction loop */
                   while (getCommand(buffer)) {
                     /* Search for similar images */
-                      //printf("kdTree%sNULL\n",(kdTree==NULL)?"==":"!=" );
-                    printf("Searching minimal images\n");
+                    LOG_I("Searching minimal images:");
                     similarImagesIndecies = searchSimilarImages(config, buffer,
                       kdTree, imageProc);
                     if (NULL == similarImagesIndecies) {
-                      printf(MSG_FAILED_TO_SEARCH_SIMIMG, buffer);
+                      LOG_E(MSG_FAILED_TO_SEARCH_SIMIMG, buffer);
                       continue;
                     }
 
                     do {
                       /* Show results */
-                      printf("Showing result\n");
+                      LOG_I("Showing results");
                       if (spConfigIsMinimalGui(config, &config_msg)) {
                         /* Minimal gui */
                         for (int i = 0;

@@ -11,8 +11,6 @@
 #define PNG ".png"
 #define BMP ".bmp"
 #define GIF ".gif"
-#define MAXBUF 1024 
-
 
 typedef struct config_var 
 {
@@ -156,15 +154,12 @@ int spCaseChoose(SPConfig config, SPVar* var) {
   	if(result==0)result =  9;
   	else result = -2;
   	if(strchr(var->after,' ')!=NULL) result=-2;
-  	///////////////////////////////////////////////////////////////////////////
   }
   else if(strcmp(var->before,IMG_NUM)==0){
     result = setNumOfImages(config, var);
   	if(result==0)result =  10;
   		else result = -2;
   	if(strchr(var->after,' ')!=NULL) result=-2;
-  	///////////////////////////////////////////////////////////////////////////
-
   }
   else if(strcmp(var->before,SIM_NUM)==0){
     result = setNumOfSimilarImages(config, var);
@@ -188,7 +183,6 @@ int spCaseChoose(SPConfig config, SPVar* var) {
 
   }
 	else{
-		//TODO
 		result =  -1;
 	}
 	return result;
@@ -208,20 +202,6 @@ SPConfig spConfigCreate(const char* filename, SP_CONFIG_MSG* msg) {
   bool ImagesSuffixDefined=0;
   bool NumOfImagesDefined=0;
 SPVar* v;
-/*  char* arg_arr[14] = { "spImagesDirectory",
-    "spExtractionMode",
-    "spImagesPrefix",
-    "spImagesSuffix",
-    "spKDTreeSplitMethod",
-    "spKNN",
-    "spLoggerFilename",
-    "spLoggerLevel",
-    "spMinimalGUI",
-    "spNumOfFeatures",
-    "spNumOfImages",
-    "spNumOfSimilarImages",
-    "spPCADimension",
-    "spPCAFilename" };*/
 
   SPVar var_array[14];
 
@@ -229,14 +209,14 @@ SPVar* v;
   int ret;
   int var_num = 0;
 
-  char line[MAXBUF];
-  char str_trap[MAXBUF];
+  char line[STRING_MAX_LENGTH];
+  char str_trap[STRING_MAX_LENGTH];
   if (NULL == filename) {
     *msg = SP_CONFIG_INVALID_ARGUMENT;
     return NULL;
   }
   
-  FILE *file = fopen(filename, "r");
+  FILE *file = fopen(filename, F_READ);
   if (NULL == file) {
     *msg = SP_CONFIG_CANNOT_OPEN_FILE;
     return NULL;
@@ -244,7 +224,7 @@ SPVar* v;
   do {
     *msg = SP_CONFIG_SUCCESS;
 
-    config = (SPConfig)malloc(sizeof(struct sp_config_t));
+    config = (SPConfig)malloc(sizeof(*config));
     if (NULL == config) {
       *msg = SP_CONFIG_ALLOC_FAIL;
       break;
@@ -283,16 +263,13 @@ SPVar* v;
        			break;
        		}
             else var_num++;
-       		 //char *strchr(const char *str, int c)
         }
         linenumber++;
       }
       if(*msg != SP_CONFIG_SUCCESS)break;
 
-      /* TODO - This entire part is broken and needs to be remade */
       for (int i = 0; i < var_num; i++) {
           ret = spCaseChoose(config, &var_array[i]);
-          //	 printf("var_array[i]: %s,ret: %d\n",var_array[i].after,ret );
           ImagesDirectoryDefined = ImagesDirectoryDefined||(ret == 0);
           ImagesPrefixDefined = ImagesPrefixDefined||(ret == 2);
           ImagesSuffixDefined = ImagesSuffixDefined||(ret == 3);
@@ -428,14 +405,11 @@ SP_CONFIG_MSG spConfigGetPCAPath(char* pcaPath, const SPConfig config){
   	return SP_CONFIG_INVALID_ARGUMENT;
 	}
 
-  //printf("spConfigGetPCAPath is called but not implemented!\n");
   sprintf(pcaPath,"%s%s",config->spImagesDirectory,config->spPCAFilename);
-  //printf("in spConfigGetPCAPath: pcaPath =%s\n",pcaPath );
   return SP_CONFIG_SUCCESS;
 }
 
 int spConfigGetNumSimilarImages(const SPConfig config, SP_CONFIG_MSG* msg) {
-  //printf("spConfigGetNumSimilarImages is called but not implemented!\n");
   if (config) {
 	*msg = SP_CONFIG_SUCCESS;
   	return config->spNumOfSimilarImages;
@@ -445,7 +419,6 @@ int spConfigGetNumSimilarImages(const SPConfig config, SP_CONFIG_MSG* msg) {
 }
 
 int spConfigGetKNN(SPConfig config, SP_CONFIG_MSG* msg) {
-  //printf("spConfigGetKNN is called but not implemented!\n");
   if (config) {
 	*msg = SP_CONFIG_SUCCESS;
 
@@ -456,7 +429,6 @@ int spConfigGetKNN(SPConfig config, SP_CONFIG_MSG* msg) {
 }
 
 int spConfigGetLoggerLevel(SPConfig config, SP_CONFIG_MSG* msg) {
-  //printf("spConfigGetLoggerLevel is called but not implemented!\n");
   if (config) {
   	*msg = SP_CONFIG_SUCCESS;
   	return config->spLoggerLevel;
@@ -467,7 +439,6 @@ int spConfigGetLoggerLevel(SPConfig config, SP_CONFIG_MSG* msg) {
 
 SP_CONFIG_MSG spConfigGetLoggerFilename(char* loggerFilename,
   const SPConfig config) {
-  //printf("spConfigGetLoggerFilename is called but not implemented!\n");
   if (loggerFilename || config) {
   	  sprintf(loggerFilename,"%s",config->spLoggerFilename);
   	  return SP_CONFIG_SUCCESS;
@@ -477,11 +448,9 @@ SP_CONFIG_MSG spConfigGetLoggerFilename(char* loggerFilename,
 
 
 void spConfigDestroy(SPConfig config) {
-	if(config!=NULL){
-		
-  free(config);
-	}
-  
+  if (config != NULL) {
+    free(config);
+  }
 }
 
 
@@ -584,14 +553,6 @@ int setExtractionMode(SPConfig config,SPVar* str){
 	return 0;	
 	}
 }
-
-/*int print_config(SPConfig config){
-	printf("spImagesDirectory: %s, spExtractionMode: %d, spImagesPrefix: %s, spImagesSuffix: %s\n",config->spImagesDirectory,config->spExtractionMode,config->spImagesPrefix,config->spImagesSuffix);
-	printf( "spKDTreeSplitMethod: %d, spKNN: %d, spLoggerFilename: %s, spLoggerLevel: %d\n",config->spKDTreeSplitMethod,config->spKNN,config->spLoggerFilename,config->spLoggerLevel);
-	printf(  "spMinimalGUI: %d, spNumOfFeatures: %d, spNumOfImages: %d\n",config->spMinimalGUI,config->spNumOfFeatures,config->spNumOfImages);
-	printf( "spNumOfSimilarImages: %d, spPCADimension: %d, spPCAFilename: %s\n",config->spNumOfSimilarImages,config->spPCADimension,config->spPCAFilename);
-}*/
-
 
 void printInvalidLine(const char* filename,int linenumber){
 //1 - invalid line meaning not a comment or a parameter 

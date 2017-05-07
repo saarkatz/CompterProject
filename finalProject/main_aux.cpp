@@ -148,7 +148,7 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
 
   /* Not checking arguments validity */
 
-  printf("Getting sift of query\n");
+  LOG_I("Getting sifts of query %s", queryPath);
 
   queryImage = imageProc->getImageFeatures(queryPath,
     spConfigGetNumOfImages(config, &msg), &nFeatures);
@@ -157,7 +157,7 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
   }
 
   do {
-    printf("Initializing counts array\n");
+    LOG_I("Initializing counts array");
     matchArray = (SPCounter*)malloc(spConfigGetNumOfImages(config, &msg) *
       sizeof(*matchArray));
     if (NULL == matchArray) {
@@ -169,7 +169,7 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
       matchArray[i].index = i;
     }
     do {
-      printf("Initializing bpq\n");
+      LOG_I("Initializing bpq");
       bpq = spBPQueueCreate(spConfigGetKNN(config, &msg));
       if (NULL == bpq) {
         returnv = NULL;
@@ -179,12 +179,12 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
         /* for every feature of the query */
         /* run knn search and and increment the counter */
 
-        printf("k_nearest_search:\n");
+        LOG_I("Starting K Nearest Search...");
         for (int i = 0; i < nFeatures; i++) {
-          //printf("\tSearching sift (%d, %p)\n", i, (void*)queryImage[i]);
-          k_nearest_search(kdTree, bpq, queryImage[i]);
+          spKDTreeKNearestSearch(kdTree, bpq, queryImage[i]);
           incCounters(config, bpq, matchArray);
         }
+        LOG_I("Finished");
 
         returnv = (int*)malloc(spConfigGetNumSimilarImages(config, &msg) *
           sizeof(*returnv));
@@ -192,13 +192,13 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
           break;
         }
 
-        printf("Sorting counts array\n");
+        LOG_I("Sorting counts array");
 
         /* Sort the matching array according to the count of each image */
         qsort(matchArray, spConfigGetNumOfImages(config, &msg),
           sizeof(SPCounter), spCounterCmp);
 
-        printf("Copy best images\n");
+        LOG_I("Copy best images");
         /* Get the NumSimilarImages best images indices */
         for (int i = 0; i < spConfigGetNumSimilarImages(config, &msg); i++) {
           returnv[i] = matchArray[i].index;
@@ -215,8 +215,8 @@ int *searchSimilarImages(SPConfig config, char *queryPath,
 void imagesListDestroy(SPPoint ***imagesList, int length, int *nFeatures) {
   if (imagesList) {
     if (!nFeatures) {
-      LOG_E("Attempting to free imagesList without sending nFeatures "
-        "array!\n");
+      LOG_D("Attempting to free imagesList without sending nFeatures "
+        "array!");
       return;
     }
     for (int i = 0; i < length; i++) {

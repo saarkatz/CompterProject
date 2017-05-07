@@ -47,11 +47,34 @@
 #define STDOUT_FILENAME "stdout"
 
 /* Macro to handle the prints to the logger */
+/* Log error */
 #define LOG_E(...) do {\
 char __strbuff__[STRING_MAX_LENGTH]; \
 sprintf(__strbuff__, __VA_ARGS__); \
 spLoggerPrintError(__strbuff__, __FILE__, __func__, __LINE__); \
 } while (0)
+
+/* Log warning */
+#define LOG_W(...) do {\
+char __strbuff__[STRING_MAX_LENGTH]; \
+sprintf(__strbuff__, __VA_ARGS__); \
+spLoggerPrintWarning(__strbuff__, __FILE__, __func__, __LINE__); \
+} while (0)
+
+/* Log info */
+#define LOG_I(...) do {\
+char __strbuff__[STRING_MAX_LENGTH]; \
+sprintf(__strbuff__, __VA_ARGS__); \
+spLoggerPrintInfo(__strbuff__); \
+} while (0)
+
+/* Log debug */
+#define LOG_D(...) do {\
+char __strbuff__[STRING_MAX_LENGTH]; \
+sprintf(__strbuff__, __VA_ARGS__); \
+spLoggerPrintDebug(__strbuff__, __FILE__, __func__, __LINE__); \
+} while (0)
+
 
 /**
 Defenition of the .feats file format:

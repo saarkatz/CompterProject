@@ -1,12 +1,12 @@
-
 #ifndef SPKDARRAY_H_
 #define SPKDARRAY_H_
+
 #include "SPPoint.h"
 
-typedef struct mat_entry{
-	int cor;
-	int point_index;
-	SPPoint* point;
+typedef struct mat_entry {
+  int cor;
+  int point_index;
+  SPPoint* point;
 }matrix_entry;
 
 typedef struct sp_kd_array{
@@ -15,13 +15,16 @@ typedef struct sp_kd_array{
 	int num_of_points;
 }SPKDArray;
 
+/* Creates a new kdarray from a list of points */
+SPKDArray* spKDArrayCreate(SPPoint** arr, int size);
 
-SPKDArray* init(SPPoint** arr, int size);
-SPKDArray** split(SPKDArray* kdArr, int coor);
+/* Split kdArray */
+SPKDArray** spKDArraySplit(SPKDArray* kdArr, int coor);
+
+/* Frees all memory allocated for kdarray */
 void spKDArrayDestroy(SPKDArray* kdarr);
+
 void destroyMatrixEntryArray(matrix_entry** index_array,int dim);
 SPPoint** copyPointArray(SPPoint** arr,int size);
-
-int compare_entry(const void* p1,const void* p2);
 
 #endif 

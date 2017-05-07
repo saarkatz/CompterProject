@@ -7,32 +7,33 @@
 
 // This is a helper function which checks if two files are identical
 static bool identicalFiles(const char* fname1, const char* fname2) {
-	FILE *fp1, *fp2;
-	fp1 = fopen(fname1, "r");
-	fp2 = fopen(fname2, "r");
-	char ch1 = EOF, ch2 = EOF;
+  FILE *fp1, *fp2;
+  char ch1 = EOF, ch2 = EOF;
 
-	if (fp1 == NULL) {
-		return false;
-	} else if (fp2 == NULL) {
-		fclose(fp1);
-		return false;
-	} else {
-		ch1 = getc(fp1);
-		ch2 = getc(fp2);
+  fp1 = fopen(fname1, "r");
+  if (fp1 == NULL) {
+    return false;
+  }
+  fp2 = fopen(fname2, "r");
+  if (fp2 == NULL) {
+    fclose(fp1);
+    return false;
+  }
+  ch1 = getc(fp1);
+  ch2 = getc(fp2);
 
-		while ((ch1 != EOF) && (ch2 != EOF) && (ch1 == ch2)) {
-			ch1 = getc(fp1);
-			ch2 = getc(fp2);
-		}
-		fclose(fp1);
-		fclose(fp2);
-	}
-	if (ch1 == ch2) {
-		return true;
-	} else {
-		return false;
-	}
+  while ((ch1 != EOF) && (ch2 != EOF) && (ch1 == ch2)) {
+    ch1 = getc(fp1);
+    ch2 = getc(fp2);
+  }
+  fclose(fp1);
+  fclose(fp2);
+  if (ch1 == ch2) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 //Logger is not defined

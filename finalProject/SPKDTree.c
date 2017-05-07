@@ -1,11 +1,10 @@
 #include <stdlib.h>
+#include "SPGlobals.h"
 #include "SPPoint.h"
 #include "SPKDArray.h"
 #include "SPKDTree.h"
 #include "SPBPriorityQueue.h"
 #include "SPConfig.h"
-
-///typedef struct sp_kd_tree_node SPKDTreeNode;
 
 struct sp_kd_tree_node{
 	int dim;
@@ -19,7 +18,6 @@ int choose_random(int n) {
   return rand()%n;
 }
 
-//TODO
 int choose_max_spread(SPKDArray* kdarr) {
   int size = kdarr->num_of_points;
   SPPoint** p_arr = kdarr->point_array;
@@ -41,13 +39,8 @@ int choose_max_spread(SPKDArray* kdarr) {
   return max_dim;
 }
 
-SPKDTreeNode* create_tree_main(SPConfig config, SPKDArray* arr) {
-
-  return create_tree(config,arr,spGetSplitDim(config,arr));
-}
-
-int spGetSplitDim(SPConfig config, SPKDArray* arr){
- // int split_dim;
+int spKDTreeGetSplitDim(SPConfig config, SPKDArray* arr) {
+  // int split_dim;
   SP_CONFIG_MSG msg;
   switch (spConfigGetSplitMethod(config, &msg)) {
   case MAX_SPREAD:
@@ -59,24 +52,32 @@ int spGetSplitDim(SPConfig config, SPKDArray* arr){
   default:
     return -1;
   }
-
 }
 
 //coor is the current coordinate
-SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
+SPKDTreeNode* spKDTreeNodeCreate(SPConfig config, SPKDArray* arr, int coor) {
   SP_CONFIG_MSG msg;
   int split_dim;
-  SPKDTreeNode* tree_result = (SPKDTreeNode*)malloc(sizeof(SPKDTreeNode));
+  SPKDArray** split_result;
+  SPKDTreeNode* tree_result;
+
+  tree_result = (SPKDTreeNode*)malloc(sizeof(*tree_result));
+  if (NULL == tree_result) {
+    return NULL;
+  }
   if (arr->num_of_points == 1) {
     tree_result->dim = -1;
     tree_result->val = -1;
     tree_result->left = NULL;
     tree_result->right = NULL;
     tree_result->data = spPointCopy(arr->point_array[0]);
+    if (NULL == tree_result->data) {
+      free(tree_result);
+      return NULL;
+    }
     return tree_result;
   }
-  SPKDArray** split_result;
-  //printf("spConfigGetSplitMethod(config, &msg): %d\n", spConfigGetSplitMethod(config, &msg));
+
   switch (spConfigGetSplitMethod(config, &msg)) {
   case MAX_SPREAD:
     split_dim = choose_max_spread(arr);
@@ -88,29 +89,53 @@ SPKDTreeNode* create_tree(SPConfig config, SPKDArray* arr, int coor) {
     split_dim = ((coor + 1) % (spPointGetDimension(arr->point_array[0])));
     break;
   default:
-    // TODO - Handle this better
-    printf("Error occured while creating the tree.\n");
+    LOG_E("Error occured while creating the tree.\n");
     free(tree_result);
     return NULL;
   }
 
-  split_result = split(arr, split_dim);
+  split_result = spKDArraySplit(arr, split_dim);
+  if (NULL == split_result) {
+    free(tree_result);
+    return NULL;
+  }
   tree_result->dim = split_dim;
-  tree_result->val = spPointGetAxisCoor(arr->point_array[arr->index_array[split_dim][arr->num_of_points / 2].point_index], split_dim);
-  tree_result->left = create_tree(config, split_result[0], split_dim);
-  tree_result->right = create_tree(config, split_result[1], split_dim);
+  tree_result->val = spPointGetAxisCoor(
+    arr->point_array[
+      arr->index_array[split_dim][arr->num_of_points / 2].point_index],
+    split_dim);
+  tree_result->left = spKDTreeNodeCreate(config, split_result[0], split_dim);
+  if (NULL == tree_result->left) {
+    spKDArrayDestroy(split_result[0]);
+    spKDArrayDestroy(split_result[1]);
+    return NULL;
+  }
+  tree_result->right = spKDTreeNodeCreate(config, split_result[1], split_dim);
+  if (NULL == tree_result->right) {
+    spKDTreeDestroy(tree_result->left);
+    spKDArrayDestroy(split_result[0]);
+    spKDArrayDestroy(split_result[1]);
+    return NULL;
+  }
   tree_result->data = NULL;
+
   spKDArrayDestroy(split_result[0]);
   spKDArrayDestroy(split_result[1]);
   free(split_result);
+
   return tree_result;
+}
+
+
+SPKDTreeNode* spKDTreeCreate(SPConfig config, SPKDArray* arr) {
+  return spKDTreeNodeCreate(config,arr,spKDTreeGetSplitDim(config,arr));
 }
 
 bool isLeaf(SPKDTreeNode* kdnode){
   return NULL == kdnode->left && NULL == kdnode->right;
 }
 
-int k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point) {
+int spKDTreeKNearestSearch(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point) {
   /* Declare variables */
   double dist;
   double diff;
@@ -131,15 +156,6 @@ int k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point)
     return 0;
   }
 
-  /* If we were using the not squered L2 distance then this would be
-  necessary */
-  /*if (kdnode->val > spPointGetAxisCoor(query_point, kdnode->dim)) {
-    diff = kdnode->val - spPointGetAxisCoor(query_point, kdnode->dim);
-  }
-  else {
-    diff = spPointGetAxisCoor(query_point, kdnode->dim) - kdnode->val;
-  }*/
-
   diff = kdnode->val - spPointGetAxisCoor(query_point, kdnode->dim);
   
   /* We enqueue the L2 squered distance and therefor we need to squere diff */
@@ -156,13 +172,13 @@ int k_nearest_search(SPKDTreeNode* kdnode, SPBPQueue* bpq, SPPoint* query_point)
   }
 
   /* Recursively search the half of the tree that contains the query point. */
-  returnv = k_nearest_search(primary, bpq, query_point);
+  returnv = spKDTreeKNearestSearch(primary, bpq, query_point);
   if (-1 == returnv) return returnv;
 
   /* If the candidate hypersphere crosses this splitting plane, look on the
   * other side of the plane by examining the other subtree*/
   if (!spBPQueueIsFull(bpq) || diff < spBPQueueMaxValue(bpq)) {
-    returnv = k_nearest_search(secondary, bpq, query_point);
+    returnv = spKDTreeKNearestSearch(secondary, bpq, query_point);
   }
 
   return returnv;
@@ -179,7 +195,6 @@ void spKDTreeDestroy(SPKDTreeNode *tree) {
   else{
     spPointDestroy(tree->data);
   }
- 
   free(tree);
 }
 

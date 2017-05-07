@@ -27,9 +27,9 @@ C_COMP_FLAG = -g -std=c99 -Wall -Wextra \
 
 $(EXEC): $(OBJS)
 	$(CC) $(OBJS) -L$(LIBPATH) $(LIBS) -o $@
-sp_kdtree_unit_test.o: $(TEST)/sp_kdtree_unit_test.c $(TEST)/unit_test_util.h $(HOME)/SPKDTree.h $(HOME)/SPConfig.h $(HOME)/SPPoint.h $(HOME)/SPKDArray.h $(HOME)/SPBPriorityQueue.h $(HOME)/SPLogger.h
+sp_kdtree_unit_test.o: $(TEST)/sp_kdtree_unit_test.c $(TEST)/unit_test_util.h $(HOME)/SPKDTree.h $(HOME)/SPConfig.h $(HOME)/SPPoint.h $(HOME)/SPKDArray.h $(HOME)/SPBPriorityQueue.h $(HOME)/SPLogger.h $(HOME)/SPGlobals.h
 	$(CC) $(C_COMP_FLAG) $(INCLUDEPATH) -c $*.c
-SPKDTree.o: $(HOME)/SPKDTree.c $(HOME)/SPKDTree.h $(HOME)/SPPoint.h $(HOME)/SPKDArray.h $(HOME)/SPBPriorityQueue.h $(HOME)/SPConfig.h $(HOME)/SPLogger.h
+SPKDTree.o: $(HOME)/SPKDTree.c $(HOME)/SPKDTree.h $(HOME)/SPPoint.h $(HOME)/SPKDArray.h $(HOME)/SPBPriorityQueue.h $(HOME)/SPConfig.h $(HOME)/SPLogger.h $(HOME)/SPGlobals.h
 	$(CC) $(C_COMP_FLAG) $(INCLUDEPATH) -c $(HOME)/$*.c
 SPPoint.o: $(HOME)/SPPoint.c $(HOME)/SPPoint.h 
 	$(CC) $(C_COMP_FLAG) $(INCLUDEPATH) -c $(HOME)/$*.c

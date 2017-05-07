@@ -93,15 +93,15 @@ typedef enum search_method_t {
   RANDOM, MAX_SPREAD,
   INCREMENTAL
 }SPSearchMethod;
+
+typedef struct sp_config_t* SPConfig;
+
 void printInvalidLine(const char* filename,int linenumber);
 
 void printConstranitNotMet(const char* filename,int linenumber);
 
 void printParameterNotSet(const char* filename,int linenumbers,const char* path);
 
-typedef struct sp_config_t* SPConfig;
-
-void print_config(SPConfig config);
 /**
  * Creates a new system configuration struct. The configuration struct
  * is initialized based on the configuration file given by 'filename'.
