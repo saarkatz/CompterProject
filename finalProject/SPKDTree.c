@@ -89,7 +89,7 @@ SPKDTreeNode* spKDTreeNodeCreate(SPConfig config, SPKDArray* arr, int coor) {
     split_dim = ((coor + 1) % (spPointGetDimension(arr->point_array[0])));
     break;
   default:
-    LOG_E("Error occured while creating the tree.\n");
+    LOG_E("Error occured while creating the tree.");
     free(tree_result);
     return NULL;
   }
