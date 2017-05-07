@@ -20,7 +20,7 @@ UT - unit test
 TCT - test create tree
 */
 
-#define UT_LOGGER_FILENAME "logs/sp_kdtree_unit_test.log"
+#define UT_LOGGER_FILENAME "unit_tests/logs/sp_kdtree_unit_test.log"
 #define UT_LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
 
 /* Test create-tree*/
@@ -38,9 +38,9 @@ TCT - test create tree
 #define TCT_USE_MAX_SPREAD_SPLIT_AFTER 10
 #define TCT_USE_INCREMENTAL_SPLIT_AFTER 20
 
-#define TCT_CONFIG_RANDOM_SPLIT "configs/sp_kdtree_test/random_split.config"
-#define TCT_CONFIG_MAX_SPREAD_SPLIT "configs/sp_kdtree_test/max_spread_split.config"
-#define TCT_CONFIG_INCREMENTAL_SPLIT "configs/sp_kdtree_test/incremental_split.config"
+#define TCT_CONFIG_RANDOM_SPLIT "unit_tests/configs/sp_kdtree_test/random_split.config"
+#define TCT_CONFIG_MAX_SPREAD_SPLIT "unit_tests/configs/sp_kdtree_test/max_spread_split.config"
+#define TCT_CONFIG_INCREMENTAL_SPLIT "unit_tests/configs/sp_kdtree_test/incremental_split.config"
 
 /* Signutures of helper function defined in this section */
 typedef enum metrix_generator_option {

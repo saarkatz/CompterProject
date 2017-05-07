@@ -1,6 +1,6 @@
-ODIR = obj
-TEST_DIR = .
-HOME_DIR = ..
+ODIR = unit_tests/obj
+TEST_DIR = ./unit_tests
+HOME_DIR = .
 
 CC = gcc
 C_COMP_FLAG = -std=c99 -Wall -Wextra \
@@ -9,8 +9,7 @@ C_COMP_FLAG = -std=c99 -Wall -Wextra \
 _INCLUDE = $(TEST_DIR) $(HOME_DIR)
 INCLUDEPATH = $(patsubst %,-I%,$(_INCLUDE))
 
-_EXEC = sp_kdtree_unit_test
-EXEC = $(patsubst %,$(TEST_DIR)/%,$(_EXEC))
+EXEC = sp_kdtree_unit_test
 
 _OBJS = sp_kdtree_unit_test.o SPKDTree.o SPPoint.o SPKDArray.o SPBPriorityQueue.o SPLogger.o SPConfig.o
 OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))

@@ -1,6 +1,6 @@
-ODIR = obj
-TEST_DIR = .
-HOME_DIR = ..
+ODIR = unit_tests/obj
+TEST_DIR = ./unit_tests
+HOME_DIR = .
 
 CC = gcc
 C_COMP_FLAG = -std=c99 -Wall -Wextra \
@@ -9,8 +9,7 @@ C_COMP_FLAG = -std=c99 -Wall -Wextra \
 _INCLUDE = $(TEST_DIR) $(HOME_DIR)
 INCLUDEPATH = $(patsubst %,-I%,$(_INCLUDE))
 
-_EXEC = sp_point_unit_test
-EXEC = $(patsubst %,$(TEST_DIR)/%,$(_EXEC))
+EXEC = sp_point_unit_test
 
 _OBJS = sp_point_unit_test.o SPPoint.o
 OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))

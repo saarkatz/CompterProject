@@ -6,29 +6,29 @@
 #include "../SPLogger.h"
 #include "../SPGlobals.h"
 
-#define UT_LOGGER_FILENAME "logs/sp_config_unit_test.log"
+#define UT_LOGGER_FILENAME "unit_tests/logs/sp_config_unit_test.log"
 #define UT_LOGGER_LEVEL SP_LOGGER_DEBUG_INFO_WARNING_ERROR_LEVEL
 
 /* Test config */
 
 #define NC_CONFIG_NAME NULL
-#define ICN_CONFIG_NAME "configs/sp_config_test/INVALID_CONFIG_NAME_DONT_CREATE_THIS.config"
-#define EC_CONFIG_NAME "configs/sp_config_test/empty.config"
-#define AC_CONFIG_NAME "configs/sp_config_test/all_comments.config"
-#define NID_CONFIG_NAME "configs/sp_config_test/no_image_directory.config"
-#define NIP_CONFIG_NAME "configs/sp_config_test/no_image_prefix.config"
-#define NIS_CONFIG_NAME "configs/sp_config_test/no_image_suffix.config"
-#define NNOI_CONFIG_NAME "configs/sp_config_test/no_num_of_images.config"
-#define PWS_CONFIG_NAME "configs/sp_config_test/parameters_with_spaces.config"
-#define ISV_CONFIG_NAME "configs/sp_config_test/invalid_string_value.config"
-#define IIVS_CONFIG_NAME "configs/sp_config_test/invalid_int_value_spaces.config"
-#define IIVC_CONFIG_NAME "configs/sp_config_test/invalid_int_value_chars.config"
-#define IBV_CONFIG_NAME "configs/sp_config_test/invalid_bool_value.config"
-#define IEVS_CONFIG_NAME "configs/sp_config_test/invalid_enum_value_spaces.config"
-#define IEVNV_CONFIG_NAME "configs/sp_config_test/invalid_enum_value_no_value.config"
-#define DV_CONFIG_NAME "configs/sp_config_test/default_values.config"
-#define VV_CONFIG_NAME "configs/sp_config_test/valid_values.config"
-#define SV_CONFIG_NAME "configs/sp_config_test/scrambled_values.config"
+#define ICN_CONFIG_NAME "unit_tests/configs/sp_config_test/INVALID_CONFIG_NAME_DONT_CREATE_THIS.config"
+#define EC_CONFIG_NAME "unit_tests/configs/sp_config_test/empty.config"
+#define AC_CONFIG_NAME "unit_tests/configs/sp_config_test/all_comments.config"
+#define NID_CONFIG_NAME "unit_tests/configs/sp_config_test/no_image_directory.config"
+#define NIP_CONFIG_NAME "unit_tests/configs/sp_config_test/no_image_prefix.config"
+#define NIS_CONFIG_NAME "unit_tests/configs/sp_config_test/no_image_suffix.config"
+#define NNOI_CONFIG_NAME "unit_tests/configs/sp_config_test/no_num_of_images.config"
+#define PWS_CONFIG_NAME "unit_tests/configs/sp_config_test/parameters_with_spaces.config"
+#define ISV_CONFIG_NAME "unit_tests/configs/sp_config_test/invalid_string_value.config"
+#define IIVS_CONFIG_NAME "unit_tests/configs/sp_config_test/invalid_int_value_spaces.config"
+#define IIVC_CONFIG_NAME "unit_tests/configs/sp_config_test/invalid_int_value_chars.config"
+#define IBV_CONFIG_NAME "unit_tests/configs/sp_config_test/invalid_bool_value.config"
+#define IEVS_CONFIG_NAME "unit_tests/configs/sp_config_test/invalid_enum_value_spaces.config"
+#define IEVNV_CONFIG_NAME "unit_tests/configs/sp_config_test/invalid_enum_value_no_value.config"
+#define DV_CONFIG_NAME "unit_tests/configs/sp_config_test/default_values.config"
+#define VV_CONFIG_NAME "unit_tests/configs/sp_config_test/valid_values.config"
+#define SV_CONFIG_NAME "unit_tests/configs/sp_config_test/scrambled_values.config"
 
 
 bool testNullConfig() {
